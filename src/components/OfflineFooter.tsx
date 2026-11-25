@@ -106,6 +106,10 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setActivePolicy(null);
+      } else if (e.key === 'Tab') {
+        // Trap focus within the modal close button
+        e.preventDefault();
+        policyCloseRef.current?.focus();
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -666,6 +670,9 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
         className="pointer-events-none absolute inset-0 z-[2] h-full w-full"
       />
 
+      {/* Atmospheric top sky scrim ensuring WCAG contrast in both night and daylight scenes */}
+      <div aria-hidden="true" className="offline-sky-scrim" />
+
       {/* Footer Editorial Grid */}
       <div className="offline-footer-grid relative z-[3]">
         {/* Brand Column */}
@@ -842,6 +849,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                 href="https://www.linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="LinkedIn (opens in a new tab)"
                 className="offline-link"
               >
                 LinkedIn
@@ -852,6 +860,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                 href="https://www.instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Instagram (opens in a new tab)"
                 className="offline-link"
               >
                 Instagram
@@ -862,6 +871,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="X, formerly Twitter (opens in a new tab)"
                 className="offline-link"
               >
                 X (Twitter)

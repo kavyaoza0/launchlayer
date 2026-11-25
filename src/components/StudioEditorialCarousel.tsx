@@ -10,7 +10,7 @@ import { ProcessSlide } from './editorial-carousel/slides/ProcessSlide';
 import { WorkPricingSlide } from './editorial-carousel/slides/WorkPricingSlide';
 
 interface StudioEditorialCarouselProps {
-  onOpenEnquiry: (topic?: EnquiryTopic) => void;
+  onOpenEnquiry: (topic?: EnquiryTopic, tierId?: string) => void;
   requestedSlide?: { index: number; nonce: number } | null;
 }
 
@@ -135,9 +135,10 @@ export function StudioEditorialCarousel({
           {/* Horizontally Translated 7-Slide Track driven by useScrollToTraverse */}
           <div ref={trackRef} className="flex h-full w-full will-change-transform">
             <div
+              id="carousel-panel-0"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`1 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[0]}`}
+              aria-labelledby="carousel-tab-0"
               aria-hidden={activeSlide !== 0}
               className="h-full w-full shrink-0"
             >
@@ -148,9 +149,10 @@ export function StudioEditorialCarousel({
             </div>
 
             <div
+              id="carousel-panel-1"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`2 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[1]}`}
+              aria-labelledby="carousel-tab-1"
               aria-hidden={activeSlide !== 1}
               className="h-full w-full shrink-0"
             >
@@ -161,19 +163,24 @@ export function StudioEditorialCarousel({
             </div>
 
             <div
+              id="carousel-panel-2"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`3 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[2]}`}
+              aria-labelledby="carousel-tab-2"
               aria-hidden={activeSlide !== 2}
               className="h-full w-full shrink-0"
             >
-              <DesignBuildSlide isActive={activeSlide === 2} />
+              <DesignBuildSlide
+                isActive={activeSlide === 2}
+                prefersReducedMotion={prefersReducedMotion}
+              />
             </div>
 
             <div
+              id="carousel-panel-3"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`4 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[3]}`}
+              aria-labelledby="carousel-tab-3"
               aria-hidden={activeSlide !== 3}
               className="h-full w-full shrink-0"
             >
@@ -184,45 +191,53 @@ export function StudioEditorialCarousel({
             </div>
 
             <div
+              id="carousel-panel-4"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`5 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[4]}`}
+              aria-labelledby="carousel-tab-4"
               aria-hidden={activeSlide !== 4}
               className="h-full w-full shrink-0"
             >
-              <DirectionMoodboardSlide isActive={activeSlide === 4} />
+              <DirectionMoodboardSlide
+                isActive={activeSlide === 4}
+                prefersReducedMotion={prefersReducedMotion}
+              />
             </div>
 
             <div
+              id="carousel-panel-5"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`6 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[5]}`}
+              aria-labelledby="carousel-tab-5"
               aria-hidden={activeSlide !== 5}
               className="h-full w-full shrink-0"
             >
               <WorkPricingSlide
                 isActive={activeSlide === 5}
-                onSelectPricing={() => onOpenEnquiry('Pricing')}
+                prefersReducedMotion={prefersReducedMotion}
+                onSelectPricing={(tierId) => onOpenEnquiry('Pricing', tierId)}
               />
             </div>
 
             <div
+              id="carousel-panel-6"
               role="tabpanel"
               aria-roledescription="slide"
-              aria-label={`7 of ${TOTAL_SLIDES}: ${SLIDE_TITLES[6]}`}
+              aria-labelledby="carousel-tab-6"
               aria-hidden={activeSlide !== 6}
               className="h-full w-full shrink-0"
             >
               <EndCardSlide
                 isActive={activeSlide === 6}
+                prefersReducedMotion={prefersReducedMotion}
                 onStartConversation={() => onOpenEnquiry('General')}
               />
             </div>
           </div>
         </div>
 
-        {/* Full-Width Integrated Bottom Progress Rail & Seven Navigation Dots */}
-        <div className="flex w-full shrink-0 flex-col gap-1 border-t border-white/15 bg-black px-4 py-2 sm:px-6 md:px-10 lg:px-14">
+        {/* Full-Width Integrated Bottom Architectural Progress Rail */}
+        <div className="flex w-full shrink-0 flex-col gap-1.5 border-t border-white/15 bg-black px-5 py-2.5 sm:px-8 md:px-10 lg:px-14">
           <div className="relative h-px w-full overflow-hidden bg-white/15">
             <div
               ref={progressBarRef}
@@ -231,10 +246,18 @@ export function StudioEditorialCarousel({
             />
           </div>
 
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-space-mono text-[12px] tracking-[0.1em] text-white/85 tabular-nums shrink-0">
-              0{activeSlide + 1} / 0{TOTAL_SLIDES}
-            </span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="font-space-mono text-[11.5px] tracking-[0.14em] text-white tabular-nums shrink-0">
+                0{activeSlide + 1} / 0{TOTAL_SLIDES}
+              </span>
+              <span aria-hidden="true" className="hidden text-white/35 sm:inline">
+                ·
+              </span>
+              <span className="hidden truncate font-space-mono text-[11px] tracking-[0.12em] uppercase text-white/75 sm:inline">
+                {SLIDE_TITLES[activeSlide]}
+              </span>
+            </div>
 
             <div className="flex items-center gap-0.5 sm:gap-1" role="tablist" aria-label="Choose a slide">
               {SLIDE_TITLES.map((title, idx) => {
@@ -242,29 +265,41 @@ export function StudioEditorialCarousel({
                 return (
                   <button
                     key={title}
+                    id={`carousel-tab-${idx}`}
                     type="button"
                     role="tab"
+                    tabIndex={active ? 0 : -1}
                     aria-selected={active}
+                    aria-controls={`carousel-panel-${idx}`}
                     aria-label={`Slide ${idx + 1}: ${title}`}
                     onClick={() => scrollToSlide(idx)}
-                    className="flex h-11 min-w-[34px] items-center justify-center cursor-pointer rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-w-[44px]"
+                    onKeyDown={(e) => {
+                      let nextIdx: number | null = null;
+                      if (e.key === 'ArrowRight') nextIdx = (idx + 1) % TOTAL_SLIDES;
+                      else if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + TOTAL_SLIDES) % TOTAL_SLIDES;
+                      else if (e.key === 'Home') nextIdx = 0;
+                      else if (e.key === 'End') nextIdx = TOTAL_SLIDES - 1;
+                      if (nextIdx !== null) {
+                        e.preventDefault();
+                        scrollToSlide(nextIdx);
+                        const sibling = e.currentTarget.parentElement?.children[nextIdx] as HTMLElement | undefined;
+                        sibling?.focus();
+                      }
+                    }}
+                    className="flex h-11 min-w-[30px] items-center justify-center cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-w-[38px]"
                   >
                     <span
                       aria-hidden="true"
-                      className={`block rounded-full transition-all duration-200 ${
+                      className={`block h-[2px] transition-all duration-200 ${
                         active
-                          ? 'h-2 w-5 bg-white shadow-[0_0_12px_rgba(255,255,255,0.45)]'
-                          : 'h-2 w-2 bg-white/40 hover:bg-white/80'
+                          ? 'w-7 bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]'
+                          : 'w-3 bg-white/35 hover:w-4 hover:bg-white/80'
                       }`}
                     />
                   </button>
                 );
               })}
             </div>
-
-            <span className="hidden sm:inline font-space-mono text-[11.5px] tracking-[0.12em] uppercase text-white/65 shrink-0">
-              Scroll to traverse
-            </span>
           </div>
         </div>
       </div>

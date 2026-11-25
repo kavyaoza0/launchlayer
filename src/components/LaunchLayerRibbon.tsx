@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -30,10 +30,10 @@ function computeGeometry(vw: number, vh: number): ResponsiveGeometry {
   let perspective: number;
 
   if (vw < 640) {
-    widthTarget = clamp(vw * 0.72, 232, 286);
-    perspective = 980;
+    widthTarget = clamp(vw * 0.41, 146, 188);
+    perspective = 920;
   } else if (vw < 1024) {
-    widthTarget = clamp(vw * 0.38, 280, 360);
+    widthTarget = clamp(vw * 0.36, 270, 350);
     perspective = 1320;
   } else {
     widthTarget = clamp(vw * 0.275, 330, 440);
@@ -41,10 +41,11 @@ function computeGeometry(vw: number, vh: number): ResponsiveGeometry {
   }
 
   // Constrain card size by available stage height so short/scaled laptops never look zoomed in
-  const maxHeightConstrainedW = Math.max(210, (vh * 0.56 - 90) * (16 / 9));
+  const maxHeightConstrainedW =
+    vw < 640 ? widthTarget : Math.max(210, (vh * 0.56 - 90) * (16 / 9));
   const w = Math.round(Math.min(widthTarget, maxHeightConstrainedW));
   const h = Math.round((w * 9) / 16);
-  const radius = Math.round(w * (vw < 640 ? 2.75 : 2.86));
+  const radius = Math.round(w * (vw < 640 ? 2.95 : 2.86));
 
   return {
     cardWidth: w,
@@ -403,8 +404,14 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       rotateToCard((focusedIndex - 1 + total) % total);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      rotateToCard(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      rotateToCard(total - 1);
     } else if (e.key === ' ') {
-      if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+      if ((e.target as HTMLElement).tagName !== 'BUTTON' && (e.target as HTMLElement).tagName !== 'A') {
         e.preventDefault();
         setIsPaused((prev) => !prev);
       }
@@ -419,11 +426,16 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       ref={sectionRef}
       role="region"
       aria-roledescription="carousel"
-      aria-label="LaunchLayer 3D Website Preview Ribbon"
+      aria-label="LaunchLayer 3D Website Preview Ribbon. Use left and right arrow keys or drag horizontally to explore."
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="ll-section-seam relative flex h-[clamp(410px,70dvh,640px)] w-full flex-col items-center justify-center overflow-hidden bg-black select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+      className="ll-section-seam relative flex w-full flex-col items-center justify-center overflow-hidden bg-black pt-20 pb-16 select-none sm:pt-24 sm:pb-20 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
     >
+      {/* Screen-reader live announcement */}
+      <span className="sr-only" aria-live="polite">
+        {activeProject.number} of {total}: {activeProject.title} — {activeProject.category}
+      </span>
+
       {/* Subtle monochrome studio horizon lighting & floor vignette */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-1/2 h-[420px] w-[960px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.065)_0%,transparent_72%)] blur-[96px]" />
@@ -439,8 +451,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
           perspective: `${geo.perspective}px`,
           perspectiveOrigin: '50% 48%',
           touchAction: 'pan-y',
+          height: `${geo.cardHeight + 84}px`,
         }}
-        className={`relative flex h-full w-full items-center justify-center overflow-hidden ${
+        className={`relative flex w-full items-center justify-center overflow-hidden ${
           isDraggingUI ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
@@ -493,13 +506,15 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                     href={project.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    tabIndex={focusedIndex === index ? 0 : -1}
                     onClick={handleCardClick}
+                    onKeyDown={handleKeyDown}
                     onFocus={() => {
                       rotateToCard(index);
                       handleCardEnter(index);
                     }}
                     onBlur={handleCardLeave}
-                    aria-label={`${project.number}: ${project.title} (${project.category}) — Open project preview`}
+                    aria-label={`${project.number} of ${total}: ${project.title}, ${project.category}. Opens preview in a new tab.`}
                     className={`group relative block h-full w-full overflow-hidden rounded-xl border bg-[#080808] transition-[border-color,box-shadow,filter] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                       isHovered
                         ? 'border-white/55 shadow-[0_28px_72px_rgba(0,0,0,0.94),0_0_28px_rgba(255,255,255,0.14)] brightness-105'
@@ -507,7 +522,10 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                     }`}
                   >
                     {/* Live 16:9 Website Preview */}
-                    <div className="h-full w-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.018]">
+                    <div
+                      aria-hidden="true"
+                      className="h-full w-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.018]"
+                    >
                       <RibbonPreviewCard project={project} />
                     </div>
 
@@ -559,48 +577,13 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         </div>
       </div>
 
-      {/* Accessible Visible HUD Controls & Live Status */}
-      <div className="relative z-20 flex w-full max-w-[1600px] items-center justify-between gap-4 border-t border-white/12 bg-black/80 px-4 py-2 backdrop-blur-sm sm:px-6 md:px-10 lg:px-14">
-        <p aria-live="polite" className="min-w-0 truncate font-body text-[12.5px] text-white/85 sm:text-[13px]">
-          <span className="font-space-mono text-[11.5px] text-white/65 tabular-nums mr-2">
-            {activeProject.number}/{total}
-          </span>
-          <span className="font-medium text-white">{activeProject.title}</span>
-          <span className="hidden sm:inline text-white/65"> · {activeProject.category}</span>
-        </p>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            aria-label="Previous project"
-            onClick={() => rotateToCard((focusedIndex - 1 + total) % total)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            aria-pressed={isPaused}
-            aria-label={isPaused ? 'Resume 3D ribbon rotation' : 'Pause 3D ribbon rotation'}
-            onClick={() => setIsPaused((prev) => !prev)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            {isPaused ? (
-              <Play className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Pause className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-          <button
-            type="button"
-            aria-label="Next project"
-            onClick={() => rotateToCard((focusedIndex + 1) % total)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+      {/* Quiet drag cue matching mobile & desktop editorial rhythm */}
+      <p
+        aria-hidden="true"
+        className="pointer-events-none relative z-20 mt-6 font-space-mono text-[11px] tracking-[0.2em] uppercase text-white/65 sm:mt-8"
+      >
+        &larr; DRAG TO EXPLORE &rarr;
+      </p>
     </section>
   );
 }

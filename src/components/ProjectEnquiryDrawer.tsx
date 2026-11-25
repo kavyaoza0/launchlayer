@@ -37,6 +37,7 @@ export function ProjectEnquiryDrawer({
   onClose,
 }: ProjectEnquiryDrawerProps) {
   const shouldReduceMotion = useReducedMotion();
+  const drawerPanelRef = useRef<HTMLElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
 
@@ -67,6 +68,22 @@ export function ProjectEnquiryDrawer({
           setErrorMessage(null);
           setErrorField(null);
           onClose();
+          return;
+        }
+        if (e.key === 'Tab' && drawerPanelRef.current) {
+          const focusables = drawerPanelRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusables.length === 0) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
         }
       };
       window.addEventListener('keydown', handleKeyDown);
@@ -127,6 +144,7 @@ export function ProjectEnquiryDrawer({
 
           {/* Panel */}
           <motion.aside
+            ref={drawerPanelRef}
             initial={shouldReduceMotion ? false : { x: '100%' }}
             animate={{ x: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { x: '100%' }}
@@ -171,7 +189,7 @@ export function ProjectEnquiryDrawer({
                     <Check aria-hidden="true" className="h-4 w-4 text-white" />
                     <span className="text-[15px] font-medium">Brief received</span>
                   </div>
-                  <p className="mt-3 text-[14px] font-light leading-relaxed text-white/60">
+                  <p className="mt-3 text-[14px] font-normal leading-relaxed text-white/85">
                     Thank you, {name}. We reply to every studio enquiry within one business day from{' '}
                     <span className="text-white">hello@launchlayer.in</span>.
                   </p>
@@ -187,13 +205,13 @@ export function ProjectEnquiryDrawer({
                 <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
                   <div>
                     <div className="mb-2.5 flex items-center justify-between">
-                      <span id="scope-label" className="text-[13px] font-medium text-white/90">
+                      <span id="scope-label" className="text-[13px] font-medium text-white/95">
                         Starting scope
                       </span>
                       <div
                         role="group"
                         aria-label="Currency selector"
-                        className="inline-flex rounded-full border border-white/15 bg-white/[0.03] p-0.5"
+                        className="inline-flex rounded-full border border-white/20 bg-white/[0.03] p-0.5"
                       >
                         {(['USD', 'INR'] as const).map((curr) => (
                           <button
@@ -204,7 +222,7 @@ export function ProjectEnquiryDrawer({
                             className={`min-h-[36px] rounded-full px-3.5 py-1 text-[12px] font-medium transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                               currency === curr
                                 ? 'bg-white text-black'
-                                : 'text-white/80 hover:text-white'
+                                : 'text-white/85 hover:text-white'
                             }`}
                           >
                             {curr}
@@ -214,7 +232,7 @@ export function ProjectEnquiryDrawer({
                     </div>
 
                     <div role="radiogroup" aria-labelledby="scope-label" className="grid grid-cols-1 gap-2">
-                      {TIERS.map((tier) => {
+                      {TIERS.map((tier, idx) => {
                         const active = selectedTier === tier.id;
                         return (
                           <button
@@ -222,15 +240,31 @@ export function ProjectEnquiryDrawer({
                             type="button"
                             role="radio"
                             aria-checked={active}
+                            tabIndex={active ? 0 : -1}
                             onClick={() => setSelectedTier(tier.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                                e.preventDefault();
+                                const next = TIERS[(idx + 1) % TIERS.length];
+                                setSelectedTier(next.id);
+                                const nextEl = e.currentTarget.parentElement?.children[(idx + 1) % TIERS.length] as HTMLElement | undefined;
+                                nextEl?.focus();
+                              } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                                e.preventDefault();
+                                const prev = TIERS[(idx - 1 + TIERS.length) % TIERS.length];
+                                setSelectedTier(prev.id);
+                                const prevEl = e.currentTarget.parentElement?.children[(idx - 1 + TIERS.length) % TIERS.length] as HTMLElement | undefined;
+                                prevEl?.focus();
+                              }
+                            }}
                             className={`flex min-h-[44px] items-center justify-between rounded-xl border px-4 py-3 text-left text-[13.5px] transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                               active
-                                ? 'border-white/60 bg-white/[0.09] text-white'
-                                : 'border-white/18 bg-transparent text-white/80 hover:border-white/40 hover:text-white'
+                                ? 'border-white/65 bg-white/[0.1] text-white'
+                                : 'border-white/20 bg-transparent text-white/85 hover:border-white/45 hover:text-white'
                             }`}
                           >
                             <span className="font-medium">{tier.name}</span>
-                            <span className={`tabular-nums ${active ? 'text-white' : 'text-white/85'}`}>
+                            <span className={`tabular-nums ${active ? 'text-white' : 'text-white/90'}`}>
                               {currency === 'USD' ? tier.usd : tier.inr}
                             </span>
                           </button>
@@ -242,7 +276,7 @@ export function ProjectEnquiryDrawer({
                   <div>
                     <label
                       htmlFor="enquiry-name"
-                      className="mb-1.5 block text-[13px] font-medium text-white/90"
+                      className="mb-1.5 block text-[13px] font-medium text-white/95"
                     >
                       Your name
                     </label>
@@ -255,14 +289,16 @@ export function ProjectEnquiryDrawer({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Aarav Mehta"
-                      className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className={`min-h-[44px] w-full rounded-xl border bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/60 transition-colors focus:border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                        errorField === 'name' ? 'border-red-300/80' : 'border-white/25'
+                      }`}
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="enquiry-email"
-                      className="mb-1.5 block text-[13px] font-medium text-white/90"
+                      className="mb-1.5 block text-[13px] font-medium text-white/95"
                     >
                       Email address
                     </label>
@@ -275,14 +311,16 @@ export function ProjectEnquiryDrawer({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className={`min-h-[44px] w-full rounded-xl border bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/60 transition-colors focus:border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                        errorField === 'email' ? 'border-red-300/80' : 'border-white/25'
+                      }`}
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="enquiry-notes"
-                      className="mb-1.5 block text-[13px] font-medium text-white/90"
+                      className="mb-1.5 block text-[13px] font-medium text-white/95"
                     >
                       Project brief
                     </label>
@@ -292,12 +330,12 @@ export function ProjectEnquiryDrawer({
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="A few lines on what you need, pages or features, and timing."
-                      className="w-full resize-none rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="w-full resize-none rounded-xl border border-white/25 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/60 transition-colors focus:border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     />
                   </div>
 
                   {errorMessage && (
-                    <p id="enquiry-error" role="alert" className="text-[13px] text-white">
+                    <p id="enquiry-error" role="alert" className="text-[13px] font-medium text-red-300">
                       {errorMessage}
                     </p>
                   )}

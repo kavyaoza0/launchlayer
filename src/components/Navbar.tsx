@@ -18,9 +18,13 @@ const NAV_ITEMS: { label: string; topic: EnquiryTopic }[] = [
 export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const firstMobileLinkRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
+    const focusTimer = window.setTimeout(() => {
+      firstMobileLinkRef.current?.focus();
+    }, 20);
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
@@ -28,7 +32,10 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
       }
     };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener('keydown', onKeyDown);
+    };
   }, [mobileMenuOpen]);
 
   const handleNavAction = (topic: EnquiryTopic) => {
@@ -53,11 +60,12 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
   };
 
   return (
-    <header className="relative z-20 w-full border-b border-white/15 bg-black/50 backdrop-blur-md">
+    <header className="relative z-20 w-full border-b border-white/15 bg-black/65 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6 md:gap-8 md:px-10 md:py-4 lg:px-14">
         {/* Zone 1: Single-element Brand Wordmark */}
         <a
           href="#top"
+          aria-label="LaunchLayer — Back to top"
           onClick={(e) => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -74,7 +82,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
               key={item.label}
               type="button"
               onClick={() => handleNavAction(item.topic)}
-              className="group relative inline-flex min-h-[44px] items-center px-1 font-body text-[14px] font-medium tracking-[0.01em] text-white/85 transition-colors duration-150 hover:text-white whitespace-nowrap shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
+              className="group relative inline-flex min-h-[44px] items-center px-1 font-body text-[14px] font-medium tracking-[0.01em] text-white/90 transition-colors duration-150 hover:text-white whitespace-nowrap shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
             >
               <span>{item.label}</span>
               <span
@@ -90,7 +98,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
           <button
             type="button"
             onClick={() => onOpenEnquiry('General')}
-            className="liquid-glass-strong min-h-[44px] rounded-full px-4 py-2 font-body text-[13.5px] font-medium tracking-[0.01em] text-white transition-all duration-200 hover:bg-white/15 whitespace-nowrap shrink-0 cursor-pointer sm:px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="liquid-glass-strong min-h-[44px] rounded-full bg-black/45 px-4 py-2 font-body text-[13.5px] font-medium tracking-[0.01em] text-white transition-all duration-200 hover:bg-black/70 whitespace-nowrap shrink-0 cursor-pointer sm:px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             Start a project
           </button>
@@ -102,7 +110,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-primary-nav"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-black/75 text-white transition-colors hover:border-white/60 md:hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/80 text-white transition-colors hover:border-white/65 md:hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
           </button>
@@ -116,13 +124,14 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
           aria-label="Mobile Primary"
           className="border-t border-white/15 bg-black/95 px-5 py-3 backdrop-blur-md md:hidden"
         >
-          <div className="flex flex-col divide-y divide-white/12">
-            {NAV_ITEMS.map((item) => (
+          <div className="flex flex-col divide-y divide-white/15">
+            {NAV_ITEMS.map((item, idx) => (
               <button
                 key={item.label}
+                ref={idx === 0 ? firstMobileLinkRef : undefined}
                 type="button"
                 onClick={() => handleNavAction(item.topic)}
-                className="flex min-h-[48px] w-full items-center justify-between py-3 text-left font-body text-[16px] font-medium text-white/95 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="flex min-h-[48px] w-full items-center justify-between rounded-md px-2 py-3 text-left font-body text-[16px] font-medium text-white hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 <span>{item.label}</span>
               </button>

@@ -32,9 +32,9 @@ export default function App() {
       {/* Skip-to-content link for keyboard & screen reader users */}
       <a
         href="#top"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-[13px] focus:font-medium focus:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2.5 focus:text-[13px] focus:font-medium focus:text-black focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       >
-        Skip to content
+        Skip to main content
       </a>
 
       {/* Hero Wrapper with video background */}
@@ -50,7 +50,7 @@ export default function App() {
       </div>
 
       {/* Primary Page Landmarks */}
-      <main id="main-content" tabIndex={-1} className="focus:outline-none">
+      <main id="main-content" aria-label="Studio showcase and pricing" tabIndex={-1} className="focus:outline-none">
         {/* Interactive 3D Cylindrical Website Preview Ribbon */}
         <LaunchLayerRibbon id="work" />
 
