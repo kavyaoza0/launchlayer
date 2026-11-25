@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -25,24 +25,26 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-function computeGeometry(vw: number): ResponsiveGeometry {
-  let cardWidth: number;
+function computeGeometry(vw: number, vh: number): ResponsiveGeometry {
+  let widthTarget: number;
   let perspective: number;
 
   if (vw < 640) {
-    cardWidth = clamp(vw * 0.72, 240, 292);
-    perspective = 1000;
+    widthTarget = clamp(vw * 0.72, 232, 286);
+    perspective = 980;
   } else if (vw < 1024) {
-    cardWidth = clamp(vw * 0.42, 300, 380);
-    perspective = 1350;
+    widthTarget = clamp(vw * 0.38, 280, 360);
+    perspective = 1320;
   } else {
-    cardWidth = clamp(vw * 0.305, 380, 480);
-    perspective = 1750;
+    widthTarget = clamp(vw * 0.275, 330, 440);
+    perspective = 1720;
   }
 
-  const w = Math.round(cardWidth);
+  // Constrain card size by available stage height so short/scaled laptops never look zoomed in
+  const maxHeightConstrainedW = Math.max(210, (vh * 0.56 - 90) * (16 / 9));
+  const w = Math.round(Math.min(widthTarget, maxHeightConstrainedW));
   const h = Math.round((w * 9) / 16);
-  const radius = Math.round(w * (vw < 640 ? 2.82 : 2.88));
+  const radius = Math.round(w * (vw < 640 ? 2.75 : 2.86));
 
   return {
     cardWidth: w,
@@ -69,8 +71,8 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
 
   const [geo, setGeo] = useState<ResponsiveGeometry>(() =>
     typeof window !== 'undefined'
-      ? computeGeometry(window.innerWidth)
-      : { cardWidth: 440, cardHeight: 248, radius: 1267, perspective: 1750 }
+      ? computeGeometry(window.innerWidth, window.innerHeight)
+      : { cardWidth: 380, cardHeight: 214, radius: 1087, perspective: 1720 }
   );
 
   const total = RIBBON_PROJECTS.length;
@@ -110,7 +112,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setGeo(computeGeometry(window.innerWidth));
+      setGeo(computeGeometry(window.innerWidth, window.innerHeight));
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
@@ -420,37 +422,8 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       aria-label="LaunchLayer 3D Website Preview Ribbon"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="ll-section-seam relative flex h-[min(78dvh,680px)] min-h-[440px] w-full items-center justify-center overflow-hidden bg-black select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60"
+      className="ll-section-seam relative flex h-[clamp(410px,70dvh,640px)] w-full flex-col items-center justify-center overflow-hidden bg-black select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
     >
-      {/* Screen-reader accessible live status & keyboard-only controls */}
-      <div className="sr-only focus-within:not-sr-only focus-within:absolute focus-within:bottom-5 focus-within:left-6 focus-within:z-50 focus-within:flex focus-within:items-center focus-within:gap-3 focus-within:border focus-within:border-white/25 focus-within:bg-black focus-within:p-3">
-        <span aria-live="polite" className="text-xs text-white">
-          {activeProject.number} of {total}: {activeProject.title} — {activeProject.category}
-        </span>
-        <button
-          type="button"
-          onClick={() => rotateToCard((focusedIndex - 1 + total) % total)}
-          className="min-h-[40px] border border-white/25 px-3 text-xs text-white focus-visible:ring-2 focus-visible:ring-white"
-        >
-          Previous
-        </button>
-        <button
-          type="button"
-          onClick={() => rotateToCard((focusedIndex + 1) % total)}
-          className="min-h-[40px] border border-white/25 px-3 text-xs text-white focus-visible:ring-2 focus-visible:ring-white"
-        >
-          Next
-        </button>
-        <button
-          type="button"
-          aria-pressed={isPaused}
-          onClick={() => setIsPaused((prev) => !prev)}
-          className="min-h-[40px] border border-white/25 px-3 text-xs text-white focus-visible:ring-2 focus-visible:ring-white"
-        >
-          {isPaused ? 'Resume motion' : 'Pause motion'}
-        </button>
-      </div>
-
       {/* Subtle monochrome studio horizon lighting & floor vignette */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-1/2 h-[420px] w-[960px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.065)_0%,transparent_72%)] blur-[96px]" />
@@ -553,7 +526,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                       }`}
                     >
                       <div className="flex min-w-0 items-baseline gap-2.5">
-                        <span className="font-space-mono text-[10px] tracking-[0.1em] text-white/60 tabular-nums shrink-0">
+                        <span className="font-space-mono text-[11px] tracking-[0.1em] text-white/75 tabular-nums shrink-0">
                           {project.number}
                         </span>
                         <span className="truncate font-heading text-[16px] leading-none text-white sm:text-[17px]">
@@ -561,10 +534,10 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0 font-body text-[11px] text-white/65">
+                      <div className="flex items-center gap-2 shrink-0 font-body text-[12px] text-white/80">
                         <span className="whitespace-nowrap">{project.category}</span>
                         <ArrowUpRight
-                          className="h-3.5 w-3.5 text-white/85 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          className="h-3.5 w-3.5 text-white transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                           aria-hidden="true"
                         />
                       </div>
@@ -583,6 +556,49 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Accessible Visible HUD Controls & Live Status */}
+      <div className="relative z-20 flex w-full max-w-[1600px] items-center justify-between gap-4 border-t border-white/12 bg-black/80 px-4 py-2 backdrop-blur-sm sm:px-6 md:px-10 lg:px-14">
+        <p aria-live="polite" className="min-w-0 truncate font-body text-[12.5px] text-white/85 sm:text-[13px]">
+          <span className="font-space-mono text-[11.5px] text-white/65 tabular-nums mr-2">
+            {activeProject.number}/{total}
+          </span>
+          <span className="font-medium text-white">{activeProject.title}</span>
+          <span className="hidden sm:inline text-white/65"> · {activeProject.category}</span>
+        </p>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            aria-label="Previous project"
+            onClick={() => rotateToCard((focusedIndex - 1 + total) % total)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-pressed={isPaused}
+            aria-label={isPaused ? 'Resume 3D ribbon rotation' : 'Pause 3D ribbon rotation'}
+            onClick={() => setIsPaused((prev) => !prev)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            {isPaused ? (
+              <Play className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Pause className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            aria-label="Next project"
+            onClick={() => rotateToCard((focusedIndex + 1) % total)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] text-white/85 transition-colors hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </section>

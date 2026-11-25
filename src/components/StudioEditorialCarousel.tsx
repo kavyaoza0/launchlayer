@@ -222,8 +222,8 @@ export function StudioEditorialCarousel({
         </div>
 
         {/* Full-Width Integrated Bottom Progress Rail & Seven Navigation Dots */}
-        <div className="flex w-full shrink-0 flex-col gap-1.5 border-t border-white/10 bg-black px-6 py-2.5 sm:px-10 lg:px-14">
-          <div className="relative h-px w-full overflow-hidden bg-white/12">
+        <div className="flex w-full shrink-0 flex-col gap-1 border-t border-white/15 bg-black px-4 py-2 sm:px-6 md:px-10 lg:px-14">
+          <div className="relative h-px w-full overflow-hidden bg-white/15">
             <div
               ref={progressBarRef}
               className="h-[1.5px] w-full origin-left bg-white shadow-[0_0_12px_rgba(255,255,255,0.45)] will-change-transform"
@@ -232,11 +232,11 @@ export function StudioEditorialCarousel({
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <span className="font-space-mono text-[11px] tracking-[0.12em] text-white/75 tabular-nums">
+            <span className="font-space-mono text-[12px] tracking-[0.1em] text-white/85 tabular-nums shrink-0">
               0{activeSlide + 1} / 0{TOTAL_SLIDES}
             </span>
 
-            <div className="flex items-center gap-1" role="tablist" aria-label="Choose a slide">
+            <div className="flex items-center gap-0.5 sm:gap-1" role="tablist" aria-label="Choose a slide">
               {SLIDE_TITLES.map((title, idx) => {
                 const active = activeSlide === idx;
                 return (
@@ -247,14 +247,14 @@ export function StudioEditorialCarousel({
                     aria-selected={active}
                     aria-label={`Slide ${idx + 1}: ${title}`}
                     onClick={() => scrollToSlide(idx)}
-                    className="flex h-10 w-7 items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-9"
+                    className="flex h-11 min-w-[34px] items-center justify-center cursor-pointer rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-w-[44px]"
                   >
                     <span
                       aria-hidden="true"
                       className={`block rounded-full transition-all duration-200 ${
                         active
                           ? 'h-2 w-5 bg-white shadow-[0_0_12px_rgba(255,255,255,0.45)]'
-                          : 'h-1.5 w-1.5 bg-white/30 hover:bg-white/70'
+                          : 'h-2 w-2 bg-white/40 hover:bg-white/80'
                       }`}
                     />
                   </button>
@@ -262,7 +262,7 @@ export function StudioEditorialCarousel({
               })}
             </div>
 
-            <span className="font-space-mono text-[10.5px] tracking-[0.12em] uppercase text-white/45">
+            <span className="hidden sm:inline font-space-mono text-[11.5px] tracking-[0.12em] uppercase text-white/65 shrink-0">
               Scroll to traverse
             </span>
           </div>

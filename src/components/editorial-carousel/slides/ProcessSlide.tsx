@@ -123,23 +123,23 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
   }, [isActive, prefersReducedMotion]);
 
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-black p-6 font-body text-white sm:p-10 lg:px-14 lg:py-10">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-y-auto overflow-x-hidden bg-black p-4 font-body text-white sm:p-6 md:px-10 md:py-7 lg:overflow-hidden lg:px-14 lg:py-8">
       {/* Soft monochrome radial glow */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-1/2 h-[380px] w-[780px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.055)_0%,transparent_74%)] blur-[96px]" />
       </div>
 
       {/* Header */}
-      <div className="relative z-10 flex flex-col gap-2 border-b border-white/12 pb-4">
-        <div className="flex items-center justify-between text-[10px] font-medium tracking-[0.14em] uppercase text-white/50 sm:text-[11px]">
-          <span className="text-white/80">02 · HOW WE WORK</span>
+      <div className="relative z-10 flex flex-col gap-2 border-b border-white/15 pb-3.5">
+        <div className="flex items-center justify-between text-[11.5px] font-medium tracking-[0.14em] uppercase text-white/75">
+          <span className="text-white">02 · HOW WE WORK</span>
           <span>FOUR STEPS, ONE DIRECTION</span>
         </div>
-        <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-end">
-          <h2 className="font-heading text-[clamp(1.85rem,3.6vw,3.15rem)] leading-[0.95] tracking-tight text-white [text-wrap:balance]">
+        <div className="flex flex-col justify-between gap-2.5 lg:flex-row lg:items-end">
+          <h2 className="font-heading text-[clamp(1.75rem,min(3.4vw,5.2dvh),3rem)] leading-[0.96] tracking-tight text-white [text-wrap:balance]">
             Every great website starts with <span className="italic text-white">understanding</span>.
           </h2>
-          <p className="max-w-[46ch] text-[12px] font-light leading-[1.55] text-white/60 sm:text-[13.5px]">
+          <p className="max-w-[46ch] text-[13px] font-normal leading-[1.55] text-white/80 sm:text-[14px]">
             Before we design a single screen, we take the time to understand your business, your
             audience and the direction you want to take.
           </p>
@@ -147,21 +147,21 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
       </div>
 
       {/* Connected Four-Step Editorial Track */}
-      <div className="relative z-10 my-auto flex flex-1 flex-col justify-center py-3 sm:py-5">
+      <div className="relative z-10 my-auto flex flex-1 flex-col justify-center py-3 sm:py-4">
         {/* Progressively drawing horizontal SVG spine across desktop/tablet */}
         <svg
           aria-hidden="true"
           viewBox="0 0 1200 8"
           preserveAspectRatio="none"
-          className="mb-4 hidden h-2 w-full sm:block"
+          className="mb-3.5 hidden h-2 w-full sm:block"
         >
-          <line x1="0" y1="4" x2="1200" y2="4" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+          <line x1="0" y1="4" x2="1200" y2="4" stroke="rgba(255,255,255,0.16)" strokeWidth="1" />
           <line
             x1="0"
             y1="4"
             x2="1200"
             y2="4"
-            stroke="rgba(255,255,255,0.65)"
+            stroke="rgba(255,255,255,0.75)"
             strokeWidth="1.5"
             className="transition-all duration-700 ease-out"
             strokeDasharray="1200"
@@ -169,7 +169,7 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
           />
         </svg>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
           {STEPS.map((step, idx) => {
             const selected = activeStep === idx;
             return (
@@ -183,16 +183,16 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
                   setActiveStep(idx);
                 }}
                 onMouseEnter={() => setActiveStep(idx)}
-                className={`group relative flex flex-col justify-between rounded-xl p-3.5 text-left transition-all duration-300 ease-[cubic-bezier(0.22,0.8,0.2,1)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:p-5 ${
+                className={`group relative flex min-h-[44px] flex-col justify-between rounded-xl p-3.5 text-left transition-all duration-300 ease-[cubic-bezier(0.22,0.8,0.2,1)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:p-4 lg:p-5 ${
                   selected
-                    ? 'liquid-glass-strong bg-white/[0.045] text-white shadow-[0_18px_48px_rgba(0,0,0,0.85)]'
-                    : 'border border-white/12 bg-white/[0.015] text-white/60 hover:border-white/30'
+                    ? 'liquid-glass-strong bg-white/[0.06] text-white shadow-[0_18px_48px_rgba(0,0,0,0.85)]'
+                    : 'border border-white/15 bg-white/[0.02] text-white/80 hover:border-white/40'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`font-heading text-[28px] leading-none tracking-tight transition-colors duration-300 sm:text-[38px] ${
-                      selected ? 'text-white' : 'text-white/40'
+                    className={`font-heading text-[26px] leading-none tracking-tight transition-colors duration-300 sm:text-[34px] ${
+                      selected ? 'text-white' : 'text-white/65'
                     }`}
                   >
                     {step.num}
@@ -204,24 +204,24 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
                       <ArrowRight
                         aria-hidden="true"
                         className={`hidden h-3.5 w-3.5 transition-all duration-300 lg:block ${
-                          selected ? 'translate-x-0.5 text-white' : 'text-white/25'
+                          selected ? 'translate-x-0.5 text-white' : 'text-white/45'
                         }`}
                       />
                     )}
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-3 sm:mt-4">
                   <h3
-                    className={`font-body text-[14px] font-medium transition-colors duration-300 sm:text-[16px] ${
-                      selected ? 'text-white' : 'text-white/80'
+                    className={`font-body text-[15px] font-medium transition-colors duration-300 sm:text-[16px] ${
+                      selected ? 'text-white' : 'text-white/90'
                     }`}
                   >
                     {step.title}
                   </h3>
                   <p
-                    className={`mt-2 text-[11.5px] font-light leading-[1.55] transition-colors duration-300 sm:text-[12.5px] ${
-                      selected ? 'text-white/85' : 'text-white/55'
+                    className={`mt-1.5 text-[12.5px] font-normal leading-[1.55] transition-colors duration-300 sm:text-[13px] ${
+                      selected ? 'text-white/90' : 'text-white/75'
                     }`}
                   >
                     {step.body}
@@ -234,9 +234,9 @@ export function ProcessSlide({ isActive, prefersReducedMotion }: ProcessSlidePro
       </div>
 
       {/* Quiet bottom progress cue */}
-      <div className="relative z-10 flex items-center justify-between border-t border-white/12 pt-3 text-[10px] tracking-[0.12em] uppercase text-white/45">
+      <div className="relative z-10 flex items-center justify-between border-t border-white/15 pt-3 text-[11.5px] tracking-[0.12em] uppercase text-white/70">
         <span>Connected Discovery Track</span>
-        <span className="tabular-nums text-white/80">Step {STEPS[activeStep].num} / 04</span>
+        <span className="tabular-nums text-white">Step {STEPS[activeStep].num} / 04</span>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ const STATEMENT =
   "We don't just build websites. We shape the way your business is experienced, remembered, and discovered.";
 
 const STATEMENT_WORDS = STATEMENT.split(' ');
-const BASE_OPACITY = 0.16;
+const BASE_OPACITY = 0.28;
 
 export function PhilosophyRevealSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -103,7 +103,7 @@ export function PhilosophyRevealSection() {
       {/* Subtle fixed four-column structural grid */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16"
+        className="pointer-events-none absolute inset-0 mx-auto max-w-[1600px] px-4 sm:px-6 md:px-10 lg:px-14"
       >
         <div className="grid h-full grid-cols-4 border-x border-white/[0.06]">
           <div className="border-r border-white/[0.06]" />
@@ -113,17 +113,17 @@ export function PhilosophyRevealSection() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-16">
+      <div className="relative z-10 mx-auto w-full max-w-[1600px] px-4 sm:px-6 md:px-10 lg:px-14">
         <div className="grid grid-cols-4">
-          <div className="col-span-4 mx-auto flex w-full max-w-[1240px] flex-col">
-            <p className="mb-5 flex items-center gap-3 font-body text-[11px] font-medium tracking-[0.18em] uppercase text-white/60 md:mb-6 md:text-[12px]">
-              <span aria-hidden="true" className="h-px w-6 bg-white/40" />
+          <div className="col-span-4 mx-auto flex w-full max-w-[1320px] flex-col">
+            <p className="mb-5 flex items-center gap-3 font-body text-[12px] font-medium tracking-[0.16em] uppercase text-white/80 md:mb-6">
+              <span aria-hidden="true" className="h-px w-6 bg-white/55" />
               A DIFFERENT WAY TO BUILD DIGITAL
             </p>
 
             <h2
               id="philosophy-heading"
-              className="font-heading text-[clamp(36px,5.2vw,78px)] font-normal leading-[1.08] tracking-tight text-white [text-wrap:balance]"
+              className="font-heading text-[clamp(1.95rem,min(4.8vw,7dvh),4.65rem)] font-normal leading-[1.08] tracking-tight text-white [text-wrap:balance]"
             >
               <span className="sr-only">{STATEMENT}</span>
               <span aria-hidden="true">
@@ -147,8 +147,8 @@ export function PhilosophyRevealSection() {
               </span>
             </h2>
 
-            <div className="relative mt-8 border-t border-white/10 pt-5 md:mt-10 md:pt-6">
-              <p className="font-body text-[11px] font-light tracking-[0.18em] uppercase text-white/40 md:text-[12px]">
+            <div className="relative mt-8 border-t border-white/15 pt-5 md:mt-10 md:pt-6">
+              <p className="font-body text-[12px] font-normal tracking-[0.16em] uppercase text-white/70">
                 LAUNCHLAYER · OUR PHILOSOPHY
               </p>
             </div>

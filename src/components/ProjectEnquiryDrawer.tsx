@@ -136,7 +136,7 @@ export function ProjectEnquiryDrawer({
             <div>
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
                 <div>
-                  <p className="text-[12.5px] font-medium tracking-[0.02em] text-white/60">
+                  <p className="text-[12.5px] font-medium tracking-[0.02em] text-white/80">
                     LaunchLayer · {initialTopic === 'General' ? 'New Enquiry' : initialTopic}
                   </p>
                   <h2
@@ -151,13 +151,13 @@ export function ProjectEnquiryDrawer({
                   type="button"
                   onClick={resetAndClose}
                   aria-label="Close project enquiry panel"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/60 transition-colors duration-150 hover:border-white/50 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white/85 transition-colors duration-150 hover:border-white/60 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
 
-              <p className="mt-5 text-[14px] font-light leading-relaxed text-white/60">
+              <p className="mt-5 text-[14px] font-normal leading-relaxed text-white/80">
                 {TOPIC_NOTES[initialTopic]}
               </p>
 
@@ -201,10 +201,10 @@ export function ProjectEnquiryDrawer({
                             type="button"
                             aria-pressed={currency === curr}
                             onClick={() => setCurrency(curr)}
-                            className={`min-h-[30px] rounded-full px-3 py-1 text-[11.5px] font-medium transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                            className={`min-h-[36px] rounded-full px-3.5 py-1 text-[12px] font-medium transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                               currency === curr
                                 ? 'bg-white text-black'
-                                : 'text-white/60 hover:text-white'
+                                : 'text-white/80 hover:text-white'
                             }`}
                           >
                             {curr}
@@ -225,12 +225,12 @@ export function ProjectEnquiryDrawer({
                             onClick={() => setSelectedTier(tier.id)}
                             className={`flex min-h-[44px] items-center justify-between rounded-xl border px-4 py-3 text-left text-[13.5px] transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                               active
-                                ? 'border-white/50 bg-white/[0.08] text-white'
-                                : 'border-white/12 bg-transparent text-white/60 hover:border-white/30 hover:text-white'
+                                ? 'border-white/60 bg-white/[0.09] text-white'
+                                : 'border-white/18 bg-transparent text-white/80 hover:border-white/40 hover:text-white'
                             }`}
                           >
                             <span className="font-medium">{tier.name}</span>
-                            <span className={`tabular-nums ${active ? 'text-white' : 'text-white/75'}`}>
+                            <span className={`tabular-nums ${active ? 'text-white' : 'text-white/85'}`}>
                               {currency === 'USD' ? tier.usd : tier.inr}
                             </span>
                           </button>
@@ -255,7 +255,7 @@ export function ProjectEnquiryDrawer({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Aarav Mehta"
-                      className="min-h-[44px] w-full rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-white placeholder-white/35 transition-colors focus:border-white/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ export function ProjectEnquiryDrawer({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@company.com"
-                      className="min-h-[44px] w-full rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-white placeholder-white/35 transition-colors focus:border-white/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     />
                   </div>
 
@@ -292,19 +292,19 @@ export function ProjectEnquiryDrawer({
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="A few lines on what you need, pages or features, and timing."
-                      className="w-full resize-none rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-white placeholder-white/35 transition-colors focus:border-white/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="w-full resize-none rounded-xl border border-white/20 bg-white/[0.04] px-3.5 py-2.5 text-[14px] text-white placeholder-white/55 transition-colors focus:border-white/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     />
                   </div>
 
                   {errorMessage && (
-                    <p id="enquiry-error" role="alert" className="text-[13px] text-white/90">
+                    <p id="enquiry-error" role="alert" className="text-[13px] text-white">
                       {errorMessage}
                     </p>
                   )}
 
                   <button
                     type="submit"
-                    className="min-h-[44px] w-full rounded-full bg-white px-6 py-3 text-[13.5px] font-medium text-black transition-colors duration-150 hover:bg-white/90 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="min-h-[44px] w-full rounded-full bg-white px-6 py-3 text-[13.5px] font-medium text-black transition-colors duration-150 hover:bg-white/90 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     Send project enquiry
                   </button>
@@ -312,11 +312,11 @@ export function ProjectEnquiryDrawer({
               )}
             </div>
 
-            <div className="mt-8 border-t border-white/10 pt-4 text-[12px] font-light text-white/50">
+            <div className="mt-8 border-t border-white/15 pt-4 text-[12.5px] font-normal text-white/75">
               Ahmedabad, India · Serving clients worldwide · Direct:{' '}
               <a
                 href="mailto:hello@launchlayer.in"
-                className="text-white/85 underline underline-offset-4 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="text-white underline underline-offset-4 hover:text-white/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 hello@launchlayer.in
               </a>

@@ -169,7 +169,7 @@ function PricingCard({
       />
 
       {plan.featured && plan.badge && (
-        <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-white/25 bg-white px-3.5 py-1.5 font-space-mono text-[9px] font-medium tracking-[0.18em] text-black">
+        <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-white/25 bg-white px-3.5 py-1.5 font-space-mono text-[11px] font-medium tracking-[0.14em] text-black">
           {plan.badge}
         </div>
       )}
@@ -178,44 +178,44 @@ function PricingCard({
         <div className="flex items-center justify-between">
           <span
             className={cn(
-              'font-space-mono text-[10px] tracking-[0.2em]',
-              plan.featured ? 'text-white/85' : 'text-white/45'
+              'font-space-mono text-[11.5px] tracking-[0.16em]',
+              plan.featured ? 'text-white/90' : 'text-white/70'
             )}
           >
             PACKAGE / {plan.number}
           </span>
-          <span className={cn('h-px w-8', plan.featured ? 'bg-white/45' : 'bg-white/15')} />
+          <span className={cn('h-px w-8', plan.featured ? 'bg-white/55' : 'bg-white/25')} />
         </div>
 
-        <div className="mt-8">
-          <p className="font-body text-xs font-light tracking-[0.02em] text-white/55">
+        <div className="mt-6">
+          <p className="font-body text-[13px] font-normal tracking-[0.01em] text-white/75">
             {plan.subtitle}
           </p>
-          <h3 className="mt-1.5 font-heading text-3xl tracking-tight text-white sm:text-[2.3rem]">
+          <h3 className="mt-1.5 font-heading text-3xl tracking-tight text-white lg:text-[2.15rem] xl:text-[2.35rem]">
             {plan.name}
           </h3>
         </div>
 
-        <div className="mt-8 border-t border-white/10 pt-5">
+        <div className="mt-6 border-t border-white/15 pt-5">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-body text-[2.65rem] font-light leading-none tracking-[-0.04em] text-white tabular-nums">
+            <span className="font-body text-[2.25rem] font-light leading-none tracking-[-0.04em] text-white tabular-nums xl:text-[2.55rem]">
               {plan.usd}
             </span>
             <span
               className={cn(
                 'font-body text-sm font-medium tabular-nums',
-                plan.featured ? 'text-white/80' : 'text-white/60'
+                plan.featured ? 'text-white/90' : 'text-white/75'
               )}
             >
               {plan.inr}
             </span>
           </div>
-          <p className="mt-2 font-space-mono text-[9px] tracking-[0.15em] uppercase text-white/40">
+          <p className="mt-2 font-space-mono text-[11px] tracking-[0.12em] uppercase text-white/65">
             STARTING PRICE · ONE-TIME PROJECT
           </p>
         </div>
 
-        <p className="mt-5 min-h-[76px] font-body text-[13.5px] font-light leading-[1.65] text-white/65">
+        <p className="mt-4 min-h-[72px] font-body text-[14px] font-normal leading-[1.6] text-white/80">
           {plan.description}
         </p>
 
@@ -223,10 +223,10 @@ function PricingCard({
           type="button"
           onClick={() => onSelect?.(plan.name.toLowerCase())}
           className={cn(
-            'mt-6 flex h-12 w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-xs font-medium tracking-[0.02em] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white',
+            'mt-6 flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-[13.5px] font-medium tracking-[0.01em] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
             plan.featured
               ? 'bg-white text-black hover:bg-white/90'
-              : 'liquid-glass-strong text-white hover:bg-white/10'
+              : 'liquid-glass-strong text-white hover:bg-white/15'
           )}
         >
           <span>{plan.cta}</span>
@@ -239,28 +239,28 @@ function PricingCard({
         </button>
       </div>
 
-      <div className="relative mt-8 border-t border-white/10 pt-5">
-        <p className="mb-3.5 font-space-mono text-[9.5px] tracking-[0.18em] uppercase text-white/40">
+      <div className="relative mt-7 border-t border-white/15 pt-5">
+        <p className="mb-3.5 font-space-mono text-[11px] tracking-[0.15em] uppercase text-white/65">
           WHAT&apos;S INCLUDED
         </p>
-        <ul className="space-y-3.5">
+        <ul className="space-y-3">
           {plan.features.map((feature) => (
             <li
               key={feature.text}
               className={cn(
-                'flex items-start gap-3 font-body text-xs font-light leading-5',
-                feature.included ? 'text-white/80' : 'text-white/40'
+                'flex items-start gap-3 font-body text-[13px] font-normal leading-5',
+                feature.included ? 'text-white/90' : 'text-white/60'
               )}
             >
               <span
                 aria-hidden="true"
                 className={cn(
-                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[9px]',
+                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px]',
                   feature.included
                     ? plan.featured
-                      ? 'border-white/60 text-white'
-                      : 'border-white/30 text-white/85'
-                    : 'border-white/12 text-white/40'
+                      ? 'border-white/75 text-white'
+                      : 'border-white/45 text-white'
+                    : 'border-white/25 text-white/60'
                 )}
               >
                 {feature.included ? '✓' : '–'}
@@ -287,12 +287,12 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
       </div>
 
-      <div className="relative mx-auto max-w-[1380px] px-5 sm:px-8 lg:px-12">
-        <div className="mb-14 flex flex-col justify-between gap-8 md:flex-row md:items-end">
+      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 md:px-10 lg:px-14">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <Reveal>
-              <div className="mb-6 flex items-center gap-3 font-space-mono text-[10px] tracking-[0.22em] text-white/60">
-                <span aria-hidden="true" className="h-px w-6 bg-white/40" />
+              <div className="mb-5 flex items-center gap-3 font-space-mono text-[11.5px] tracking-[0.18em] text-white/75">
+                <span aria-hidden="true" className="h-px w-6 bg-white/55" />
                 INVESTMENT · 001
               </div>
             </Reveal>
@@ -300,27 +300,27 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
             <Reveal delay={0.08}>
               <h2
                 id="pricing-heading"
-                className="font-heading text-[clamp(2.85rem,6.4vw,5.4rem)] font-normal leading-[0.94] tracking-tight text-white"
+                className="font-heading text-[clamp(2.25rem,min(5vw,7.4dvh),4.75rem)] font-normal leading-[0.95] tracking-tight text-white"
               >
                 Good work.
                 <br />
-                <span className="italic text-white/75">Clear investment.</span>
+                <span className="italic text-white/85">Clear investment.</span>
               </h2>
             </Reveal>
           </div>
 
           <Reveal delay={0.16} className="max-w-sm">
-            <p className="font-body text-sm font-light leading-7 text-white/60">
+            <p className="font-body text-[14.5px] font-normal leading-7 text-white/80">
               No confusing packages or unnecessary extras. Just a clear starting point for creating
               a digital experience that works for your business.
             </p>
-            <p className="mt-4 font-space-mono text-[9.5px] tracking-[0.18em] text-white/40">
+            <p className="mt-3 font-space-mono text-[11px] tracking-[0.16em] text-white/65">
               FOUR WAYS TO MOVE FORWARD ↘
             </p>
           </Reveal>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => (
             <PricingCard
               key={plan.name}
@@ -331,11 +331,11 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
         </div>
 
         <Reveal delay={0.18}>
-          <div className="relative mt-8 border-t border-white/10 pt-6">
-            <p className="font-body text-xs font-light text-white/60">
+          <div className="relative mt-8 border-t border-white/15 pt-6">
+            <p className="font-body text-[13.5px] font-normal text-white/80">
               Every project is scoped around its goals and requirements.
             </p>
-            <p className="mt-3 max-w-3xl font-body text-[11px] font-light leading-5 text-white/40">
+            <p className="mt-2.5 max-w-3xl font-body text-[12.5px] font-normal leading-relaxed text-white/65">
               All amounts shown are starting prices and represent one-time project costs. Final
               pricing depends on project scope, functionality and requirements. Domain registration,
               hosting, paid integrations and third-party services may be charged separately.

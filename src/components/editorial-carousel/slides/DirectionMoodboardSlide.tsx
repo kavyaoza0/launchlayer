@@ -8,6 +8,7 @@ interface DirectionMoodboardSlideProps {
 
 interface BoardItem {
   id: MockupDirection;
+  label: string;
   baseClass: string;
   baseRotate: number;
   zIndex: number;
@@ -16,31 +17,36 @@ interface BoardItem {
 const BOARD_ITEMS: BoardItem[] = [
   {
     id: 'ecommerce',
-    baseClass: 'left-[2%] top-[5%] h-[44%] w-[41%] sm:left-[2%] sm:top-[5%] sm:h-[48%] sm:w-[32%]',
+    label: 'Commerce Storefront direction card',
+    baseClass: 'left-[2%] top-[5%] h-[42%] w-[41%] sm:left-[2%] sm:top-[5%] sm:h-[46%] sm:w-[31%]',
     baseRotate: -2.2,
     zIndex: 11,
   },
   {
     id: 'architecture',
-    baseClass: 'left-[29%] top-[24%] h-[48%] w-[46%] sm:left-[31%] sm:top-[18%] sm:h-[58%] sm:w-[38%]',
+    label: 'Architecture Studio direction card',
+    baseClass: 'left-[29%] top-[24%] h-[46%] w-[46%] sm:left-[31%] sm:top-[18%] sm:h-[56%] sm:w-[37%]',
     baseRotate: 0.8,
     zIndex: 14,
   },
   {
     id: 'fintech',
-    baseClass: 'right-[2%] top-[4%] h-[40%] w-[38%] sm:right-[2%] sm:top-[5%] sm:h-[46%] sm:w-[30%]',
+    label: 'Fintech Platform direction card',
+    baseClass: 'right-[2%] top-[4%] h-[39%] w-[38%] sm:right-[2%] sm:top-[5%] sm:h-[44%] sm:w-[29%]',
     baseRotate: 2.4,
     zIndex: 12,
   },
   {
     id: 'hardware',
-    baseClass: 'left-[5%] bottom-[5%] h-[39%] w-[39%] sm:left-[5%] sm:bottom-[4%] sm:h-[45%] sm:w-[30%]',
+    label: 'Hardware Launch direction card',
+    baseClass: 'left-[5%] bottom-[5%] h-[38%] w-[39%] sm:left-[5%] sm:bottom-[4%] sm:h-[44%] sm:w-[29%]',
     baseRotate: 1.5,
     zIndex: 13,
   },
   {
     id: 'lifestyle',
-    baseClass: 'right-[4%] bottom-[5%] h-[41%] w-[40%] sm:right-[4%] sm:bottom-[4%] sm:h-[47%] sm:w-[31%]',
+    label: 'Hospitality Lifestyle direction card',
+    baseClass: 'right-[4%] bottom-[5%] h-[40%] w-[40%] sm:right-[4%] sm:bottom-[4%] sm:h-[46%] sm:w-[30%]',
     baseRotate: -1.7,
     zIndex: 15,
   },
@@ -110,17 +116,38 @@ export function DirectionMoodboardSlide({ isActive }: DirectionMoodboardSlidePro
     setDrag({ id: null, startX: 0, startY: 0, origX: 0, origY: 0, tilt: 0 });
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>, id: MockupDirection) => {
+    const step = 18;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      e.stopPropagation();
+      const nextZ = zCounter + 1;
+      setZCounter(nextZ);
+      setTopOrder((prev) => ({ ...prev, [id]: nextZ }));
+      setOffsets((prev) => {
+        const cur = prev[id] || { x: 0, y: 0 };
+        return {
+          ...prev,
+          [id]: {
+            x: cur.x + (e.key === 'ArrowRight' ? step : e.key === 'ArrowLeft' ? -step : 0),
+            y: cur.y + (e.key === 'ArrowDown' ? step : e.key === 'ArrowUp' ? -step : 0),
+          },
+        };
+      });
+    }
+  };
+
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-black p-6 font-body text-white sm:p-10 lg:px-14 lg:py-10">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-black p-4 font-body text-white sm:p-6 md:px-10 md:py-7 lg:px-14 lg:py-8">
       {/* Soft monochrome radial studio lighting behind interactive board */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-1/2 h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.055)_0%,transparent_74%)] blur-[96px]" />
       </div>
 
       {/* Header */}
-      <div className="relative z-20 flex flex-col gap-2 border-b border-white/12 pb-4">
-        <div className="flex items-center justify-between text-[10px] font-medium tracking-[0.14em] uppercase text-white/50 sm:text-[11px]">
-          <span className="text-white/80">05 · PLAN YOUR DIRECTION</span>
+      <div className="relative z-20 flex flex-col gap-2 border-b border-white/15 pb-3.5">
+        <div className="flex items-center justify-between text-[11.5px] font-medium tracking-[0.14em] uppercase text-white/75">
+          <span className="text-white">05 · PLAN YOUR DIRECTION</span>
           {hasMoved ? (
             <button
               type="button"
@@ -129,20 +156,20 @@ export function DirectionMoodboardSlide({ isActive }: DirectionMoodboardSlidePro
                 e.stopPropagation();
                 setOffsets({});
               }}
-              className="inline-flex min-h-[34px] items-center gap-1.5 px-2 text-white transition-colors hover:text-white/75 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-white/25 px-3 text-white transition-colors hover:border-white/55 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               <span>Reset Board</span>
             </button>
           ) : (
             <span>Drag To Explore</span>
           )}
         </div>
-        <div className="flex flex-col justify-between gap-2.5 lg:flex-row lg:items-end">
-          <h2 className="font-heading text-[clamp(1.85rem,3.5vw,3.1rem)] leading-[0.95] tracking-tight text-white">
+        <div className="flex flex-col justify-between gap-2 lg:flex-row lg:items-end">
+          <h2 className="font-heading text-[clamp(1.75rem,min(3.4vw,5.2dvh),3rem)] leading-[0.96] tracking-tight text-white">
             Your business. A <span className="italic">different</span> digital direction.
           </h2>
-          <p className="max-w-[48ch] text-[12px] font-light leading-[1.55] text-white/60 sm:text-[13.5px]">
+          <p className="max-w-[48ch] text-[13px] font-normal leading-[1.55] text-white/80 sm:text-[14px]">
             Explore a few visual possibilities. Every business has a different story, and its website
             should reflect that.
           </p>
@@ -161,6 +188,10 @@ export function DirectionMoodboardSlide({ isActive }: DirectionMoodboardSlidePro
           return (
             <div
               key={item.id}
+              role="group"
+              tabIndex={isActive ? 0 : -1}
+              aria-label={`${item.label}. Use arrow keys or drag to reposition.`}
+              onKeyDown={(e) => handleCardKeyDown(e, item.id)}
               onPointerDown={(e) => handlePointerDown(e, item.id)}
               onPointerMove={(e) => handlePointerMove(e, item.id)}
               onPointerUp={(e) => handlePointerUp(e, item.id)}
@@ -172,7 +203,7 @@ export function DirectionMoodboardSlide({ isActive }: DirectionMoodboardSlidePro
                   ? 'box-shadow 180ms ease, border-color 180ms ease'
                   : 'transform 420ms cubic-bezier(0.22, 0.8, 0.2, 1), box-shadow 260ms ease, border-color 260ms ease',
               }}
-              className={`group absolute touch-none overflow-hidden rounded-xl border bg-[#0b0b0b] select-none cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:rotate-0 hover:border-white/50 hover:shadow-[0_24px_60px_rgba(0,0,0,0.92)] ${
+              className={`group absolute touch-none overflow-hidden rounded-xl border bg-[#0b0b0b] select-none cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:rotate-0 hover:border-white/50 hover:shadow-[0_24px_60px_rgba(0,0,0,0.92)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                 item.baseClass
               } ${isBeingDragged ? 'll-glow-border-strong' : 'll-glow-border'}`}
             >

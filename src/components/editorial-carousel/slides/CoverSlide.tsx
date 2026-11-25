@@ -96,7 +96,7 @@ export function CoverSlide({
     : null;
 
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-black p-6 font-body text-white sm:p-10 lg:px-14 lg:py-9">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-y-auto overflow-x-hidden bg-black p-4 font-body text-white sm:p-6 md:px-10 md:py-6 lg:overflow-hidden lg:px-14 lg:py-7">
       {/* Soft monochrome ambient studio lighting */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[22%] top-[28%] h-[380px] w-[620px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,transparent_72%)] blur-[110px]" />
@@ -104,16 +104,16 @@ export function CoverSlide({
       </div>
 
       {/* Top Metadata + Interactive Discipline Selector (Zero Arrows) */}
-      <div className="relative z-20 flex flex-col gap-3 border-b border-white/12 pb-3.5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[10px] font-medium tracking-[0.14em] uppercase text-white/50 sm:text-[11px]">
+      <div className="relative z-20 flex flex-col gap-2.5 border-b border-white/15 pb-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-medium tracking-[0.12em] uppercase text-white/75">
           <span className="whitespace-nowrap">WEB DESIGN &amp; DEVELOPMENT</span>
-          <span aria-hidden="true" className="hidden text-white/30 sm:inline">
+          <span aria-hidden="true" className="hidden text-white/45 sm:inline">
             ·
           </span>
-          <span className="hidden whitespace-nowrap text-white/80 sm:inline">
+          <span className="hidden whitespace-nowrap text-white sm:inline">
             INDEPENDENT DIGITAL STUDIO
           </span>
-          <span aria-hidden="true" className="hidden text-white/30 md:inline">
+          <span aria-hidden="true" className="hidden text-white/45 md:inline">
             ·
           </span>
           <span className="hidden whitespace-nowrap md:inline">AHMEDABAD · WORLDWIDE</span>
@@ -135,10 +135,10 @@ export function CoverSlide({
               e.stopPropagation();
               setSelectedDirection(null);
             }}
-            className={`min-h-[34px] rounded-full px-3.5 py-1 font-space-mono text-[10px] tracking-[0.1em] uppercase transition-all duration-150 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+            className={`min-h-[40px] rounded-full px-3.5 py-1.5 font-space-mono text-[11.5px] tracking-[0.08em] uppercase transition-all duration-150 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
               selectedDirection === null
                 ? 'bg-white text-black'
-                : 'border border-white/14 bg-white/[0.02] text-white/60 hover:border-white/35 hover:text-white'
+                : 'border border-white/20 bg-white/[0.03] text-white/80 hover:border-white/50 hover:text-white'
             }`}
           >
             All
@@ -156,10 +156,10 @@ export function CoverSlide({
                   e.stopPropagation();
                   setSelectedDirection((prev) => (prev === item.id ? null : item.id));
                 }}
-                className={`min-h-[34px] rounded-full px-3.5 py-1 font-space-mono text-[10px] tracking-[0.1em] uppercase transition-all duration-150 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                className={`min-h-[40px] rounded-full px-3.5 py-1.5 font-space-mono text-[11.5px] tracking-[0.08em] uppercase transition-all duration-150 whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                   active
                     ? 'bg-white text-black'
-                    : 'border border-white/14 bg-white/[0.02] text-white/60 hover:border-white/35 hover:text-white'
+                    : 'border border-white/20 bg-white/[0.03] text-white/80 hover:border-white/50 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -173,7 +173,7 @@ export function CoverSlide({
       <div className="relative my-auto flex flex-1 flex-col justify-center overflow-hidden py-1">
         {/* Back layer typography behind selected previews */}
         <div className="pointer-events-none relative z-[2] select-none">
-          <p className="font-heading text-[clamp(3rem,7.2vw,6.35rem)] leading-[0.88] tracking-tight text-white/95">
+          <p className="font-heading text-[clamp(2.25rem,min(6vw,8.2dvh),5.4rem)] leading-[0.88] tracking-tight text-white">
             A better way
           </p>
         </div>
@@ -187,11 +187,11 @@ export function CoverSlide({
             speedTargetRef.current = 1;
           }}
           onPointerDown={(e) => e.stopPropagation()}
-          className="relative z-10 -my-2.5 flex w-full overflow-hidden py-3 sm:-my-4 sm:py-4"
+          className="relative z-10 -my-1.5 flex w-full overflow-hidden py-2 sm:-my-2.5 sm:py-3"
         >
           <div
             ref={trackRef}
-            className="flex shrink-0 items-center gap-4 will-change-transform sm:gap-6 lg:gap-7"
+            className="flex shrink-0 items-center gap-4 will-change-transform sm:gap-6"
           >
             {[...BAND_ITEMS, ...BAND_ITEMS].map((item, idx) => {
               const selected = selectedDirection === item.id;
@@ -207,11 +207,11 @@ export function CoverSlide({
                     e.stopPropagation();
                     setSelectedDirection((prev) => (prev === item.id ? null : item.id));
                   }}
-                  className={`h-[155px] w-[225px] shrink-0 overflow-hidden rounded-xl border bg-[#0b0b0b] text-left transition-all duration-300 ease-[cubic-bezier(0.22,0.8,0.2,1)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-[220px] sm:w-[320px] lg:h-[255px] lg:w-[375px] ${
+                  className={`h-[clamp(132px,25dvh,225px)] w-[clamp(192px,36dvh,335px)] shrink-0 overflow-hidden rounded-xl border bg-[#0b0b0b] text-left transition-all duration-300 ease-[cubic-bezier(0.22,0.8,0.2,1)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                     selected
                       ? '-translate-y-1.5 border-white/65 shadow-[0_24px_56px_rgba(0,0,0,0.92),0_0_28px_rgba(255,255,255,0.16)]'
                       : dimmed
-                      ? 'border-white/10 opacity-45 hover:border-white/35 hover:opacity-85'
+                      ? 'border-white/15 opacity-50 hover:border-white/40 hover:opacity-90'
                       : 'll-glow-border hover:-translate-y-1 hover:border-white/45 hover:shadow-[0_20px_48px_rgba(0,0,0,0.9)]'
                   }`}
                 >
@@ -224,34 +224,34 @@ export function CoverSlide({
 
         {/* Front layer typography overlapping previews for editorial depth */}
         <div className="pointer-events-none relative z-20 flex flex-col items-end text-right select-none">
-          <p className="font-heading text-[clamp(3.15rem,7.5vw,6.65rem)] leading-[0.86] tracking-tight text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.92)]">
+          <p className="font-heading text-[clamp(2.35rem,min(6.2vw,8.5dvh),5.6rem)] leading-[0.86] tracking-tight text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.92)]">
             <span className="italic">to be seen</span>.
           </p>
-          <p className="mt-2 font-body text-[12px] font-medium tracking-[0.28em] uppercase text-white/75 sm:text-[13.5px]">
+          <p className="mt-1.5 font-body text-[12px] font-medium tracking-[0.26em] uppercase text-white/85 sm:text-[13px]">
             LAUNCHLAYER.
           </p>
         </div>
       </div>
 
       {/* Bottom Interactive Craft Proof & Studio Standards Bar (Zero Arrows) */}
-      <div className="relative z-20 flex flex-col justify-between gap-3 border-t border-white/12 pt-3.5 lg:flex-row lg:items-center">
+      <div className="relative z-20 flex flex-col justify-between gap-2.5 border-t border-white/15 pt-3 lg:flex-row lg:items-center">
         <div className="min-w-0">
           {activeProof ? (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] sm:text-[13.5px]">
-              <span className="font-space-mono text-[10.5px] tracking-[0.14em] uppercase text-white/85">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] sm:text-[14px]">
+              <span className="font-space-mono text-[11.5px] tracking-[0.12em] uppercase text-white">
                 {activeProof.label} · {activeProof.discipline}
               </span>
-              <span aria-hidden="true" className="text-white/35">
+              <span aria-hidden="true" className="text-white/50">
                 ·
               </span>
-              <span className="font-light text-white">{activeProof.craftNote}</span>
-              <span aria-hidden="true" className="text-white/35">
+              <span className="font-normal text-white/90">{activeProof.craftNote}</span>
+              <span aria-hidden="true" className="text-white/50">
                 ·
               </span>
-              <span className="text-white/70">{activeProof.standard}</span>
+              <span className="text-white/80">{activeProof.standard}</span>
             </div>
           ) : (
-            <p className="max-w-[58ch] text-[13px] font-light leading-[1.55] text-white/60 sm:text-[14.5px]">
+            <p className="max-w-[58ch] text-[13.5px] font-normal leading-[1.55] text-white/80 sm:text-[14.5px]">
               We design and build digital experiences that give businesses a stronger presence
               online. Select any preview or direction above to inspect our approach.
             </p>
@@ -259,13 +259,13 @@ export function CoverSlide({
         </div>
 
         {/* Clean Unboxed Studio Proof Strip — No Arrows */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-space-mono text-[10px] tracking-[0.12em] uppercase text-white/50 shrink-0">
-          <span className="text-white/80">Custom Architecture</span>
-          <span aria-hidden="true" className="text-white/30">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-space-mono text-[11.5px] tracking-[0.1em] uppercase text-white/75 shrink-0">
+          <span className="text-white/90">Custom Architecture</span>
+          <span aria-hidden="true" className="text-white/45">
             /
           </span>
-          <span className="text-white/80">Responsive Craft</span>
-          <span aria-hidden="true" className="text-white/30">
+          <span className="text-white/90">Responsive Craft</span>
+          <span aria-hidden="true" className="text-white/45">
             /
           </span>
           <span className="text-white">Sub-Second Performance</span>

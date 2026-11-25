@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import CtaFooter from './components/CtaFooter';
 import { HeroSection } from './components/HeroSection';
 import { HeroVideoBackground } from './components/HeroVideoBackground';
 import { LaunchLayerRibbon } from './components/LaunchLayerRibbon';
 import { Navbar, type EnquiryTopic } from './components/Navbar';
+import OfflineFooter from './components/OfflineFooter';
 import { PhilosophyRevealSection } from './components/PhilosophyRevealSection';
 import PricingSection from './components/PricingSection';
 import { ProjectEnquiryDrawer } from './components/ProjectEnquiryDrawer';
@@ -37,8 +37,8 @@ export default function App() {
         Skip to content
       </a>
 
-      {/* Hero Wrapper with HLS Mux video background and monochrome top/bottom black fades */}
-      <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-black">
+      {/* Hero Wrapper with video background */}
+      <div className="relative flex min-h-dvh w-full flex-col overflow-x-clip bg-black">
         <HeroVideoBackground />
 
         <Navbar
@@ -67,7 +67,7 @@ export default function App() {
         <PricingSection onSelectPackage={(topic, tierId) => handleOpenEnquiry(topic, tierId)} />
       </main>
 
-      <CtaFooter onOpenEnquiry={handleOpenEnquiry} />
+      <OfflineFooter onOpenEnquiry={handleOpenEnquiry} />
 
       <ProjectEnquiryDrawer
         isOpen={enquiryOpen}
