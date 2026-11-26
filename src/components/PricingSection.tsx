@@ -125,6 +125,8 @@ function Reveal({
   );
 }
 
+const PRINT_GRAIN_BG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.85'/%3E%3C/svg%3E")`;
+
 function PricingCard({
   plan,
   onSelect,
@@ -137,6 +139,7 @@ function PricingCard({
   const shouldReduceMotion = !!useReducedMotion();
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (shouldReduceMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     setSpot({
       x: e.clientX - rect.left,
@@ -152,24 +155,64 @@ function PricingCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease }}
-      whileHover={shouldReduceMotion ? undefined : { y: -5 }}
+      whileHover={
+        shouldReduceMotion
+          ? undefined
+          : {
+              y: -6,
+              scale: 1.018,
+              transition: { type: 'spring', stiffness: 420, damping: 30, mass: 0.7 },
+            }
+      }
+      whileTap={
+        shouldReduceMotion
+          ? undefined
+          : {
+              scale: 0.996,
+              transition: { type: 'spring', stiffness: 520, damping: 34 },
+            }
+      }
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-all duration-300 sm:p-7',
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl p-6 will-change-transform transition-[border-color,background-color,box-shadow] duration-300 sm:p-7',
         plan.featured
-          ? 'liquid-glass-strong bg-white/[0.04] shadow-[0_24px_64px_rgba(0,0,0,0.9),0_0_40px_rgba(255,255,255,0.08)]'
-          : 'border border-white/12 bg-white/[0.02] hover:border-white/32 hover:bg-white/[0.035] hover:shadow-[0_20px_54px_rgba(0,0,0,0.9)]'
+          ? 'liquid-glass-strong bg-white/[0.045] shadow-[0_24px_64px_rgba(0,0,0,0.9),0_0_40px_rgba(255,255,255,0.08)] hover:shadow-[0_32px_78px_rgba(0,0,0,0.95),0_0_52px_rgba(255,255,255,0.13)]'
+          : 'border border-white/12 bg-white/[0.02] hover:border-white/32 hover:bg-white/[0.035] hover:shadow-[0_26px_64px_rgba(0,0,0,0.92)]'
       )}
     >
+      {/* Editorial Print Paper Micro-Grain */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 opacity-[0.025] mix-blend-overlay transition-opacity duration-500 group-hover:opacity-[0.06]"
+        style={{ backgroundImage: PRINT_GRAIN_BG }}
+      />
+
+      {/* Soft Editorial Light-Leak Wash (warm pearl + cool ice-blue bleed along card edges) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
         style={{
-          background: `radial-gradient(420px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.09), transparent 65%)`,
+          background:
+            'radial-gradient(125% 85% at 96% -8%, rgba(255, 240, 222, 0.14) 0%, rgba(255, 224, 196, 0.045) 36%, transparent 66%), radial-gradient(95% 75% at 6% 106%, rgba(168, 222, 255, 0.1) 0%, transparent 58%), linear-gradient(128deg, rgba(255,255,255,0.065) 0%, transparent 32%, transparent 72%, rgba(255,244,232,0.04) 100%)',
+        }}
+      />
+
+      {/* Top Foil Edge Hairline Illumination */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      />
+
+      {/* Pointer-Follow Local Light Wash */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-400 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(360px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.085), transparent 64%)`,
         }}
       />
 
       {plan.featured && plan.badge && (
-        <div className="absolute top-0 right-0 rounded-bl-xl border-b border-l border-white/25 bg-white px-3.5 py-1.5 font-space-mono text-[11px] font-medium tracking-[0.14em] text-black">
+        <div className="absolute top-0 right-0 z-10 rounded-bl-xl border-b border-l border-white/25 bg-white px-3.5 py-1.5 font-space-mono text-[11px] font-medium tracking-[0.14em] text-black transition-transform duration-300 group-hover:scale-[1.02]">
           {plan.badge}
         </div>
       )}
@@ -178,33 +221,40 @@ function PricingCard({
         <div className="flex items-center justify-between">
           <span
             className={cn(
-              'font-space-mono text-[11.5px] tracking-[0.16em]',
-              plan.featured ? 'text-white/90' : 'text-white/70'
+              'font-space-mono text-[11.5px] tracking-[0.16em] transition-colors duration-300',
+              plan.featured ? 'text-white/90' : 'text-white/70 group-hover:text-white/90'
             )}
           >
             PACKAGE / {plan.number}
           </span>
-          <span className={cn('h-px w-8', plan.featured ? 'bg-white/55' : 'bg-white/25')} />
+          <span
+            className={cn(
+              'h-px w-8 origin-right transition-all duration-300 ease-out group-hover:w-14',
+              plan.featured
+                ? 'bg-white/55 group-hover:bg-white/85'
+                : 'bg-white/25 group-hover:bg-white/60'
+            )}
+          />
         </div>
 
         <div className="mt-6">
-          <p className="font-body text-[13px] font-normal tracking-[0.01em] text-white/75">
+          <p className="font-body text-[13px] font-normal tracking-[0.01em] text-white/75 transition-colors duration-300 group-hover:text-white/90">
             {plan.subtitle}
           </p>
-          <h3 className="mt-1.5 font-heading text-3xl tracking-tight text-white lg:text-[2.15rem] xl:text-[2.35rem]">
+          <h3 className="mt-1.5 font-heading text-3xl tracking-tight text-white transition-transform duration-300 ease-out group-hover:translate-x-0.5 lg:text-[2.15rem] xl:text-[2.35rem]">
             {plan.name}
           </h3>
         </div>
 
-        <div className="mt-6 border-t border-white/15 pt-5">
+        <div className="mt-6 border-t border-white/15 pt-5 transition-colors duration-300 group-hover:border-white/25">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-body text-[2.25rem] font-light leading-none tracking-[-0.04em] text-white tabular-nums xl:text-[2.55rem]">
               {plan.usd}
             </span>
             <span
               className={cn(
-                'font-body text-sm font-medium tabular-nums',
-                plan.featured ? 'text-white/90' : 'text-white/75'
+                'font-body text-sm font-medium tabular-nums transition-colors duration-300',
+                plan.featured ? 'text-white/90' : 'text-white/75 group-hover:text-white/90'
               )}
             >
               {plan.inr}
@@ -224,43 +274,45 @@ function PricingCard({
           onClick={() => onSelect?.(plan.name.toLowerCase())}
           aria-label={`${plan.cta} — ${plan.name} package starting at ${plan.usd} or ${plan.inr}`}
           className={cn(
-            'mt-6 flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-[13.5px] font-medium tracking-[0.01em] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+            'group/btn mt-6 flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-[13.5px] font-medium tracking-[0.01em] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
             plan.featured
-              ? 'bg-white text-black hover:bg-white/90'
-              : 'liquid-glass-strong bg-white/[0.04] text-white hover:bg-white/15'
+              ? 'bg-white text-black hover:bg-white/95 group-hover:shadow-[0_8px_24px_rgba(255,255,255,0.16)]'
+              : 'liquid-glass-strong bg-white/[0.04] text-white hover:bg-white/15 group-hover:bg-white/[0.08]'
           )}
         >
           <span>{plan.cta}</span>
           <span
             aria-hidden="true"
-            className="text-base transition-transform duration-300 group-hover:translate-x-1"
+            className="text-base transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1"
           >
             ↗
           </span>
         </button>
       </div>
 
-      <div className="relative mt-7 border-t border-white/15 pt-5">
+      <div className="relative mt-7 border-t border-white/15 pt-5 transition-colors duration-300 group-hover:border-white/25">
         <p className="mb-3.5 font-space-mono text-[11px] tracking-[0.15em] uppercase text-white/75">
           WHAT&apos;S INCLUDED
         </p>
         <ul className="space-y-3">
-          {plan.features.map((feature) => (
+          {plan.features.map((feature, idx) => (
             <li
               key={feature.text}
+              style={shouldReduceMotion ? undefined : { transitionDelay: `${idx * 28}ms` }}
               className={cn(
-                'flex items-start gap-3 font-body text-[13px] font-normal leading-5',
-                feature.included ? 'text-white/90' : 'text-white/60'
+                'flex items-start gap-3 font-body text-[13px] font-normal leading-5 transition-[transform,color] duration-300 ease-out group-hover:translate-x-0.5',
+                feature.included ? 'text-white/90 group-hover:text-white' : 'text-white/60'
               )}
             >
               <span
                 aria-hidden="true"
+                style={shouldReduceMotion ? undefined : { transitionDelay: `${idx * 28}ms` }}
                 className={cn(
-                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px]',
+                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors duration-300',
                   feature.included
                     ? plan.featured
-                      ? 'border-white/75 text-white'
-                      : 'border-white/45 text-white'
+                      ? 'border-white/75 text-white group-hover:border-white group-hover:bg-white/10'
+                      : 'border-white/45 text-white group-hover:border-white/80 group-hover:bg-white/[0.06]'
                     : 'border-white/25 text-white/60'
                 )}
               >

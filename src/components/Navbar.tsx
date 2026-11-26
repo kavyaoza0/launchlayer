@@ -6,6 +6,7 @@ export type EnquiryTopic = 'General' | 'Work' | 'Services' | 'Pricing' | 'Studio
 interface NavbarProps {
   onOpenEnquiry: (topic?: EnquiryTopic) => void;
   onNavigatePresentation?: (slideIndex: number) => void;
+  entranceDone?: boolean;
 }
 
 const NAV_ITEMS: { label: string; topic: EnquiryTopic }[] = [
@@ -15,7 +16,7 @@ const NAV_ITEMS: { label: string; topic: EnquiryTopic }[] = [
   { label: 'Studio', topic: 'Studio' },
 ];
 
-export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
+export function Navbar({ onOpenEnquiry, onNavigatePresentation, entranceDone = true }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const firstMobileLinkRef = useRef<HTMLButtonElement | null>(null);
@@ -60,19 +61,23 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
   };
 
   return (
-    <header className="relative z-20 w-full border-b border-white/15 bg-black/65 backdrop-blur-md">
+    <header
+      className={`relative z-20 w-full border-b border-white/15 bg-black/65 backdrop-blur-md transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        entranceDone ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
+      }`}
+    >
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-5 py-3 sm:px-8 md:gap-8 md:py-3.5 lg:px-14">
         {/* Zone 1: Single-element Brand Wordmark */}
         <a
           href="#top"
-          aria-label="LaunchLayer — Back to top"
+          aria-label="Tesselo — Back to top"
           onClick={(e) => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="inline-flex min-h-[44px] items-center font-heading text-[24px] leading-none tracking-[-0.01em] text-white whitespace-nowrap shrink-0 sm:text-[26px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-sm"
         >
-          LaunchLayer
+          Tesselo
         </a>
 
         {/* Zone 2: Concise single-line navigation links */}

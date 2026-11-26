@@ -8,8 +8,10 @@ import { PhilosophyRevealSection } from './components/PhilosophyRevealSection';
 import PricingSection from './components/PricingSection';
 import { ProjectEnquiryDrawer } from './components/ProjectEnquiryDrawer';
 import { StudioEditorialCarousel } from './components/StudioEditorialCarousel';
+import { TesseloEntrance } from './components/TesseloEntrance';
 
 export default function App() {
+  const [entranceDone, setEntranceDone] = useState(false);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [enquiryTopic, setEnquiryTopic] = useState<EnquiryTopic>('General');
   const [enquiryTier, setEnquiryTier] = useState<string | undefined>(undefined);
@@ -29,6 +31,8 @@ export default function App() {
 
   return (
     <div className="w-full bg-black font-body text-white">
+      {!entranceDone && <TesseloEntrance onComplete={() => setEntranceDone(true)} />}
+
       {/* Skip-to-content link for keyboard & screen reader users */}
       <a
         href="#top"
@@ -44,9 +48,10 @@ export default function App() {
         <Navbar
           onOpenEnquiry={handleOpenEnquiry}
           onNavigatePresentation={handleNavigatePresentation}
+          entranceDone={entranceDone}
         />
 
-        <HeroSection onOpenEnquiry={handleOpenEnquiry} />
+        <HeroSection onOpenEnquiry={handleOpenEnquiry} entranceDone={entranceDone} />
       </div>
 
       {/* Primary Page Landmarks */}
@@ -57,13 +62,13 @@ export default function App() {
         {/* Editorial Scroll-Driven Text Reveal */}
         <PhilosophyRevealSection />
 
-        {/* LaunchLayer 7-Slide Scroll-to-Traverse Editorial Studio Carousel */}
+        {/* Tesselo Scroll-to-Traverse Editorial Studio Carousel */}
         <StudioEditorialCarousel
           onOpenEnquiry={handleOpenEnquiry}
           requestedSlide={requestedSlide}
         />
 
-        {/* LaunchLayer Pricing Section */}
+        {/* Tesselo Pricing Section */}
         <PricingSection onSelectPackage={(topic, tierId) => handleOpenEnquiry(topic, tierId)} />
       </main>
 

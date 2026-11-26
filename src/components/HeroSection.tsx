@@ -3,9 +3,10 @@ import type { EnquiryTopic } from './Navbar';
 
 interface HeroSectionProps {
   onOpenEnquiry: (topic?: EnquiryTopic) => void;
+  entranceDone?: boolean;
 }
 
-export function HeroSection({ onOpenEnquiry }: HeroSectionProps) {
+export function HeroSection({ onOpenEnquiry, entranceDone = true }: HeroSectionProps) {
   return (
     <section
       id="top"
@@ -14,7 +15,12 @@ export function HeroSection({ onOpenEnquiry }: HeroSectionProps) {
       className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col justify-between px-5 pt-5 pb-5 sm:px-8 md:pt-8 md:pb-8 lg:px-14 lg:pt-10 lg:pb-10 [@media(max-height:540px)]:pt-2 [@media(max-height:540px)]:pb-3 focus:outline-none"
     >
       {/* Top / Center Editorial Statement */}
-      <div className="my-auto max-w-4xl py-2 sm:py-4">
+      <div
+        key={entranceDone ? 'hero-ready' : 'hero-wait'}
+        className={`my-auto max-w-4xl py-2 sm:py-4 transition-opacity duration-500 ${
+          entranceDone ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
         <p className="ll-anim-rise mb-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body text-[13px] font-medium tracking-[0.04em] text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] sm:mb-4 sm:text-[13.5px]">
           <span>Ahmedabad</span>
           <span aria-hidden="true" className="text-white/75">
@@ -24,17 +30,25 @@ export function HeroSection({ onOpenEnquiry }: HeroSectionProps) {
         </p>
 
         <h1 className="ll-anim-rise font-heading text-[clamp(2.1rem,min(4.8vw,7.2dvh),4.85rem)] font-normal leading-[0.95] tracking-tight text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.85)] [text-wrap:balance]">
-          Websites shaped with <span className="italic text-white">editorial clarity</span> and
-          quiet precision.
+          Websites shaped with{' '}
+          <span className="italic text-white drop-shadow-[0_0_26px_rgba(100,206,251,0.35)]">
+            editorial clarity
+          </span>{' '}
+          and quiet precision.
         </h1>
       </div>
 
       {/* Bottom Architectural Split */}
-      <div className="ll-anim-rise relative grid grid-cols-1 items-end gap-5 border-t border-white/25 pt-4 md:grid-cols-12 md:gap-8 md:pt-6">
+      <div
+        key={entranceDone ? 'hero-split-ready' : 'hero-split-wait'}
+        className={`ll-anim-rise relative grid grid-cols-1 items-end gap-5 border-t border-white/25 pt-4 md:grid-cols-12 md:gap-8 md:pt-6 transition-opacity duration-500 ${
+          entranceDone ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
         <div className="md:col-span-6">
           <p className="max-w-[54ch] font-body text-[14.5px] font-normal leading-[1.6] tracking-[0.01em] text-white/95 drop-shadow-[0_2px_14px_rgba(0,0,0,0.92)] sm:text-[15.5px]">
-            LaunchLayer is an independent web design and development studio partnering with
-            founders and growing brands on custom websites, storefronts, and digital products.
+            Tesselo is an independent web design and development studio partnering with founders and
+            growing brands on custom websites, storefronts, and digital products.
           </p>
         </div>
 

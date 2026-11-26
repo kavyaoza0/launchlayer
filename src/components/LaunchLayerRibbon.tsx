@@ -8,7 +8,7 @@ interface LaunchLayerRibbonProps {
 }
 
 const TOTAL_SLOTS = RIBBON_PROJECTS.length; // 16
-const WORDMARK_CHARS = Array.from('LaunchLayer.');
+const WORDMARK_CHARS = Array.from('Tesselo.');
 const CAPTION_TEXT = 'LOADING SITES';
 
 function clamp(v: number, min: number, max: number): number {
@@ -110,6 +110,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
 
     // Pointer / drag / wheel / focus state
     isDragging: false,
+    activePointerId: null as number | null,
     dragType: null as 'mouse' | 'touch' | null,
     dragLockedAxis: null as 'x' | 'y' | null,
     dragStartX: 0,
@@ -121,6 +122,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     pointerClientY: -9999,
     hoveredIdx: null as number | null,
     focusedInsideWall: false,
+    pendingSwipeAnnounce: false,
     frameCounter: 0,
 
     // Per-card tilt spring states (stiffness 180, damping 24)
@@ -150,6 +152,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
   const skipIntro = useCallback(() => {
     const s = stateRef.current;
     if (s.introComplete) return;
+    const activeEl = document.activeElement as HTMLElement | null;
+    const wasInsideSection = Boolean(activeEl && sectionRef.current?.contains(activeEl));
+
     s.introStarted = true;
     s.formation = 1;
     s.expansion = 1;
@@ -164,7 +169,14 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     setIntroStarted(true);
     setLoaderStage('done');
     setIntroComplete(true);
-  }, []);
+
+    if (wasInsideSection) {
+      window.requestAnimationFrame(() => {
+        const target = slotRefs.current[focusedIndex] ?? slotRefs.current[0];
+        target?.focus({ preventScroll: true });
+      });
+    }
+  }, [focusedIndex]);
 
   // Reduced motion listener
   useEffect(() => {
@@ -259,6 +271,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       checkCompleteArrival();
 
       if (stateRef.current.prefersReducedMotion) return;
+      if (window.matchMedia('(pointer: coarse)').matches) return;
       if (performance.now() < autoSnapLockUntilRef.current) return;
 
       if (settleTimer !== null) window.clearTimeout(settleTimer);
@@ -306,10 +319,14 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     };
   }, [skipIntro]);
 
-  // Briefly lock page scroll while the entrance animation is playing so the sequence isn't accidentally skipped
+  // Briefly lock page scroll only on desktop fine-pointer devices while the entrance plays;
+  // never lock vertical touch scrolling on mobile/coarse devices so screen-reader & touch navigation stay unrestricted
   useEffect(() => {
     if (prefersReducedMotion) return;
     if (loaderStage !== 'loading' && loaderStage !== 'revealing') return;
+    const isCoarsePointer =
+      typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+    if (isCoarsePointer) return;
 
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
@@ -329,9 +346,6 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     const preventWheel = (e: WheelEvent) => {
       if (e.cancelable) e.preventDefault();
     };
-    const preventTouchMove = (e: TouchEvent) => {
-      if (e.cancelable) e.preventDefault();
-    };
     const preventScrollKeys = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Tab') {
         skipIntro();
@@ -343,7 +357,6 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     };
 
     window.addEventListener('wheel', preventWheel, { passive: false });
-    window.addEventListener('touchmove', preventTouchMove, { passive: false });
     window.addEventListener('keydown', preventScrollKeys);
 
     return () => {
@@ -352,7 +365,6 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       htmlEl.style.overscrollBehavior = prevOverscroll;
       bodyEl.style.paddingRight = prevPaddingRight;
       window.removeEventListener('wheel', preventWheel);
-      window.removeEventListener('touchmove', preventTouchMove);
       window.removeEventListener('keydown', preventScrollKeys);
     };
   }, [loaderStage, prefersReducedMotion, skipIntro]);
@@ -365,6 +377,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       s.pointerClientY = e.clientY;
 
       if (!s.isDragging || !s.introComplete) return;
+      if (s.activePointerId !== null && e.pointerId !== s.activePointerId) return;
 
       const dx = e.clientX - s.dragStartX;
       const dy = e.clientY - s.dragStartY;
@@ -374,12 +387,14 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         s.dragLockedAxis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
         if (s.dragLockedAxis === 'y') {
           s.isDragging = false;
+          s.activePointerId = null;
           setIsDraggingUI(false);
           return;
         }
       }
 
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      const moveThreshold = s.dragType === 'touch' ? 12 : 5;
+      if (Math.abs(dx) > moveThreshold || Math.abs(dy) > moveThreshold) {
         s.dragMoved = true;
       }
 
@@ -387,21 +402,25 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         e.preventDefault();
       }
 
-      s.m = s.dragStartM + 0.2 * dx;
+      const sensitivity = s.dragType === 'touch' ? 0.34 : 0.2;
+      s.m = s.dragStartM + sensitivity * dx;
       if (s.prefersReducedMotion) {
         s.g = s.m;
       }
     };
 
-    const stopDrag = () => {
+    const stopDrag = (e: PointerEvent) => {
       const s = stateRef.current;
       if (!s.isDragging) return;
+      if (s.activePointerId !== null && e.pointerId !== s.activePointerId) return;
       s.isDragging = false;
+      s.activePointerId = null;
       s.dragType = null;
       s.dragLockedAxis = null;
       setIsDraggingUI(false);
       if (s.dragMoved) {
         s.lastDragEndTime = performance.now();
+        s.pendingSwipeAnnounce = true;
       }
     };
 
@@ -505,12 +524,21 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         s.gVel = 0;
       }
 
-      // 4. Aspect-ratio-continuous Ring Geometry inside full 100dvh frame so it sits spaciously without looking zoomed in
+      // 4. Aspect-ratio-continuous Ring Geometry inside full 100dvh frame so entrance formation
+      //    fits 100% inside mobile viewports and seamlessly interpolates to exploration scale
       const vw = window.innerWidth || 1440;
       const vh = window.innerHeight || 900;
-      const scaleByW = (vw - 24) / 920;
-      const scaleByH = (vh - 80) / 420;
-      const responsiveScale = clamp(Math.min(scaleByW, scaleByH), 0.56, 1.06);
+      const isMobileViewport = vw < 640;
+
+      const introScaleW = (vw - (isMobileViewport ? 36 : 48)) / (isMobileViewport ? 1180 : 1020);
+      const introScaleH = (vh - (isMobileViewport ? 220 : 140)) / 500;
+      const introScale = clamp(Math.min(introScaleW, introScaleH), 0.24, 1.04);
+
+      const exploreScaleW = (vw - 32) / 920;
+      const exploreScaleH = (vh - 80) / 420;
+      const exploreScale = clamp(Math.min(exploreScaleW, exploreScaleH), isMobileViewport ? 0.36 : 0.46, 1.06);
+
+      const responsiveScale = introScale * (1 - e) + exploreScale * e;
 
       const tiltDeg = -22 * (1 - e);
       const tiltRad = (tiltDeg * Math.PI) / 180;
@@ -524,9 +552,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       const A = responsiveScale;
       const frameRect = frameRef.current?.getBoundingClientRect();
       const frameCenterY = frameRect ? frameRect.top + frameRect.height / 2 : vh * 0.5;
-      const introOff = 0.44 * vh - frameCenterY;
+      const introOff = (isMobileViewport ? 0.47 : 0.44) * vh - frameCenterY;
       const introOffset = introOff * (1 - e) + anchor * A;
-      const introX = 140 * Math.sin(rollRad) * A;
+      const introX = (isMobileViewport ? 48 : 140) * Math.sin(rollRad) * A;
       const centerScale = A;
 
       if (lensRef.current) {
@@ -555,7 +583,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
 
         if (!s.introStarted && !s.prefersReducedMotion) {
           cardEl.style.opacity = '0';
+          cardEl.style.visibility = 'hidden';
           cardEl.style.pointerEvents = 'none';
+          cardEl.setAttribute('aria-hidden', 'true');
           continue;
         }
 
@@ -587,12 +617,15 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         const outsideArc = s.introComplete && absR > maxArc;
         const arcFade = s.introComplete ? clamp(1 - (absR - 66) / (maxArc - 66), 0, 1) : 1;
         const visible = !behindCamera && !outsideArc && appear > 0.005 && arcFade > 0.01;
+        const isInteractiveCard = s.introComplete && visible;
 
         cardEl.style.transform = `translate3d(${x.toFixed(2)}px, 0px, ${z.toFixed(
           2
         )}px) rotateY(${lDeg.toFixed(3)}deg) scale(${cardScale.toFixed(4)})`;
         cardEl.style.opacity = visible ? (appear * arcFade).toFixed(3) : '0';
-        cardEl.style.pointerEvents = s.introComplete && visible ? 'auto' : 'none';
+        cardEl.style.visibility = visible ? 'visible' : 'hidden';
+        cardEl.style.pointerEvents = isInteractiveCard ? 'auto' : 'none';
+        cardEl.setAttribute('aria-hidden', isInteractiveCard ? 'false' : 'true');
         cardEl.style.zIndex = String(Math.round(3000 - z));
 
         // Flip face if past camera focal threshold
@@ -625,11 +658,19 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
         }
       }
 
-      if (s.introComplete && Math.abs(s.gVel) < 2 && !s.isDragging) {
+      if (s.introComplete && !s.focusedInsideWall && Math.abs(s.gVel) < 2 && !s.isDragging) {
         setFocusedIndex((prev) => {
           if (prev !== frontBestIdx) {
-            setAnnounceMode('off');
+            if (s.pendingSwipeAnnounce) {
+              s.pendingSwipeAnnounce = false;
+              setAnnounceMode('polite');
+            } else {
+              setAnnounceMode('off');
+            }
             return frontBestIdx;
+          }
+          if (s.pendingSwipeAnnounce) {
+            s.pendingSwipeAnnounce = false;
           }
           return prev;
         });
@@ -690,6 +731,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
 
     s.isDragging = true;
+    s.activePointerId = e.pointerId;
     s.dragType = e.pointerType === 'touch' ? 'touch' : 'mouse';
     s.dragLockedAxis = null;
     s.dragMoved = false;
@@ -779,10 +821,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       ref={sectionRef}
       role="region"
       aria-roledescription="carousel"
-      aria-label="LaunchLayer 3D Website Preview Ribbon. Drag or use left and right arrow keys to explore."
-      tabIndex={0}
+      aria-label="Tesselo 3D Website Showcase. Swipe horizontally on touch screens, drag with mouse, or use arrow keys to browse projects."
       onKeyDown={handleKeyDown}
-      className="ll-section-seam relative w-full bg-black select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+      className="ll-section-seam relative w-full bg-black select-none"
       style={{ height: prefersReducedMotion ? '100dvh' : '150dvh' }}
     >
       {/* Exclusive 100dvh Sticky Viewport Stage: transparent inner canvas over site #000 ground */}
@@ -804,11 +845,11 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
               transition: 'opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
-            {/* Top-left "LaunchLayer." masked letter-by-letter reveal */}
+            {/* Top-left "Tesselo." masked letter-by-letter reveal */}
             <div
-              className="absolute left-[4vw] top-[3.2vh] font-heading font-normal text-[#EEF4F6]"
+              className="absolute left-[4vw] top-[max(3.2vh,calc(env(safe-area-inset-top)+14px))] max-w-[92vw] font-heading font-normal text-[#EEF4F6]"
               style={{
-                fontSize: 'clamp(42px, 6.8vw, 120px)',
+                fontSize: 'clamp(36px, 6.8vw, 120px)',
                 lineHeight: 0.95,
                 letterSpacing: '-0.03em',
                 transform: isRevealing ? 'translate3d(0, -32px, 0) scale(0.92)' : 'translate3d(0, 0, 0) scale(1)',
@@ -839,8 +880,8 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
             </div>
 
             {/* Bottom-right "LOADING SITES" + 3-digit sliding odometer */}
-            <div className="absolute bottom-[4vh] right-[5vw] flex flex-col items-end">
-              <div className="min-h-[16px] font-space-mono text-[12px] tracking-[0.14em] uppercase text-[#B9CBD4]">
+            <div className="absolute bottom-[max(4vh,calc(env(safe-area-inset-bottom)+16px))] right-[5vw] flex flex-col items-end">
+              <div className="min-h-[16px] font-space-mono text-[11px] tracking-[0.14em] uppercase text-[#B9CBD4] sm:text-[12px]">
                 {typedCaption}
               </div>
 
@@ -848,7 +889,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                 <div
                   className="flex items-baseline font-space-mono leading-none tracking-[-0.09em] text-[#EEF4F6] tabular-nums"
                   style={{
-                    fontSize: 'clamp(64px, 11vw, 160px)',
+                    fontSize: 'clamp(48px, 11vw, 160px)',
                     transform: isRevealing
                       ? 'translate3d(0, -108%, 0)'
                       : introStarted
@@ -913,20 +954,27 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                 </div>
               </div>
             </div>
-
-            {/* Bottom-left 44px round Skip Intro button */}
-            <button
-              type="button"
-              aria-label="Skip opening sequence"
-              onClick={(e) => {
-                e.stopPropagation();
-                skipIntro();
-              }}
-              className="pointer-events-auto absolute bottom-[4vh] left-[4vw] flex h-[44px] w-[44px] items-center justify-center rounded-full border border-[#EEF4F6]/20 bg-black/50 text-[16px] text-[#EEF4F6] transition-colors hover:border-[#EEF4F6]/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              &#8599;
-            </button>
           </div>
+        )}
+
+        {/* Accessible 44px Skip Intro button layered above stage and outside aria-hidden loader */}
+        {isLoaderVisible && (
+          <button
+            type="button"
+            aria-label="Skip showcase intro animation"
+            onClick={(e) => {
+              e.stopPropagation();
+              skipIntro();
+            }}
+            style={{
+              opacity: isRevealing ? 0 : 1,
+              transition: 'opacity 500ms ease, border-color 200ms ease',
+            }}
+            className="pointer-events-auto touch-manipulation absolute bottom-[max(4vh,calc(env(safe-area-inset-bottom)+16px))] left-[4vw] z-40 inline-flex h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border border-[#EEF4F6]/25 bg-black/80 px-4 font-space-mono text-[11px] tracking-[0.12em] uppercase text-[#EEF4F6] hover:border-[#EEF4F6]/65 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <span>Skip</span>
+            <span aria-hidden="true">&#8599;</span>
+          </button>
         )}
 
         {/* Transparent 3D Ring Wall & Lens Stage (z-30 so forming ring hovers above loader) */}
@@ -972,6 +1020,9 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                       slotRefs.current[slotIdx] = el;
                     }}
                     data-ribbon-card="true"
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-hidden={!introComplete}
                     href={site.url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -988,8 +1039,8 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                       }
                     }}
                     onBlur={() => handleCardLeave(slotIdx)}
-                    aria-label={`No. ${site.number}: ${site.title} (${world.label}, ${site.category}). Opens preview in a new tab.`}
-                    className="preserve-3d group absolute block rounded-[16px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    aria-label={`No. ${site.number} of ${TOTAL_SLOTS}: ${site.title} (${world.label}, ${site.category}). Opens live preview in a new tab.`}
+                    className="preserve-3d touch-manipulation group absolute block rounded-[16px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     style={{
                       width: `${cardWidth}px`,
                       height: '160px',
@@ -1044,11 +1095,36 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
             </div>
           </div>
 
+          {/* Screen-reader & keyboard-only focus-visible stepper (invisible to sighted pointer/touch users, always usable via VoiceOver/TalkBack/Switch Control) */}
+          {introComplete && (
+            <div className="sr-only focus-within:not-sr-only focus-within:fixed focus-within:bottom-[max(4vh,calc(env(safe-area-inset-bottom)+16px))] focus-within:left-1/2 focus-within:z-50 focus-within:flex focus-within:-translate-x-1/2 focus-within:items-center focus-within:gap-3 focus-within:rounded-full focus-within:border focus-within:border-white/30 focus-within:bg-black/95 focus-within:px-4 focus-within:py-2 focus-within:shadow-2xl">
+              <button
+                type="button"
+                aria-label="Previous showcase project"
+                onClick={() => rotateToSlot((focusedIndex - 1 + TOTAL_SLOTS) % TOTAL_SLOTS, true)}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/25 px-3 font-space-mono text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Prev
+              </button>
+              <span className="font-space-mono text-xs text-white/90">
+                {activeSite.number} / {TOTAL_SLOTS}
+              </span>
+              <button
+                type="button"
+                aria-label="Next showcase project"
+                onClick={() => rotateToSlot((focusedIndex + 1) % TOTAL_SLOTS, true)}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/25 px-3 font-space-mono text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
           {/* Subtle Drag-to-Explore cue shown once ring entrance finishes */}
           {introComplete && (
             <div
               aria-hidden="true"
-              className={`pointer-events-none absolute bottom-[5.5vh] left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 font-space-mono text-[11px] tracking-[0.22em] uppercase transition-all duration-300 ${
+              className={`pointer-events-none absolute bottom-[max(4.5vh,calc(env(safe-area-inset-bottom)+18px))] left-1/2 z-40 flex w-max max-w-[92vw] -translate-x-1/2 items-center justify-center gap-3 px-4 font-space-mono text-[11px] tracking-[0.22em] uppercase transition-all duration-300 ${
                 isDraggingUI ? 'scale-95 text-white' : 'text-white/75'
               }`}
             >

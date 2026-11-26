@@ -149,7 +149,7 @@ export function PhilosophyRevealSection() {
 
             <div className="relative mt-9 w-full border-t border-white/15 pt-5 md:mt-11 md:pt-6">
               <p className="font-body text-[12px] font-normal tracking-[0.16em] uppercase text-white/70">
-                LAUNCHLAYER · OUR PHILOSOPHY
+                TESSELO · OUR PHILOSOPHY
               </p>
             </div>
           </div>

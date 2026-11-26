@@ -105,7 +105,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
   };
 
   const handleCopyEmail = () => {
-    const email = 'hello@launchlayer.in';
+    const email = 'hello@tesselo.in';
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(email).catch(() => {});
     }
@@ -114,7 +114,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
 
   return (
     <footer
-      aria-label="LaunchLayer Footer"
+      aria-label="Tesselo Footer"
       className="ll-section-seam relative w-full overflow-hidden bg-black font-body text-white"
     >
       {/* Top Heroic Editorial Typography Stage */}
@@ -199,20 +199,20 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                aria-label="Copy hello@launchlayer.in email address"
+                aria-label="Copy hello@tesselo.in email address"
                 className="inline-flex min-h-[44px] items-center gap-1.5 text-white/75 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-[#64CEFB] cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 {emailCopied ? (
                   <>
                     <Check className="h-3 w-3 text-[#64CEFB]" aria-hidden="true" />
-                    <span className="text-[#64CEFB]">Copied hello@launchlayer.in</span>
+                    <span className="text-[#64CEFB]">Copied hello@tesselo.in</span>
                   </>
                 ) : (
-                  <span>hello@launchlayer.in</span>
+                  <span>hello@tesselo.in</span>
                 )}
               </button>
               <span className="sr-only" aria-live="polite">
-                {emailCopied ? 'Email hello@launchlayer.in copied to clipboard' : ''}
+                {emailCopied ? 'Email hello@tesselo.in copied to clipboard' : ''}
               </span>
             </div>
           </motion.div>
@@ -314,7 +314,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
             <ul>
               <li>
                 <a
-                  href="mailto:hello@launchlayer.in"
+                  href="mailto:hello@tesselo.in"
                   className="group inline-flex min-h-[44px] items-center font-space-mono text-[11px] tracking-[0.12em] uppercase text-white/85 transition-colors hover:text-white rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <span className="relative py-0.5">
@@ -395,7 +395,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
         {/* Minimal Ground Bar */}
         <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-white/[0.1] pt-6 sm:flex-row sm:items-center">
           <p className="text-[13px] tracking-[0.01em] text-white/60">
-            © 2026 LaunchLayer. Designed and built with care.
+            © 2026 Tesselo. Designed and built with care.
           </p>
 
           <button
@@ -441,8 +441,8 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
             </div>
             <p className="text-sm leading-relaxed text-white/85">
               {activePolicy === 'privacy'
-                ? 'LaunchLayer collects only project enquiry details you explicitly submit via email or our enquiry form. We never sell personal data or track browsing across third-party websites.'
-                : 'This LaunchLayer website uses strictly necessary browser state to preserve smooth animation and accessibility preferences. No third-party advertising cookies are stored.'}
+                ? 'Tesselo collects only project enquiry details you explicitly submit via email or our enquiry form. We never sell personal data or track browsing across third-party websites.'
+                : 'This Tesselo website uses strictly necessary browser state to preserve smooth animation and accessibility preferences. No third-party advertising cookies are stored.'}
             </p>
           </div>
         </div>

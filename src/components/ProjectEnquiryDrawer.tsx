@@ -26,7 +26,7 @@ const TOPIC_NOTES: Record<EnquiryTopic, string> = {
     'We design and build custom landing pages, business websites, storefronts, SaaS marketing sites, and interactive experiences.',
   Pricing:
     'All listed tiers are transparent starting points. Final quotes follow a short scope conversation.',
-  Studio: 'LaunchLayer operates from Ahmedabad, partnering with founders and teams across time zones.',
+  Studio: 'Tesselo operates from Ahmedabad, partnering with founders and teams across time zones.',
   Contact: 'Tell us what you are building and your target launch timeline.',
 };
 
@@ -155,7 +155,7 @@ export function ProjectEnquiryDrawer({
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
                 <div>
                   <p className="text-[12.5px] font-medium tracking-[0.02em] text-white/80">
-                    LaunchLayer · {initialTopic === 'General' ? 'New Enquiry' : initialTopic}
+                    Tesselo · {initialTopic === 'General' ? 'New Enquiry' : initialTopic}
                   </p>
                   <h2
                     id="enquiry-title"
@@ -191,7 +191,7 @@ export function ProjectEnquiryDrawer({
                   </div>
                   <p className="mt-3 text-[14px] font-normal leading-relaxed text-white/85">
                     Thank you, {name}. We reply to every studio enquiry within one business day from{' '}
-                    <span className="text-white">hello@launchlayer.in</span>.
+                    <span className="text-white">hello@tesselo.in</span>.
                   </p>
                   <button
                     type="button"
@@ -353,10 +353,10 @@ export function ProjectEnquiryDrawer({
             <div className="mt-8 border-t border-white/15 pt-4 text-[12.5px] font-normal text-white/75">
               Ahmedabad, India · Serving clients worldwide · Direct:{' '}
               <a
-                href="mailto:hello@launchlayer.in"
+                href="mailto:hello@tesselo.in"
                 className="text-white underline underline-offset-4 hover:text-white/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                hello@launchlayer.in
+                hello@tesselo.in
               </a>
             </div>
           </motion.aside>

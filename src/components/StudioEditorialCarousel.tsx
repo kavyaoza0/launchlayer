@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useScrollToTraverse } from '../hooks/useScrollToTraverse';
 import type { EnquiryTopic } from './Navbar';
 import {
@@ -306,7 +305,7 @@ export function StudioEditorialCarousel({
       </div>
 
       {/* Spacious Full-Viewport Sticky Showcase */}
-      <div className="sticky top-0 flex h-dvh w-full flex-col justify-between overflow-hidden bg-black">
+      <div className="sticky top-0 flex min-h-dvh w-full flex-col justify-between overflow-x-clip bg-black">
         {/* Lightweight Pre-Feathered Ambient Spotlight & Subtle Rotating Blueprint Arcs (zero blur-filter raster stalls) */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
@@ -346,7 +345,7 @@ export function StudioEditorialCarousel({
         {/* Generous Top Editorial Header */}
         <div
           ref={headerInnerRef}
-          className="relative z-10 mx-auto w-full max-w-[1440px] shrink-0 px-6 pt-6 pb-3 sm:px-8 sm:pt-8 sm:pb-5 lg:px-14 lg:pt-10 lg:pb-6 [@media(max-height:540px)]:pt-2 [@media(max-height:540px)]:pb-2"
+          className="relative z-10 mx-auto w-full max-w-[1440px] shrink-0 px-5 pt-4 pb-2 sm:px-8 sm:pt-6 sm:pb-3 lg:px-14 lg:pt-7 lg:pb-4 [@media(max-height:600px)]:pt-2.5 [@media(max-height:600px)]:pb-1.5"
         >
           <motion.div
             initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
@@ -356,14 +355,14 @@ export function StudioEditorialCarousel({
             className="flex flex-wrap items-end justify-between gap-4"
           >
             <div>
-              <p className="mb-2 flex items-center gap-2 font-space-mono text-[10px] tracking-[0.2em] uppercase text-[#64CEFB] sm:text-[10.5px] [@media(max-height:540px)]:mb-1">
+              <p className="mb-1.5 flex items-center gap-2 font-space-mono text-[10px] tracking-[0.2em] uppercase text-[#64CEFB] sm:text-[10.5px] [@media(max-height:600px)]:mb-1">
                 <span>Studio Process · Accessibility First</span>
               </p>
 
               <div className="flex items-baseline gap-2.5 sm:gap-3">
                 <h2
                   id="better-seen-heading"
-                  className="font-heading text-[clamp(1.95rem,min(4.2vw,6.2dvh),3.75rem)] font-normal leading-[0.95] tracking-tight text-white"
+                  className="font-heading text-[clamp(1.8rem,min(4vw,5.8dvh),3.5rem)] font-normal leading-[0.95] tracking-tight text-white"
                 >
                   A better way <span className="italic">to be seen</span>.
                 </h2>
@@ -389,7 +388,7 @@ export function StudioEditorialCarousel({
                 </div>
               </div>
 
-              <p className="mt-2.5 max-w-[54ch] text-[13.5px] leading-[1.6] text-white/80 sm:text-[14.5px] [@media(max-height:520px)]:hidden">
+              <p className="mt-1.5 max-w-[54ch] text-[13px] leading-[1.5] text-white/80 sm:mt-2 sm:text-[14px] [@media(max-height:580px)]:hidden">
                 Five deliberate stages, each with clarity and WCAG accessibility built in — from
                 initial brief to live launch.
               </p>
@@ -407,7 +406,7 @@ export function StudioEditorialCarousel({
           aria-label="Studio process stages carousel. Scroll, drag horizontally, or press left and right arrow keys to move between cards."
           onKeyDown={handleKeyDown}
           onPointerDown={handlePointerDown}
-          className="relative z-10 flex min-h-0 w-full flex-1 cursor-grab active:cursor-grabbing items-center overflow-hidden touch-pan-y select-none [perspective:1600px] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75"
+          className="relative z-10 flex w-full flex-1 cursor-grab active:cursor-grabbing items-center overflow-x-clip overflow-y-visible py-2 sm:py-3 touch-pan-y select-none [perspective:1600px] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75"
         >
           <div
             ref={(el) => {
@@ -426,14 +425,14 @@ export function StudioEditorialCarousel({
                     cardRefs.current[idx] = el;
                   }}
                   id={`carousel-panel-${idx}`}
-                  role="tabpanel"
+                  role="group"
                   aria-roledescription="slide"
-                  aria-labelledby={`carousel-tab-${idx}`}
+                  aria-label={`Stage ${stage.num} of 0${TOTAL_STAGES}: ${stage.title}`}
                   onPointerMove={handleCardSpotlightMove}
                   onClick={() => {
                     if (!isActive) scrollToSlide(idx);
                   }}
-                  className={`group/card relative flex h-[clamp(320px,52dvh,470px)] w-[76vw] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border bg-gradient-to-b from-[#11131A] via-[#0B0C10] to-[#070709] will-change-[transform,opacity] transition-[border-color] duration-300 ease-out sm:h-[clamp(360px,53dvh,470px)] sm:w-[68vw] md:w-[52vw] lg:w-[42vw] max-w-[560px] [@media(max-height:540px)]:h-[clamp(230px,54dvh,310px)] ${
+                  className={`group/card relative flex min-h-[360px] w-[86vw] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border bg-gradient-to-b from-[#11131A] via-[#0B0C10] to-[#070709] will-change-[transform,opacity] transition-[border-color] duration-300 ease-out sm:min-h-[395px] sm:w-[68vw] md:w-[54vw] lg:w-[44vw] max-w-[560px] ${
                     isActive
                       ? 'border-white/28 shadow-[0_28px_80px_rgba(0,0,0,0.9),0_0_42px_rgba(100,206,251,0.08)]'
                       : 'border-white/10 shadow-[0_18px_46px_rgba(0,0,0,0.8)] cursor-pointer'
@@ -483,7 +482,7 @@ export function StudioEditorialCarousel({
                   </span>
 
                   {/* Top Editorial Copy Chamber */}
-                  <div className="relative z-20 flex flex-col gap-3 px-5 pt-5 pb-6 sm:p-6 md:p-7 [@media(max-height:540px)]:gap-1.5 [@media(max-height:540px)]:py-3">
+                  <div className="relative z-20 flex shrink-0 flex-col gap-2 px-4 pt-4 pb-3.5 sm:gap-2.5 sm:px-6 sm:pt-5 sm:pb-4 [@media(max-height:540px)]:gap-1 [@media(max-height:540px)]:py-2.5">
                     <div className="flex items-center justify-between gap-4">
                       <span
                         className={`inline-flex items-center gap-2 font-space-mono text-[12px] font-medium tracking-[0.14em] tabular-nums transition-colors duration-300 ${
@@ -499,17 +498,17 @@ export function StudioEditorialCarousel({
                     </div>
 
                     <div>
-                      <h3 className="font-heading text-[1.7rem] font-normal leading-none tracking-tight text-white sm:text-[2.05rem] [@media(max-height:540px)]:text-[1.45rem]">
+                      <h3 className="font-heading text-[1.6rem] font-normal leading-none tracking-tight text-white sm:text-[1.95rem] [@media(max-height:540px)]:text-[1.35rem]">
                         {stage.title}
                       </h3>
-                      <p className="mt-2.5 max-w-[44ch] text-[13px] leading-[1.55] text-white/82 sm:text-[14px] [@media(max-height:520px)]:hidden">
+                      <p className="mt-1.5 max-w-[44ch] text-[12.5px] leading-[1.48] text-white/82 sm:mt-2 sm:text-[13.5px] [@media(max-height:540px)]:hidden">
                         {stage.description}
                       </p>
                     </div>
                   </div>
 
                   {/* Bottom Interactive Dotted-Matrix Chamber */}
-                  <div className="relative z-20 flex-1 border-t border-white/12 bg-[#070709] px-5 py-5 sm:p-6 [@media(max-height:540px)]:py-3">
+                  <div className="relative z-20 min-h-0 flex-1 border-t border-white/12 bg-[#070709] px-4 py-3.5 sm:px-6 sm:py-4 [@media(max-height:540px)]:py-2.5">
                     {/* Softly Vignetted Micro-Dot Canvas */}
                     <div
                       aria-hidden="true"
@@ -571,8 +570,8 @@ export function StudioEditorialCarousel({
           </div>
         </div>
 
-        {/* Spacious Bottom Progress & Keyboard Navigation Bar */}
-        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] shrink-0 flex-col gap-2.5 px-6 pt-3 pb-5 sm:gap-3 sm:px-8 sm:pt-4 sm:pb-7 lg:px-14 [@media(max-height:540px)]:pt-2 [@media(max-height:540px)]:pb-2">
+        {/* Spacious Bottom Progress Bar */}
+        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] shrink-0 flex-col px-5 pt-2.5 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+16px))] sm:px-8 sm:pt-3 sm:pb-7 lg:px-14">
           <div className="flex items-center gap-3.5 sm:gap-4">
             <span className="shrink-0 font-space-mono text-[11px] tracking-[0.12em] text-white tabular-nums sm:text-[11.5px]">
               {STAGES[activeSlide].num} <span className="text-white/45">/ 0{TOTAL_STAGES}</span>
@@ -599,80 +598,6 @@ export function StudioEditorialCarousel({
                 {STAGES[activeSlide].title}
               </motion.span>
             </AnimatePresence>
-          </div>
-
-          {/* Accessible Keyboard Controls Row (Stage Tabs + Previous / Next) */}
-          <div className="flex items-center justify-between gap-4">
-            <div
-              className="flex items-center gap-1"
-              role="tablist"
-              aria-label="Select process stage"
-            >
-              {STAGES.map((stage, idx) => {
-                const active = activeSlide === idx;
-                return (
-                  <button
-                    key={stage.num}
-                    id={`carousel-tab-${idx}`}
-                    type="button"
-                    role="tab"
-                    tabIndex={active ? 0 : -1}
-                    aria-selected={active}
-                    aria-controls={`carousel-panel-${idx}`}
-                    aria-label={`Stage ${stage.num}: ${stage.title}`}
-                    onClick={() => scrollToSlide(idx)}
-                    onKeyDown={(e) => {
-                      let nextIdx: number | null = null;
-                      if (e.key === 'ArrowRight') nextIdx = (idx + 1) % TOTAL_STAGES;
-                      else if (e.key === 'ArrowLeft')
-                        nextIdx = (idx - 1 + TOTAL_STAGES) % TOTAL_STAGES;
-                      else if (e.key === 'Home') nextIdx = 0;
-                      else if (e.key === 'End') nextIdx = TOTAL_STAGES - 1;
-
-                      if (nextIdx !== null) {
-                        e.preventDefault();
-                        scrollToSlide(nextIdx);
-                        const sibling = e.currentTarget.parentElement?.children[
-                          nextIdx
-                        ] as HTMLElement | undefined;
-                        sibling?.focus();
-                      }
-                    }}
-                    className="flex h-11 min-w-[34px] items-center justify-center rounded-sm cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-w-[40px]"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`block h-[2.5px] rounded-full transition-all duration-200 ${
-                        active
-                          ? 'w-7 bg-[#64CEFB] shadow-[0_0_8px_rgba(100,206,251,0.55)]'
-                          : 'w-3 bg-white/30 hover:w-4 hover:bg-white/75'
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Previous stage"
-                disabled={activeSlide === 0}
-                onClick={() => scrollToSlide(activeSlide - 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white transition-colors hover:border-white/55 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                aria-label="Next stage"
-                disabled={activeSlide === TOTAL_STAGES - 1}
-                onClick={() => scrollToSlide(activeSlide + 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white transition-colors hover:border-white/55 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
           </div>
         </div>
       </div>

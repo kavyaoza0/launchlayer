@@ -109,7 +109,7 @@ export function Card01Discovery({
   };
 
   return (
-    <div className="flex h-full flex-col justify-center gap-4 sm:gap-5">
+    <div className="flex h-full flex-col justify-center gap-2.5 sm:gap-3.5">
       {/* Segmented Intake Progress Meter with Orbit Sync Dot & Shimmer */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         <div
@@ -179,7 +179,7 @@ export function Card01Discovery({
                   e.stopPropagation();
                   toggleItem(idx);
                 }}
-                className={`group relative z-0 flex min-h-[44px] items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-2 text-left text-[11.5px] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
+                className={`group relative z-0 flex min-h-[40px] items-center gap-2 overflow-hidden rounded-lg border px-2 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[42px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
                   checked
                     ? 'border-[#64CEFB]/40 bg-[#64CEFB]/[0.06] text-white shadow-[inset_0_1px_0_rgba(100,206,251,0.16)]'
                     : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
@@ -204,7 +204,7 @@ export function Card01Discovery({
                 >
                   <AnimatedCheckIcon checked={checked} reduced={prefersReducedMotion} />
                 </span>
-                <span className="truncate font-medium">{item}</span>
+                <span className="font-medium break-words">{item}</span>
               </motion.button>
             );
           })}
@@ -282,7 +282,7 @@ export function Card02Direction({
   const activePalette = DIRECTION_FAN[focusedDir].swatches;
 
   return (
-    <div className="flex h-full flex-col justify-between gap-2.5 py-0.5 sm:gap-3">
+    <div className="flex h-full flex-col justify-between gap-2 py-0.5 sm:gap-2.5">
       {/* Header Row with Sliding Mode Switcher */}
       <div className="flex items-center justify-between gap-2 sm:gap-3">
         <LayoutGroup id="card02-dir">
@@ -361,7 +361,7 @@ export function Card02Direction({
               animate={{ opacity: 1, y: 0 }}
               exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.28, ease: EASE }}
-              className="relative flex h-[138px] w-full items-center justify-center sm:h-[150px]"
+              className="relative flex h-[118px] w-full items-center justify-center sm:h-[136px]"
             >
               {DIRECTION_FAN.map((item, idx) => {
                 const offset = idx - focusedDir;
@@ -407,7 +407,7 @@ export function Card02Direction({
                           }
                         : { duration: 0 }
                     }
-                    className={`absolute aspect-[16/10] w-[158px] overflow-hidden rounded-lg border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-[202px] ${
+                    className={`absolute aspect-[16/10] w-[148px] overflow-hidden rounded-lg border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-[190px] ${
                       isFront
                         ? 'border-[#64CEFB]/80 shadow-[0_20px_44px_rgba(0,0,0,0.88),0_0_26px_rgba(100,206,251,0.18)]'
                         : 'border-white/20 hover:border-white/45'
@@ -515,7 +515,7 @@ export function Card02Direction({
                           : 'border-white/12 bg-white/[0.02] text-white/70 hover:border-white/30'
                       }`}
                     >
-                      <span className="truncate text-[10px] font-medium sm:text-[11px]">{page.name}</span>
+                      <span className="text-[10px] font-medium leading-tight sm:text-[11px]">{page.name}</span>
                       <div aria-hidden="true" className="space-y-1 pt-1">
                         {page.lines.map((w, lIdx) => (
                           <motion.div
@@ -585,7 +585,7 @@ export function Card03DesignBuild({
   const currentVp = BUILD_VIEWPORTS[vpIdx];
 
   const handleCopy = () => {
-    const url = 'https://kanso.launchlayer.in';
+    const url = 'https://kanso.tesselo.in';
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).catch(() => {});
     }
@@ -593,7 +593,7 @@ export function Card03DesignBuild({
   };
 
   return (
-    <div className="flex h-full flex-col justify-between gap-2.5 py-0.5 sm:gap-3">
+    <div className="flex h-full flex-col justify-between gap-2 py-0.5 sm:gap-2.5">
       {/* Header + Animated Segmented Device Switcher */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 font-space-mono text-[10.5px] text-white/85 sm:gap-2 sm:text-[11px]">
@@ -668,7 +668,7 @@ export function Card03DesignBuild({
           initial={false}
           animate={{ width: currentVp.widthPct }}
           transition={prefersReducedMotion ? { duration: 0 } : SPRING}
-          className="relative flex h-[104px] flex-col overflow-hidden rounded-lg border border-white/24 bg-black shadow-[0_16px_38px_rgba(0,0,0,0.9)] sm:h-[116px]"
+          className="relative flex h-[92px] flex-col overflow-hidden rounded-lg border border-white/24 bg-black shadow-[0_16px_38px_rgba(0,0,0,0.9)] sm:h-[108px]"
         >
           <div
             aria-hidden="true"
@@ -724,7 +724,7 @@ export function Card03DesignBuild({
       {/* Interactive Staging URL Bar */}
       <div className="flex items-center justify-between gap-2 rounded-lg border border-white/15 bg-black/80 px-3 py-1.5">
         <span className="truncate font-space-mono text-[11px] text-white/75">
-          kanso.launchlayer.in
+          kanso.tesselo.in
         </span>
         <motion.button
           type="button"
@@ -816,7 +816,7 @@ export function Card04AccessibilityLaunch({
   };
 
   return (
-    <div className="flex h-full flex-col justify-center gap-4 sm:gap-5">
+    <div className="flex h-full flex-col justify-center gap-2.5 sm:gap-3.5">
       <div className="flex items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2">
           {/* Animated SVG Radial Completion Ring */}
@@ -888,7 +888,7 @@ export function Card04AccessibilityLaunch({
                   e.stopPropagation();
                   toggleAudit(idx);
                 }}
-                className={`relative z-0 flex min-h-[50px] items-center justify-between gap-2 rounded-lg border px-2.5 py-2 text-left text-[11.5px] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[54px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
+                className={`relative z-0 flex min-h-[46px] items-center justify-between gap-1.5 rounded-lg border px-2 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[50px] sm:gap-2.5 sm:px-3 sm:py-2 sm:text-[12px] ${
                   passed
                     ? 'border-[#64CEFB]/40 bg-[#64CEFB]/[0.07] text-white'
                     : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
@@ -903,16 +903,16 @@ export function Card04AccessibilityLaunch({
                   />
                 )}
 
-                <span className="flex min-w-0 items-center gap-2">
+                <span className="flex min-w-0 items-start gap-1.5 sm:items-center sm:gap-2">
                   <Icon
                     aria-hidden="true"
-                    className={`h-3.5 w-3.5 shrink-0 transition-colors ${
+                    className={`mt-0.5 h-3.5 w-3.5 shrink-0 transition-colors sm:mt-0 ${
                       passed ? 'text-[#64CEFB]' : 'text-white/60'
                     }`}
                   />
                   <span className="min-w-0">
-                    <span className="block truncate font-medium leading-tight">{check.label}</span>
-                    <span className="mt-0.5 block font-space-mono text-[9.5px] uppercase tracking-[0.06em] text-white/55">
+                    <span className="block font-medium leading-[1.2]">{check.label}</span>
+                    <span className="mt-0.5 block font-space-mono text-[9px] uppercase tracking-[0.05em] text-white/60 sm:text-[9.5px]">
                       {check.metric}
                     </span>
                   </span>
@@ -973,11 +973,11 @@ export function Card05Investment({
   const current = SCOPE_OPTIONS[selectedTier];
 
   return (
-    <div className="flex h-full flex-col justify-center gap-3.5 sm:justify-between sm:gap-3">
+    <div className="flex h-full flex-col justify-center gap-2.5 sm:justify-between sm:gap-2.5">
       <LayoutGroup id="card05-scope">
         <div
           role="radiogroup"
-          aria-label="Choose a LaunchLayer starting investment scope"
+          aria-label="Choose a Tesselo starting investment scope"
           className="grid grid-cols-2 gap-2"
         >
           {SCOPE_OPTIONS.map((tier, idx) => {
@@ -996,7 +996,7 @@ export function Card05Investment({
                   setSelectedTier(idx);
                   setPinned(true);
                 }}
-                className={`relative z-0 flex min-h-[46px] items-baseline justify-between gap-1.5 overflow-hidden rounded-lg border px-2.5 py-2 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[52px] sm:gap-2 sm:px-3 ${
+                className={`relative z-0 flex min-h-[44px] items-baseline justify-between gap-1.5 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[48px] sm:gap-2 sm:px-3 sm:py-2 ${
                   active
                     ? 'border-[#64CEFB]/65 text-white shadow-[0_0_18px_rgba(100,206,251,0.12)]'
                     : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
@@ -1010,7 +1010,7 @@ export function Card05Investment({
                     className="pointer-events-none absolute inset-0 -z-10 bg-[#64CEFB]/[0.11]"
                   />
                 )}
-                <span className="truncate text-[11.5px] font-medium sm:text-[12.5px]">{tier.name}</span>
+                <span className="text-[11.5px] font-medium leading-tight sm:text-[12.5px]">{tier.name}</span>
                 <span className="shrink-0 font-space-mono text-[10.5px] text-[#64CEFB] tabular-nums sm:text-[11px]">
                   {tier.rate}
                 </span>
@@ -1028,7 +1028,7 @@ export function Card05Investment({
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReducedMotion ? undefined : { opacity: 0, y: -4 }}
             transition={{ duration: 0.22, ease: EASE }}
-            className="min-w-0"
+            className="min-w-0 flex-1"
           >
             <div className="flex items-center gap-1.5 text-[10.5px] font-space-mono uppercase tracking-[0.08em] text-[#64CEFB] sm:text-[11px]">
               <motion.span
@@ -1040,7 +1040,7 @@ export function Card05Investment({
               </motion.span>
               <span>{current.timeline}</span>
             </div>
-            <p className="truncate text-[11.5px] text-white/85 sm:text-[12.5px]">{current.note}</p>
+            <p className="text-[11px] leading-[1.3] text-white/85 sm:text-[12.5px]">{current.note}</p>
           </motion.div>
         </AnimatePresence>
 
