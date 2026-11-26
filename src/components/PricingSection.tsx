@@ -280,7 +280,7 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
     <section
       id="pricing"
       aria-labelledby="pricing-heading"
-      className="ll-section-seam relative w-full overflow-hidden bg-black py-16 text-white sm:py-22 md:py-28"
+      className="ll-section-seam relative w-full overflow-hidden bg-black py-14 text-white sm:py-20 md:py-24"
     >
       {/* Subtle monochrome grid texture & radial atmosphere */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -288,7 +288,7 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
       </div>
 
-      <div className="relative mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10 lg:px-14">
+      <div className="relative mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-14">
         <div className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 md:mb-14 md:flex-row md:items-end">
           <div className="w-full max-w-2xl">
             <Reveal>
@@ -304,7 +304,7 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
             <Reveal delay={0.08}>
               <h2
                 id="pricing-heading"
-                className="font-heading text-[clamp(2.4rem,min(5.2vw,7.4dvh),4.75rem)] font-normal leading-[0.96] tracking-tight text-white"
+                className="font-heading text-[clamp(2.15rem,min(4.6vw,6.8dvh),4.25rem)] font-normal leading-[0.96] tracking-tight text-white"
               >
                 Good work.
                 <br />

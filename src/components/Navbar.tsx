@@ -61,7 +61,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation }: NavbarProps) {
 
   return (
     <header className="relative z-20 w-full border-b border-white/15 bg-black/65 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6 md:gap-8 md:px-10 md:py-4 lg:px-14">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-5 py-3 sm:px-8 md:gap-8 md:py-3.5 lg:px-14">
         {/* Zone 1: Single-element Brand Wordmark */}
         <a
           href="#top"

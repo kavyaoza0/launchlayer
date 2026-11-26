@@ -1,424 +1,777 @@
-import { ArrowUpRight } from 'lucide-react';
-import { motion, useInView } from 'motion/react';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { RIBBON_PROJECTS } from './ribbon/ribbonProjects';
+import { RIBBON_PROJECTS, WORLD_META } from './ribbon/ribbonProjects';
 import { RibbonPreviewCard } from './ribbon/RibbonPreviewCard';
 
 interface LaunchLayerRibbonProps {
   id?: string;
 }
 
-interface ResponsiveGeometry {
-  cardWidth: number;
-  cardHeight: number;
-  radius: number;
-  perspective: number;
+const TOTAL_SLOTS = RIBBON_PROJECTS.length; // 16
+const WORDMARK_CHARS = Array.from('LaunchLayer.');
+const CAPTION_TEXT = 'LOADING SITES';
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
+// Exact numerical cubic-bezier solver matching CSS timing functions
+function solveCubicBezier(p1x: number, p1y: number, p2x: number, p2y: number, x: number): number {
+  const cx = 3 * p1x;
+  const bx = 3 * (p2x - p1x) - cx;
+  const ax = 1 - cx - bx;
+  const cy = 3 * p1y;
+  const by = 3 * (p2y - p1y) - cy;
+  const ay = 1 - cy - by;
 
-function smoothstep(edge0: number, edge1: number, x: number): number {
-  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
-  return t * t * (3 - 2 * t);
-}
+  const sampleX = (t: number) => ((ax * t + bx) * t + cx) * t;
+  const sampleDX = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
+  const sampleY = (t: number) => ((ay * t + by) * t + cy) * t;
 
-function computeGeometry(vw: number, vh: number): ResponsiveGeometry {
-  let widthTarget: number;
-  let perspective: number;
-
-  if (vw < 640) {
-    widthTarget = clamp(vw * 0.41, 146, 188);
-    perspective = 920;
-  } else if (vw < 1024) {
-    widthTarget = clamp(vw * 0.36, 270, 350);
-    perspective = 1320;
-  } else {
-    widthTarget = clamp(vw * 0.275, 330, 440);
-    perspective = 1720;
+  let t = clamp(x, 0, 1);
+  for (let i = 0; i < 5; i++) {
+    const err = sampleX(t) - x;
+    const d = sampleDX(t);
+    if (Math.abs(err) < 1e-5 || Math.abs(d) < 1e-6) break;
+    t = clamp(t - err / d, 0, 1);
   }
+  return sampleY(t);
+}
 
-  // Constrain card size by available stage height so short/scaled laptops never look zoomed in
-  const maxHeightConstrainedW =
-    vw < 640 ? widthTarget : Math.max(210, (vh * 0.56 - 90) * (16 / 9));
-  const w = Math.round(Math.min(widthTarget, maxHeightConstrainedW));
-  const h = Math.round((w * 9) / 16);
-  const radius = Math.round(w * (vw < 640 ? 2.95 : 2.86));
-
-  return {
-    cardWidth: w,
-    cardHeight: h,
-    radius,
-    perspective,
-  };
+interface TiltSpringState {
+  tx: number;
+  vx: number;
+  ty: number;
+  vy: number;
+  z: number;
+  vz: number;
+  targetX: number;
+  targetY: number;
+  targetZ: number;
 }
 
 export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const reflectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const lensRef = useRef<HTMLDivElement | null>(null);
+  const ringCenterRef = useRef<HTMLDivElement | null>(null);
 
-  const isInView = useInView(sectionRef, { once: true, amount: 0.14 });
+  const slotRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const flipRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const autoSnapLockUntilRef = useRef(0);
 
-  const [isDraggingUI, setIsDraggingUI] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isDraggingUI, setIsDraggingUI] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const focusedIndexRef = useRef(0);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [announceMode, setAnnounceMode] = useState<'off' | 'polite'>('off');
 
-  const [geo, setGeo] = useState<ResponsiveGeometry>(() =>
+  // Intro & loader UI states
+  const [introStarted, setIntroStarted] = useState(false);
+  const [loaderStage, setLoaderStage] = useState<'idle' | 'loading' | 'revealing' | 'done'>('idle');
+  const [introComplete, setIntroComplete] = useState(false);
+  const [typedCaption, setTypedCaption] = useState('');
+  const [displayPercent, setDisplayPercent] = useState(0);
+
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
     typeof window !== 'undefined'
-      ? computeGeometry(window.innerWidth, window.innerHeight)
-      : { cardWidth: 380, cardHeight: 214, radius: 1087, perspective: 1720 }
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
   );
 
-  const total = RIBBON_PROJECTS.length;
-  const angleStepDeg = 360 / total;
+  // Slot mapping note from spec: N = 16 gives stable offset of +3 slots
+  const siteForSlot = useCallback((slotIdx: number) => {
+    return RIBBON_PROJECTS[((slotIdx + 3) % TOTAL_SLOTS + TOTAL_SLOTS) % TOTAL_SLOTS];
+  }, []);
 
-  // High-frequency 60fps physics & 3D cylinder transform state outside React re-renders
-  const animRef = useRef({
-    targetAngle: 0,
-    currentAngle: 0,
-    springVel: 0,
-    coastVel: 0,
+  const stateRef = useRef({
+    introStarted: false,
+    introComplete: false,
+    revealTriggered: false,
+    isSectionVisible: false,
+    isDocHidden: false,
+    prefersReducedMotion: prefersReducedMotion,
+
+    // Timeline values
+    formationStartTime: 0,
+    expansionStartTime: 0,
+    formation: 0, // 0..1 linearly over 2.6s
+    expansion: 0, // 0..1 eased over 1.9s
+
+    // LaunchLayer card asset readiness tracking
+    assetsSettled: 0,
+    assetsDone: false,
+
+    // Ring rotation spring: g follows m (stiffness 150, damping 27, mass 1)
+    m: 0,
+    g: 0,
+    gVel: 0,
+    E: 1, // Speed factor lerps to 0.2 when hovering a card, 1.0 otherwise
+
+    // Pointer / drag / wheel / focus state
     isDragging: false,
+    dragType: null as 'mouse' | 'touch' | null,
     dragLockedAxis: null as 'x' | 'y' | null,
+    dragStartX: 0,
+    dragStartY: 0,
+    dragStartM: 0,
     dragMoved: false,
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    lastMoveTime: 0,
+    lastDragEndTime: 0,
+    pointerClientX: -9999,
+    pointerClientY: -9999,
     hoveredIdx: null as number | null,
-    localTiltX: 0,
-    localTiltY: 0,
-    hoverMix: new Array<number>(total).fill(0),
-    isPaused: false,
-    prefersReducedMotion: false,
-    radius: geo.radius,
-    cardWidth: geo.cardWidth,
+    focusedInsideWall: false,
+    frameCounter: 0,
+
+    // Per-card tilt spring states (stiffness 180, damping 24)
+    tilts: Array.from({ length: TOTAL_SLOTS }, (): TiltSpringState => ({
+      tx: 0,
+      vx: 0,
+      ty: 0,
+      vy: 0,
+      z: 0,
+      vz: 0,
+      targetX: 0,
+      targetY: 0,
+      targetZ: 0,
+    })),
   });
 
-  useEffect(() => {
-    animRef.current.radius = geo.radius;
-    animRef.current.cardWidth = geo.cardWidth;
-  }, [geo.radius, geo.cardWidth]);
-
-  useEffect(() => {
-    animRef.current.isPaused = isPaused;
-  }, [isPaused]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setGeo(computeGeometry(window.innerWidth, window.innerHeight));
-    };
-
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => window.removeEventListener('resize', handleResize);
+  // Track LaunchLayer project card image/surface readiness
+  const handleAssetSettled = useCallback(() => {
+    const s = stateRef.current;
+    s.assetsSettled = Math.min(TOTAL_SLOTS, s.assetsSettled + 1);
+    if (s.assetsSettled >= TOTAL_SLOTS) {
+      s.assetsDone = true;
+    }
   }, []);
 
+  // Immediately skip intro to final interactive 3D cylinder
+  const skipIntro = useCallback(() => {
+    const s = stateRef.current;
+    if (s.introComplete) return;
+    s.introStarted = true;
+    s.formation = 1;
+    s.expansion = 1;
+    s.assetsDone = true;
+    s.revealTriggered = true;
+    s.introComplete = true;
+    s.m = 78;
+    s.g = 78;
+    s.gVel = 0;
+
+    setDisplayPercent(100);
+    setIntroStarted(true);
+    setLoaderStage('done');
+    setIntroComplete(true);
+  }, []);
+
+  // Reduced motion listener
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mq.matches);
-    animRef.current.prefersReducedMotion = mq.matches;
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-      animRef.current.prefersReducedMotion = e.matches;
-      if (e.matches) {
-        animRef.current.coastVel = 0;
-        animRef.current.springVel = 0;
-        animRef.current.currentAngle = animRef.current.targetAngle;
+    const apply = (matches: boolean) => {
+      setPrefersReducedMotion(matches);
+      stateRef.current.prefersReducedMotion = matches;
+      if (matches) {
+        skipIntro();
       }
     };
+    apply(mq.matches);
 
-    mq.addEventListener('change', handleChange);
-    return () => mq.removeEventListener('change', handleChange);
-  }, []);
+    const onChange = (e: MediaQueryListEvent) => apply(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [skipIntro]);
 
-  // Mouse wheel rotation (supports trackpad horizontal scroll, shift+wheel, and gentle vertical nudge)
+  // Low-threshold magnetic arrival snap + complete-viewport intro trigger:
+  // 1) A gentle scroll downward from Section 1 (Hero) smoothly docks Section 2 flush to top (0..vh)
+  //    so the user never has to push hard to isolate this section cleanly.
+  // 2) Scrolling upward from Section 3 smoothly docks Section 2 back to 100dvh, while exiting
+  //    upward to Hero or downward past the sticky chamber into Section 3 stays completely natural.
+  // 3) The opening sequence begins ONLY once the user has arrived completely inside Section 2
+  //    (0px of Hero above and 0px of Section 3 below).
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
-    const handleWheel = (e: WheelEvent) => {
-      const a = animRef.current;
-      const absX = Math.abs(e.deltaX);
-      const absY = Math.abs(e.deltaY);
+    let startTypingTimer: number | null = null;
+    let typeTimer: number | null = null;
+    let failsafeTimer: number | null = null;
+    let settleTimer: number | null = null;
+    let lastScrollY = window.scrollY;
 
-      if (absX > absY || e.shiftKey) {
-        e.preventDefault();
-        const delta = e.shiftKey && absY > absX ? e.deltaY : e.deltaX;
-        const impulse = -delta * 0.085;
-        a.targetAngle += impulse;
-        a.coastVel = clamp(a.coastVel + impulse * 4.5, -120, 120);
-      } else if (absY > 0) {
-        // Rotate gently in response to wheel while preserving vertical page scrolling
-        const impulse = -e.deltaY * 0.048;
-        a.targetAngle += impulse;
-        a.coastVel = clamp(a.coastVel + impulse * 3.2, -95, 95);
+    const beginIntro = () => {
+      const s = stateRef.current;
+      if (s.introStarted) return;
+      s.introStarted = true;
+      setIntroStarted(true);
+
+      if (s.prefersReducedMotion) {
+        skipIntro();
+        return;
+      }
+
+      // Dock cleanly to section top before locking scroll during the entrance sequence
+      const rect = section.getBoundingClientRect();
+      if (Math.abs(rect.top) > 2) {
+        autoSnapLockUntilRef.current = performance.now() + 450;
+        window.scrollTo({ top: Math.round(window.scrollY + rect.top), behavior: 'auto' });
+      }
+
+      s.formationStartTime = performance.now();
+      setLoaderStage('loading');
+
+      // Type "LOADING SITES" 1 char every 45ms starting at 350ms
+      let charCount = 0;
+      startTypingTimer = window.setTimeout(() => {
+        typeTimer = window.setInterval(() => {
+          charCount += 1;
+          setTypedCaption(CAPTION_TEXT.slice(0, charCount));
+          if (charCount >= CAPTION_TEXT.length && typeTimer !== null) {
+            window.clearInterval(typeTimer);
+            typeTimer = null;
+          }
+        }, 45);
+      }, 350);
+
+      // Failsafe so even slow connections still hit 100% cleanly
+      failsafeTimer = window.setTimeout(() => {
+        s.assetsDone = true;
+      }, 3500);
+    };
+
+    const checkCompleteArrival = () => {
+      const s = stateRef.current;
+      if (s.introStarted) return;
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      // Section occupies the full 100dvh viewport exclusively
+      if (rect.top <= 16 && rect.bottom >= vh - 16) {
+        beginIntro();
       }
     };
 
-    stage.addEventListener('wheel', handleWheel, { passive: false });
-    return () => stage.removeEventListener('wheel', handleWheel);
-  }, []);
+    const onScroll = () => {
+      const y = window.scrollY;
+      const dir = y >= lastScrollY ? 'down' : 'up';
+      lastScrollY = y;
 
-  // Global pointermove / pointerup listeners for crisp drag & one-finger touch swiping
+      checkCompleteArrival();
+
+      if (stateRef.current.prefersReducedMotion) return;
+      if (performance.now() < autoSnapLockUntilRef.current) return;
+
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => {
+        if (stateRef.current.isDragging) return;
+        if (performance.now() < autoSnapLockUntilRef.current) return;
+
+        const rect = section.getBoundingClientRect();
+        const vh = window.innerHeight || 1;
+
+        // Low-threshold downward arrival from Hero: once >=12% of Section 2 enters viewport, glide cleanly to top=0
+        if (dir === 'down' && rect.top > 4 && rect.top < vh * 0.88) {
+          autoSnapLockUntilRef.current = performance.now() + 650;
+          window.scrollTo({ top: window.scrollY + rect.top, behavior: 'smooth' });
+        } else if (dir === 'up' && rect.top < 0 && rect.bottom > vh * 0.14 && rect.bottom < vh - 4) {
+          // Upward re-entry from Section 3: glide cleanly so Section 2 bottom aligns flush with viewport bottom
+          autoSnapLockUntilRef.current = performance.now() + 650;
+          window.scrollTo({ top: window.scrollY + (rect.bottom - vh), behavior: 'smooth' });
+        }
+      }, 85);
+    };
+
+    const observer = new IntersectionObserver(
+      () => {
+        checkCompleteArrival();
+      },
+      { threshold: [0, 0.5, 0.9, 0.98, 1] }
+    );
+
+    observer.observe(section);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', checkCompleteArrival, { passive: true });
+
+    // Initial check in case loaded directly at #work
+    checkCompleteArrival();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', checkCompleteArrival);
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      if (startTypingTimer !== null) window.clearTimeout(startTypingTimer);
+      if (typeTimer !== null) window.clearInterval(typeTimer);
+      if (failsafeTimer !== null) window.clearTimeout(failsafeTimer);
+    };
+  }, [skipIntro]);
+
+  // Briefly lock page scroll while the entrance animation is playing so the sequence isn't accidentally skipped
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    if (loaderStage !== 'loading' && loaderStage !== 'revealing') return;
+
+    const htmlEl = document.documentElement;
+    const bodyEl = document.body;
+    const prevHtmlOverflow = htmlEl.style.overflow;
+    const prevBodyOverflow = bodyEl.style.overflow;
+    const prevOverscroll = htmlEl.style.overscrollBehavior;
+    const prevPaddingRight = bodyEl.style.paddingRight;
+
+    const scrollbarWidth = Math.max(0, window.innerWidth - htmlEl.clientWidth);
+    if (scrollbarWidth > 0) {
+      bodyEl.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    htmlEl.style.overflow = 'hidden';
+    bodyEl.style.overflow = 'hidden';
+    htmlEl.style.overscrollBehavior = 'none';
+
+    const preventWheel = (e: WheelEvent) => {
+      if (e.cancelable) e.preventDefault();
+    };
+    const preventTouchMove = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault();
+    };
+    const preventScrollKeys = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Tab') {
+        skipIntro();
+        return;
+      }
+      if ([' ', 'Spacebar', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('wheel', preventWheel, { passive: false });
+    window.addEventListener('touchmove', preventTouchMove, { passive: false });
+    window.addEventListener('keydown', preventScrollKeys);
+
+    return () => {
+      htmlEl.style.overflow = prevHtmlOverflow;
+      bodyEl.style.overflow = prevBodyOverflow;
+      htmlEl.style.overscrollBehavior = prevOverscroll;
+      bodyEl.style.paddingRight = prevPaddingRight;
+      window.removeEventListener('wheel', preventWheel);
+      window.removeEventListener('touchmove', preventTouchMove);
+      window.removeEventListener('keydown', preventScrollKeys);
+    };
+  }, [loaderStage, prefersReducedMotion, skipIntro]);
+
+  // Drag & Touch rotation listeners (drag-only rotation; scrolling up/down never spins cards)
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
-      const a = animRef.current;
-      if (!a.isDragging) return;
+      const s = stateRef.current;
+      s.pointerClientX = e.clientX;
+      s.pointerClientY = e.clientY;
 
-      const dxTotal = e.clientX - a.startX;
-      const dyTotal = e.clientY - a.startY;
+      if (!s.isDragging || !s.introComplete) return;
 
-      if (!a.dragLockedAxis) {
-        if (Math.abs(dxTotal) < 6 && Math.abs(dyTotal) < 6) return;
-        a.dragLockedAxis = Math.abs(dxTotal) >= Math.abs(dyTotal) ? 'x' : 'y';
-        if (a.dragLockedAxis === 'y') {
-          a.isDragging = false;
+      const dx = e.clientX - s.dragStartX;
+      const dy = e.clientY - s.dragStartY;
+
+      if (s.dragType === 'touch' && !s.dragLockedAxis) {
+        if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+        s.dragLockedAxis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+        if (s.dragLockedAxis === 'y') {
+          s.isDragging = false;
           setIsDraggingUI(false);
           return;
         }
-        a.dragMoved = true;
-        setIsDraggingUI(true);
       }
 
-      const now = performance.now();
-      const dt = Math.max((now - a.lastMoveTime) / 1000, 0.004);
-      const stepDx = e.clientX - a.lastX;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        s.dragMoved = true;
+      }
 
-      // Convert horizontal pixels into cylindrical degrees around the arc
-      const degPerPx = 42 / Math.max(a.cardWidth, 240);
-      const deltaDeg = stepDx * degPerPx;
+      if (s.dragType === 'touch' && s.dragLockedAxis === 'x' && e.cancelable) {
+        e.preventDefault();
+      }
 
-      a.targetAngle += deltaDeg;
-      a.coastVel = clamp((deltaDeg / dt) * 0.42, -165, 165);
-      a.lastX = e.clientX;
-      a.lastMoveTime = now;
+      s.m = s.dragStartM + 0.2 * dx;
+      if (s.prefersReducedMotion) {
+        s.g = s.m;
+      }
     };
 
-    const stopDragging = () => {
-      const a = animRef.current;
-      if (!a.isDragging) return;
-      a.isDragging = false;
-      a.dragLockedAxis = null;
+    const stopDrag = () => {
+      const s = stateRef.current;
+      if (!s.isDragging) return;
+      s.isDragging = false;
+      s.dragType = null;
+      s.dragLockedAxis = null;
       setIsDraggingUI(false);
-      if (a.dragMoved) {
-        window.setTimeout(() => {
-          a.dragMoved = false;
-        }, 60);
+      if (s.dragMoved) {
+        s.lastDragEndTime = performance.now();
       }
     };
 
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('pointerup', stopDragging, { passive: true });
-    window.addEventListener('pointercancel', stopDragging, { passive: true });
+    window.addEventListener('pointermove', handlePointerMove, { passive: false });
+    window.addEventListener('pointerup', stopDrag, { passive: true });
+    window.addEventListener('pointercancel', stopDrag, { passive: true });
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', stopDragging);
-      window.removeEventListener('pointercancel', stopDragging);
+      window.removeEventListener('pointerup', stopDrag);
+      window.removeEventListener('pointercancel', stopDrag);
     };
   }, []);
 
-  // Main 60fps spring & 3D cylindrical ring transform loop
+  // Main 60fps reference geometry, spring physics, formation & expansion loop
   useEffect(() => {
     let rafId = 0;
     let lastTime = performance.now();
+    let loaderDoneTimer: number | null = null;
+    let expansionDoneTimer: number | null = null;
 
     const tick = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.033);
+      const s = stateRef.current;
+      if (!s.isSectionVisible || s.isDocHidden) {
+        rafId = 0;
+        return;
+      }
+
+      const dtMs = Math.max(1, now - lastTime);
+      const dtSec = Math.min(dtMs / 1000, 0.033);
+      const k = Math.min(3, dtMs / 16.67);
       lastTime = now;
 
-      const a = animRef.current;
+      // 1. Progress opening sequence: formation (0->1 over 2.6s) + synchronized odometer reveal
+      if (s.introStarted && !s.introComplete) {
+        if (!s.revealTriggered) {
+          const elapsed = now - s.formationStartTime;
+          s.formation = clamp(elapsed / 2600, 0, 1);
 
-      if (!a.isDragging) {
-        // Continuous slow idle rotation; slows on hover, stops under reduced motion or pause
-        if (!a.prefersReducedMotion && !a.isPaused) {
-          const idleDegPerSec = a.hoveredIdx !== null ? 1.05 : 4.15;
-          a.targetAngle -= idleDegPerSec * dt;
-        }
+          // Pace odometer smoothly across ~2.1s of formation while respecting actual asset readiness
+          const easedTimePct = Math.round(
+            solveCubicBezier(0.22, 1, 0.36, 1, clamp(elapsed / 2100, 0, 1)) * 100
+          );
+          const readyCap = s.assetsDone
+            ? 100
+            : Math.max(18, Math.round((s.assetsSettled / TOTAL_SLOTS) * 100));
+          const targetPct = Math.min(easedTimePct, readyCap);
+          setDisplayPercent((prev) => (prev !== targetPct ? targetPct : prev));
 
-        // Apply inertial coasting momentum
-        if (Math.abs(a.coastVel) > 0.02) {
-          a.targetAngle += a.coastVel * dt;
-          a.coastVel *= Math.pow(0.055, dt);
+          // Trigger Reveal when formation >= 1 AND assets are settled (or failsafe elapsed)
+          if (s.formation >= 1 && s.assetsDone) {
+            s.revealTriggered = true;
+            s.expansionStartTime = now;
+            setDisplayPercent(100);
+            setLoaderStage('revealing');
+
+            loaderDoneTimer = window.setTimeout(() => {
+              setLoaderStage('done');
+            }, 1000);
+
+            expansionDoneTimer = window.setTimeout(() => {
+              s.expansion = 1;
+              s.introComplete = true;
+              setIntroComplete(true);
+            }, 1900);
+          }
         } else {
-          a.coastVel = 0;
+          // Expansion goes 0 -> 1 over 1.9s with cubic-bezier(0.5, 0, 0.15, 1)
+          const rawExp = clamp((now - s.expansionStartTime) / 1900, 0, 1);
+          s.expansion = solveCubicBezier(0.5, 0, 0.15, 1, rawExp);
         }
       }
 
-      if (a.prefersReducedMotion) {
-        a.currentAngle = a.targetAngle;
-        a.springVel = 0;
+      const e = s.introComplete ? 1 : s.expansion;
+      const f = s.introComplete ? 1 : s.formation;
+
+      // 2. Determine hover slowdown factor E (checks pointer hit every 3rd frame)
+      s.frameCounter = (s.frameCounter + 1) % 3;
+      let overCard = s.hoveredIdx !== null;
+      if (s.frameCounter === 0 && s.introComplete && s.pointerClientX > -100) {
+        const hit = document.elementFromPoint(s.pointerClientX, s.pointerClientY);
+        overCard = Boolean(hit?.closest?.('[data-ribbon-card="true"]'));
+      }
+      const targetE = overCard ? 0.2 : 1;
+      s.E += (targetE - s.E) * Math.min(1, 0.08 * k);
+
+      // 3. Rotation target m + spring-damped angle g (stiffness 150, damping 27, mass 1)
+      if (!s.prefersReducedMotion) {
+        if (!s.introComplete && s.introStarted) {
+          s.m += 0.3 * (0.5 + 0.5 * e) * clamp((78 - s.m) / 20, 0, 1) * s.E * k;
+        } else if (s.introComplete && !s.isDragging && !s.focusedInsideWall) {
+          s.m += 0.3 * s.E * k;
+        }
+
+        const force = (s.m - s.g) * 150;
+        const accel = force - s.gVel * 27;
+        s.gVel += accel * dtSec;
+        s.g += s.gVel * dtSec;
       } else {
-        // Smooth critically damped spring toward targetAngle
-        const stiffness = 140;
-        const damping = 22;
-        const force = (a.targetAngle - a.currentAngle) * stiffness;
-        const accel = force - a.springVel * damping;
-        a.springVel += accel * dt;
-        a.currentAngle += a.springVel * dt;
+        s.g = s.m;
+        s.gVel = 0;
       }
 
-      let frontBestIdx = 0;
-      let frontBestCos = -2;
+      // 4. Aspect-ratio-continuous Ring Geometry inside full 100dvh frame so it sits spaciously without looking zoomed in
+      const vw = window.innerWidth || 1440;
+      const vh = window.innerHeight || 900;
+      const scaleByW = (vw - 24) / 920;
+      const scaleByH = (vh - 80) / 420;
+      const responsiveScale = clamp(Math.min(scaleByW, scaleByH), 0.56, 1.06);
 
-      for (let i = 0; i < total; i++) {
-        const cardEl = cardRefs.current[i];
-        const reflEl = reflectionRefs.current[i];
+      const tiltDeg = -22 * (1 - e);
+      const tiltRad = (tiltDeg * Math.PI) / 180;
+      const radius = 450 + 1150 * e; // 450 -> 1600
+      const anchor = -radius * Math.sin(tiltRad) + 450 * Math.sin((-22 * Math.PI) / 180) * (1 - e);
+      const perspective = 1040 + (1140 - 1040) * e;
+      const rollDeg = -20 * (1 - e);
+      const rollRad = (rollDeg * Math.PI) / 180;
+      const cardScale = 0.5 + (2.06 - 0.5) * (e * e);
+
+      const A = responsiveScale;
+      const frameRect = frameRef.current?.getBoundingClientRect();
+      const frameCenterY = frameRect ? frameRect.top + frameRect.height / 2 : vh * 0.5;
+      const introOff = 0.44 * vh - frameCenterY;
+      const introOffset = introOff * (1 - e) + anchor * A;
+      const introX = 140 * Math.sin(rollRad) * A;
+      const centerScale = A;
+
+      if (lensRef.current) {
+        lensRef.current.style.perspective = `${(perspective * A).toFixed(2)}px`;
+        lensRef.current.style.perspectiveOrigin = `50% calc(50% + ${(introOff * (1 - e)).toFixed(2)}px)`;
+      }
+
+      if (ringCenterRef.current) {
+        ringCenterRef.current.style.transform = `translate3d(${introX.toFixed(2)}px, ${introOffset.toFixed(
+          2
+        )}px, 0px) rotateZ(${rollDeg.toFixed(3)}deg) rotateX(${tiltDeg.toFixed(
+          3
+        )}deg) scale3d(${centerScale.toFixed(4)}, ${centerScale.toFixed(4)}, ${A.toFixed(4)})`;
+      }
+
+      // 5. Place all 16 cards around cylinder + hover tilt springs
+      const rotForSlots = s.introComplete ? s.g : 0;
+      let frontBestIdx = 0;
+      let frontBestAbsR = 999;
+
+      for (let slot = 0; slot < TOTAL_SLOTS; slot++) {
+        const cardEl = slotRefs.current[slot];
+        const flipEl = flipRefs.current[slot];
+        const tiltEl = tiltRefs.current[slot];
         if (!cardEl) continue;
 
-        let deg = (i * angleStepDeg + a.currentAngle) % 360;
-        if (deg > 180) deg -= 360;
-        if (deg < -180) deg += 360;
-
-        const rad = (deg * Math.PI) / 180;
-        const cosT = Math.cos(rad);
-        const sinT = Math.sin(rad);
-
-        if (cosT > frontBestCos) {
-          frontBestCos = cosT;
-          frontBestIdx = i;
+        if (!s.introStarted && !s.prefersReducedMotion) {
+          cardEl.style.opacity = '0';
+          cardEl.style.pointerEvents = 'none';
+          continue;
         }
 
-        const isCardHovered = a.hoveredIdx === i && !a.isDragging && !a.prefersReducedMotion;
-        const targetHover = isCardHovered ? 1 : 0;
-        a.hoverMix[i] += (targetHover - a.hoverMix[i]) * (a.prefersReducedMotion ? 1 : 0.16);
-        const hMix = a.hoverMix[i];
+        // Exact slot angle in [-180, 180)
+        const raw = (360 * slot) / TOTAL_SLOTS + rotForSlots + 180;
+        const r = (((raw % 360) + 360) % 360) - 180;
+        const absR = Math.abs(r);
 
-        // Hide back-of-cylinder cards smoothly before crossing +-90deg
-        const visibility = smoothstep(0.08, 0.36, cosT);
-        const finalOpacity = clamp(visibility + hMix * 0.18 * visibility, 0, 1);
+        if (absR < frontBestAbsR) {
+          frontBestAbsR = absR;
+          frontBestIdx = slot;
+        }
 
-        // True cylindrical arc geometry + subtle hover lift toward camera
-        const tx = sinT * a.radius;
-        const tz = (cosT - 1) * a.radius + hMix * 40;
-        const ty = hMix * -6;
+        const n = ((r + 180) % 360 + 360) % 360;
+        const aNorm = n / 360;
+        const iProg = clamp((f - 0.7 * aNorm) / 0.3, 0, 1);
+        const sProg = 1 - Math.pow(1 - iProg, 3);
+        const lDeg = -180 + n * sProg;
+        const lRad = (lDeg * Math.PI) / 180;
+        const effRadius = radius - (1 - sProg) * aNorm * 24;
 
-        // Slight cursor-tracking tilt on the hovered card
-        const tiltY = isCardHovered ? a.localTiltX * 7.2 * hMix : 0;
-        const tiltX = isCardHovered ? -a.localTiltY * 5.4 * hMix : 0;
-        const rotY = deg + tiltY;
+        const x = -Math.sin(lRad) * effRadius;
+        const z = -Math.cos(lRad) * effRadius;
+        const appear = Math.min(1, 2.5 * iProg);
 
-        // Subtle foreground depth scale + hover enlargement
-        const depthScale = 0.88 + 0.12 * smoothstep(0.25, 1.0, cosT);
-        const scale = depthScale * (1 + hMix * 0.068);
+        // Smooth edge fade & camera culling so flank cards never loom oversized into edges
+        const behindCamera = z * Math.cos(tiltRad) >= perspective - 70;
+        const maxArc = 86;
+        const outsideArc = s.introComplete && absR > maxArc;
+        const arcFade = s.introComplete ? clamp(1 - (absR - 66) / (maxArc - 66), 0, 1) : 1;
+        const visible = !behindCamera && !outsideArc && appear > 0.005 && arcFade > 0.01;
 
-        const zIndex = Math.round((cosT + 1) * 100) + (hMix > 0.05 ? 45 : 0);
-
-        cardEl.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, ${tz.toFixed(
+        cardEl.style.transform = `translate3d(${x.toFixed(2)}px, 0px, ${z.toFixed(
           2
-        )}px) rotateY(${rotY.toFixed(2)}deg) rotateX(${tiltX.toFixed(2)}deg) scale3d(${scale.toFixed(
-          4
-        )}, ${scale.toFixed(4)}, 1)`;
-        cardEl.style.opacity = finalOpacity.toFixed(3);
-        cardEl.style.zIndex = String(zIndex);
-        cardEl.style.pointerEvents = cosT > 0.22 ? 'auto' : 'none';
+        )}px) rotateY(${lDeg.toFixed(3)}deg) scale(${cardScale.toFixed(4)})`;
+        cardEl.style.opacity = visible ? (appear * arcFade).toFixed(3) : '0';
+        cardEl.style.pointerEvents = s.introComplete && visible ? 'auto' : 'none';
+        cardEl.style.zIndex = String(Math.round(3000 - z));
 
-        if (reflEl) {
-          const reflOpacity = visibility * (0.22 + hMix * 0.14) * smoothstep(0.42, 1.0, cosT);
-          reflEl.style.opacity = reflOpacity.toFixed(3);
+        // Flip face if past camera focal threshold
+        if (flipEl) {
+          const shouldFlip = z > (radius * radius) / perspective;
+          flipEl.style.transform = shouldFlip ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        }
+
+        // Per-card hover tilt spring (stiffness 180, damping 24)
+        const ts = s.tilts[slot];
+        if (tiltEl) {
+          if (s.prefersReducedMotion) {
+            ts.tx = 0;
+            ts.ty = 0;
+            ts.z = 0;
+          } else {
+            const fx = (ts.targetX - ts.tx) * 180 - ts.vx * 24;
+            const fy = (ts.targetY - ts.ty) * 180 - ts.vy * 24;
+            const fz = (ts.targetZ - ts.z) * 180 - ts.vz * 24;
+            ts.vx += fx * dtSec;
+            ts.vy += fy * dtSec;
+            ts.vz += fz * dtSec;
+            ts.tx += ts.vx * dtSec;
+            ts.ty += ts.vy * dtSec;
+            ts.z += ts.vz * dtSec;
+          }
+          tiltEl.style.transform = `translate3d(0px, 0px, ${ts.z.toFixed(2)}px) rotateX(${ts.tx.toFixed(
+            2
+          )}deg) rotateY(${ts.ty.toFixed(2)}deg)`;
         }
       }
 
-      // Sync keyboard focus tracking gently when idle without unnecessary churn
-      if (frontBestIdx !== focusedIndexRef.current && Math.abs(a.springVel) < 1.5 && !a.isDragging) {
-        focusedIndexRef.current = frontBestIdx;
-        setFocusedIndex(frontBestIdx);
+      if (s.introComplete && Math.abs(s.gVel) < 2 && !s.isDragging) {
+        setFocusedIndex((prev) => {
+          if (prev !== frontBestIdx) {
+            setAnnounceMode('off');
+            return frontBestIdx;
+          }
+          return prev;
+        });
       }
 
       rafId = window.requestAnimationFrame(tick);
     };
 
-    rafId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(rafId);
-  }, [angleStepDeg, total]);
+    const ensureLoopRunning = () => {
+      if (!rafId && stateRef.current.isSectionVisible && !stateRef.current.isDocHidden) {
+        lastTime = performance.now();
+        rafId = window.requestAnimationFrame(tick);
+      }
+    };
 
-  const rotateToCard = useCallback(
-    (index: number) => {
-      const a = animRef.current;
-      const desiredMod = -index * angleStepDeg;
-      let delta = (desiredMod - a.targetAngle) % 360;
-      if (delta > 180) delta -= 360;
-      if (delta < -180) delta += 360;
-      a.coastVel = 0;
-      a.targetAngle += delta;
-      const normalized = ((index % total) + total) % total;
-      focusedIndexRef.current = normalized;
-      setFocusedIndex(normalized);
-    },
-    [angleStepDeg, total]
-  );
+    const section = sectionRef.current;
+    const visObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = Boolean(entries[0]?.isIntersecting);
+        stateRef.current.isSectionVisible = visible;
+        if (visible) {
+          ensureLoopRunning();
+        } else if (rafId) {
+          window.cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      },
+      { threshold: 0.01 }
+    );
+    if (section) visObserver.observe(section);
 
-  const handleStagePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-    const a = animRef.current;
-    a.isDragging = true;
-    a.dragLockedAxis = null;
-    a.dragMoved = false;
-    a.startX = e.clientX;
-    a.startY = e.clientY;
-    a.lastX = e.clientX;
-    a.lastMoveTime = performance.now();
-    a.coastVel = 0;
+    const handleVisibilityChange = () => {
+      stateRef.current.isDocHidden = document.hidden;
+      if (!document.hidden) {
+        ensureLoopRunning();
+      } else if (rafId) {
+        window.cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    ensureLoopRunning();
+
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      if (loaderDoneTimer !== null) window.clearTimeout(loaderDoneTimer);
+      if (expansionDoneTimer !== null) window.clearTimeout(expansionDoneTimer);
+      visObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Pointer handlers on wall & cards
+  const handleWallPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const s = stateRef.current;
+    if (!s.introComplete) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    s.isDragging = true;
+    s.dragType = e.pointerType === 'touch' ? 'touch' : 'mouse';
+    s.dragLockedAxis = null;
+    s.dragMoved = false;
+    s.dragStartX = e.clientX;
+    s.dragStartY = e.clientY;
+    s.dragStartM = s.m;
+    setIsDraggingUI(true);
   };
 
-  const handleCardPointerMove = (index: number, e: ReactPointerEvent<HTMLDivElement>) => {
-    if (animRef.current.isDragging || animRef.current.hoveredIdx !== index) return;
+  const handleCardPointerMove = (slot: number, e: ReactPointerEvent<HTMLAnchorElement>) => {
+    const s = stateRef.current;
+    if (!s.introComplete || s.isDragging) return;
     const rect = e.currentTarget.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
-    const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
-    animRef.current.localTiltX = nx;
-    animRef.current.localTiltY = ny;
+    const nx = clamp((e.clientX - rect.left) / rect.width - 0.5, -0.5, 0.5);
+    const ny = clamp((e.clientY - rect.top) / rect.height - 0.5, -0.5, 0.5);
+    const ts = s.tilts[slot];
+    ts.targetX = -20 * ny;
+    ts.targetY = 24 * nx;
+    ts.targetZ = 45;
   };
 
-  const handleCardEnter = (index: number) => {
-    animRef.current.hoveredIdx = index;
-    setHoveredIndex(index);
+  const handleCardEnter = (slot: number) => {
+    if (!stateRef.current.introComplete) return;
+    stateRef.current.hoveredIdx = slot;
+    setHoveredIndex(slot);
   };
 
-  const handleCardLeave = () => {
-    animRef.current.hoveredIdx = null;
-    animRef.current.localTiltX = 0;
-    animRef.current.localTiltY = 0;
+  const handleCardLeave = (slot: number) => {
+    const s = stateRef.current;
+    s.hoveredIdx = null;
+    const ts = s.tilts[slot];
+    ts.targetX = 0;
+    ts.targetY = 0;
+    ts.targetZ = 0;
     setHoveredIndex(null);
   };
 
   const handleCardClick = (e: ReactMouseEvent<HTMLAnchorElement>) => {
-    if (animRef.current.dragMoved) {
+    const s = stateRef.current;
+    if (!s.introComplete || performance.now() - s.lastDragEndTime < 50 || s.dragMoved) {
       e.preventDefault();
     }
   };
+
+  const rotateToSlot = useCallback((slotIdx: number, announce = true) => {
+    const s = stateRef.current;
+    const desiredMod = (-slotIdx * 360) / TOTAL_SLOTS;
+    let delta = (desiredMod - s.m) % 360;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    s.m += delta;
+    if (s.prefersReducedMotion) s.g = s.m;
+    if (announce) setAnnounceMode('polite');
+    setFocusedIndex(((slotIdx % TOTAL_SLOTS) + TOTAL_SLOTS) % TOTAL_SLOTS);
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (!stateRef.current.introComplete) return;
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      rotateToCard((focusedIndex + 1) % total);
+      rotateToSlot((focusedIndex + 1) % TOTAL_SLOTS, true);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      rotateToCard((focusedIndex - 1 + total) % total);
+      rotateToSlot((focusedIndex - 1 + TOTAL_SLOTS) % TOTAL_SLOTS, true);
     } else if (e.key === 'Home') {
       e.preventDefault();
-      rotateToCard(0);
+      rotateToSlot(0, true);
     } else if (e.key === 'End') {
       e.preventDefault();
-      rotateToCard(total - 1);
-    } else if (e.key === ' ') {
-      if ((e.target as HTMLElement).tagName !== 'BUTTON' && (e.target as HTMLElement).tagName !== 'A') {
-        e.preventDefault();
-        setIsPaused((prev) => !prev);
-      }
+      rotateToSlot(TOTAL_SLOTS - 1, true);
     }
   };
 
-  const activeProject = RIBBON_PROJECTS[focusedIndex];
+  const activeSite = siteForSlot(focusedIndex);
+  const hundreds = Math.floor(displayPercent / 100);
+  const tens = Math.floor((displayPercent % 100) / 10);
+  const ones = displayPercent % 10;
+  const digitsList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  const isLoaderVisible = !prefersReducedMotion && loaderStage !== 'idle' && loaderStage !== 'done';
+  const isRevealing = loaderStage === 'revealing';
 
   return (
     <section
@@ -426,164 +779,286 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       ref={sectionRef}
       role="region"
       aria-roledescription="carousel"
-      aria-label="LaunchLayer 3D Website Preview Ribbon. Use left and right arrow keys or drag horizontally to explore."
+      aria-label="LaunchLayer 3D Website Preview Ribbon. Drag or use left and right arrow keys to explore."
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="ll-section-seam relative flex w-full flex-col items-center justify-center overflow-hidden bg-black pt-20 pb-16 select-none sm:pt-24 sm:pb-20 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+      className="ll-section-seam relative w-full bg-black select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+      style={{ height: prefersReducedMotion ? '100dvh' : '150dvh' }}
     >
-      {/* Screen-reader live announcement */}
-      <span className="sr-only" aria-live="polite">
-        {activeProject.number} of {total}: {activeProject.title} — {activeProject.category}
-      </span>
-
-      {/* Subtle monochrome studio horizon lighting & floor vignette */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[420px] w-[960px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.065)_0%,transparent_72%)] blur-[96px]" />
-        <div className="absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-black to-transparent sm:w-24 lg:w-36" />
-        <div className="absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-black to-transparent sm:w-24 lg:w-36" />
-      </div>
-
-      {/* Interactive 3D Cylindrical Stage */}
+      {/* Exclusive 100dvh Sticky Viewport Stage: transparent inner canvas over site #000 ground */}
       <div
-        ref={stageRef}
-        onPointerDown={handleStagePointerDown}
-        style={{
-          perspective: `${geo.perspective}px`,
-          perspectiveOrigin: '50% 48%',
-          touchAction: 'pan-y',
-          height: `${geo.cardHeight + 84}px`,
-        }}
-        className={`relative flex w-full items-center justify-center overflow-hidden ${
-          isDraggingUI ? 'cursor-grabbing' : 'cursor-grab'
-        }`}
+        ref={frameRef}
+        className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden bg-transparent"
       >
-        <div
-          className="preserve-3d relative flex items-center justify-center"
-          style={{ width: geo.cardWidth, height: geo.cardHeight }}
-        >
-          {RIBBON_PROJECTS.map((project, index) => {
-            const isHovered = hoveredIndex === index && !isDraggingUI;
+        <span className="sr-only" aria-live={announceMode} aria-atomic="true">
+          No. {activeSite.number} of {TOTAL_SLOTS}: {activeSite.title}, {activeSite.category}
+        </span>
 
-            return (
-              <div
-                key={project.id}
-                ref={(el) => {
-                  cardRefs.current[index] = el;
-                }}
-                onPointerEnter={() => handleCardEnter(index)}
-                onPointerMove={(e) => handleCardPointerMove(index, e)}
-                onPointerLeave={handleCardLeave}
-                style={{
-                  width: geo.cardWidth,
-                  height: geo.cardHeight,
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                }}
-                className="preserve-3d absolute inset-0 will-change-transform"
-              >
-                {/* Staggered entrance motion wrapper */}
-                <motion.div
-                  initial={
-                    prefersReducedMotion
-                      ? { opacity: 1 }
-                      : { opacity: 0, y: 20, scale: 0.96 }
-                  }
-                  animate={
-                    isInView
-                      ? { opacity: 1, y: 0, scale: 1 }
-                      : prefersReducedMotion
-                        ? { opacity: 1 }
-                        : { opacity: 0, y: 20, scale: 0.96 }
-                  }
-                  transition={{
-                    duration: prefersReducedMotion ? 0 : 0.65,
-                    delay: prefersReducedMotion ? 0 : Math.min(index, 7) * 0.055,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className="relative h-full w-full"
+        {/* Opening Loader Layer (transparent background, sits under forming ring at z-20) */}
+        {isLoaderVisible && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-20 overflow-hidden bg-transparent"
+            style={{
+              opacity: isRevealing ? 0 : 1,
+              transition: 'opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+          >
+            {/* Top-left "LaunchLayer." masked letter-by-letter reveal */}
+            <div
+              className="absolute left-[4vw] top-[3.2vh] font-heading font-normal text-[#EEF4F6]"
+              style={{
+                fontSize: 'clamp(42px, 6.8vw, 120px)',
+                lineHeight: 0.95,
+                letterSpacing: '-0.03em',
+                transform: isRevealing ? 'translate3d(0, -32px, 0) scale(0.92)' : 'translate3d(0, 0, 0) scale(1)',
+                opacity: isRevealing ? 0 : 1,
+                transition: 'transform 1150ms cubic-bezier(0.65, 0, 0.35, 1), opacity 750ms ease',
+              }}
+            >
+              {WORDMARK_CHARS.map((char, idx) => (
+                <span
+                  key={`${char}-${idx}`}
+                  className="inline-block overflow-hidden align-bottom py-[0.08em] -my-[0.08em]"
                 >
+                  <span
+                    className="inline-block will-change-transform"
+                    style={{
+                      transform: introStarted
+                        ? 'translate3d(0, 0%, 0) rotate(0deg)'
+                        : 'translate3d(0, 105%, 0) rotate(8deg)',
+                      transition: `transform 1000ms cubic-bezier(0.22, 1, 0.36, 1) ${
+                        0.08 + idx * 0.032
+                      }s`,
+                    }}
+                  >
+                    {char}
+                  </span>
+                </span>
+              ))}
+            </div>
+
+            {/* Bottom-right "LOADING SITES" + 3-digit sliding odometer */}
+            <div className="absolute bottom-[4vh] right-[5vw] flex flex-col items-end">
+              <div className="min-h-[16px] font-space-mono text-[12px] tracking-[0.14em] uppercase text-[#B9CBD4]">
+                {typedCaption}
+              </div>
+
+              <div className="mt-2 overflow-hidden">
+                <div
+                  className="flex items-baseline font-space-mono leading-none tracking-[-0.09em] text-[#EEF4F6] tabular-nums"
+                  style={{
+                    fontSize: 'clamp(64px, 11vw, 160px)',
+                    transform: isRevealing
+                      ? 'translate3d(0, -108%, 0)'
+                      : introStarted
+                        ? 'translate3d(0, 0%, 0)'
+                        : 'translate3d(0, 105%, 0)',
+                    transition: isRevealing
+                      ? 'transform 500ms cubic-bezier(0.6, 0, 0.8, 0.4)'
+                      : 'transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms',
+                  }}
+                >
+                  {/* Hundreds digit (hidden until 100) */}
+                  <span
+                    className={`relative inline-block h-[1em] w-[0.65em] overflow-hidden transition-opacity duration-200 ${
+                      hundreds > 0 ? 'opacity-100' : 'w-0 opacity-0'
+                    }`}
+                  >
+                    <span
+                      className="flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      style={{ transform: `translate3d(0, -${hundreds * 10}%, 0)` }}
+                    >
+                      {digitsList.map((d) => (
+                        <span key={d} className="block h-[1em] leading-[1em]">
+                          {d}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+
+                  {/* Tens digit (hidden while < 10) */}
+                  <span
+                    className={`relative inline-block h-[1em] overflow-hidden transition-all duration-200 ${
+                      displayPercent >= 10 ? 'w-[0.65em] opacity-100' : 'w-0 opacity-0'
+                    }`}
+                  >
+                    <span
+                      className="flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      style={{ transform: `translate3d(0, -${tens * 10}%, 0)` }}
+                    >
+                      {digitsList.map((d) => (
+                        <span key={d} className="block h-[1em] leading-[1em]">
+                          {d}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+
+                  {/* Ones digit */}
+                  <span className="relative inline-block h-[1em] w-[0.65em] overflow-hidden">
+                    <span
+                      className="flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      style={{ transform: `translate3d(0, -${ones * 10}%, 0)` }}
+                    >
+                      {digitsList.map((d) => (
+                        <span key={d} className="block h-[1em] leading-[1em]">
+                          {d}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+
+                  <span className="ml-1 text-[0.34em] tracking-normal text-[#B9CBD4]">%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom-left 44px round Skip Intro button */}
+            <button
+              type="button"
+              aria-label="Skip opening sequence"
+              onClick={(e) => {
+                e.stopPropagation();
+                skipIntro();
+              }}
+              className="pointer-events-auto absolute bottom-[4vh] left-[4vw] flex h-[44px] w-[44px] items-center justify-center rounded-full border border-[#EEF4F6]/20 bg-black/50 text-[16px] text-[#EEF4F6] transition-colors hover:border-[#EEF4F6]/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              &#8599;
+            </button>
+          </div>
+        )}
+
+        {/* Transparent 3D Ring Wall & Lens Stage (z-30 so forming ring hovers above loader) */}
+        <div
+          onPointerDown={handleWallPointerDown}
+          onFocusCapture={() => {
+            stateRef.current.focusedInsideWall = true;
+          }}
+          onBlurCapture={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              stateRef.current.focusedInsideWall = false;
+            }
+          }}
+          style={{ touchAction: 'pan-y' }}
+          className={`relative z-30 h-full w-full overflow-hidden bg-transparent ${
+            !introComplete ? 'cursor-default' : isDraggingUI ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+        >
+          {/* Perspective Lens Container */}
+          <div
+            ref={lensRef}
+            className="pointer-events-none absolute inset-x-0 -inset-y-[100vh] flex items-center justify-center"
+            style={{
+              perspective: '1040px',
+              perspectiveOrigin: '50% 50%',
+            }}
+          >
+            {/* Zero-size 3D Ring Center */}
+            <div
+              ref={ringCenterRef}
+              className="preserve-3d relative h-0 w-0 will-change-transform"
+            >
+              {RIBBON_PROJECTS.map((_, slotIdx) => {
+                const site = siteForSlot(slotIdx);
+                const world = WORLD_META[site.world];
+                const cardWidth = Math.round(160 * site.ratio);
+                const isHovered = hoveredIndex === slotIdx && !isDraggingUI && introComplete;
+
+                return (
                   <a
-                    href={project.url}
+                    key={site.id}
+                    ref={(el) => {
+                      slotRefs.current[slotIdx] = el;
+                    }}
+                    data-ribbon-card="true"
+                    href={site.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    tabIndex={focusedIndex === index ? 0 : -1}
+                    tabIndex={introComplete && focusedIndex === slotIdx ? 0 : -1}
+                    onPointerEnter={() => handleCardEnter(slotIdx)}
+                    onPointerMove={(e) => handleCardPointerMove(slotIdx, e)}
+                    onPointerLeave={() => handleCardLeave(slotIdx)}
                     onClick={handleCardClick}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
-                      rotateToCard(index);
-                      handleCardEnter(index);
+                      if (introComplete) {
+                        rotateToSlot(slotIdx, true);
+                        handleCardEnter(slotIdx);
+                      }
                     }}
-                    onBlur={handleCardLeave}
-                    aria-label={`${project.number} of ${total}: ${project.title}, ${project.category}. Opens preview in a new tab.`}
-                    className={`group relative block h-full w-full overflow-hidden rounded-xl border bg-[#080808] transition-[border-color,box-shadow,filter] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-                      isHovered
-                        ? 'border-white/55 shadow-[0_28px_72px_rgba(0,0,0,0.94),0_0_28px_rgba(255,255,255,0.14)] brightness-105'
-                        : 'border-white/14 shadow-[0_24px_64px_rgba(0,0,0,0.88)]'
-                    }`}
+                    onBlur={() => handleCardLeave(slotIdx)}
+                    aria-label={`No. ${site.number}: ${site.title} (${world.label}, ${site.category}). Opens preview in a new tab.`}
+                    className="preserve-3d group absolute block rounded-[16px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    style={{
+                      width: `${cardWidth}px`,
+                      height: '160px',
+                      top: '-80px',
+                      left: `${-cardWidth / 2}px`,
+                      opacity: 0,
+                    }}
                   >
-                    {/* Live 16:9 Website Preview */}
+                    {/* Flip wrapper (flips card face if past focal boundary) */}
                     <div
-                      aria-hidden="true"
-                      className="h-full w-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.018]"
+                      ref={(el) => {
+                        flipRefs.current[slotIdx] = el;
+                      }}
+                      className="preserve-3d relative h-full w-full"
                     >
-                      <RibbonPreviewCard project={project} />
-                    </div>
-
-                    {/* Restrained specular top-edge sheen */}
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_42%)]"
-                    />
-
-                    {/* Subtle clip-path + opacity reveal of project number, title, category & arrow */}
-                    <div
-                      className={`pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 border-t border-white/15 bg-black/82 px-3.5 py-2.5 backdrop-blur-md transition-[clip-path,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-4 ${
-                        isHovered
-                          ? 'opacity-100 [clip-path:inset(0%_0%_0%_0%)]'
-                          : 'opacity-0 [clip-path:inset(100%_0%_0%_0%)] group-focus-visible:opacity-100 group-focus-visible:[clip-path:inset(0%_0%_0%_0%)]'
-                      }`}
-                    >
-                      <div className="flex min-w-0 items-baseline gap-2.5">
-                        <span className="font-space-mono text-[11px] tracking-[0.1em] text-white/75 tabular-nums shrink-0">
-                          {project.number}
-                        </span>
-                        <span className="truncate font-heading text-[16px] leading-none text-white sm:text-[17px]">
-                          {project.title}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0 font-body text-[12px] text-white/80">
-                        <span className="whitespace-nowrap">{project.category}</span>
-                        <ArrowUpRight
-                          className="h-3.5 w-3.5 text-white transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      {/* Tilt wrapper driven by per-card hover springs */}
+                      <div
+                        ref={(el) => {
+                          tiltRefs.current[slotIdx] = el;
+                        }}
+                        className="preserve-3d relative h-full w-full rounded-[16px] shadow-[0_18px_36px_-24px_rgba(0,0,0,0.45)]"
+                        style={{
+                          WebkitBoxReflect:
+                            'below 10px linear-gradient(transparent 52%, rgba(255,255,255,0.28))',
+                        }}
+                      >
+                        {/* Outer World-Colored Frame (inset -9px, 3px border, clip-path sweep in .55s on hover) */}
+                        <span
                           aria-hidden="true"
+                          className="pointer-events-none absolute -inset-[9px] rounded-[24px] border-[3px]"
+                          style={{
+                            borderColor: world.color,
+                            boxShadow: `0 40px 80px -30px ${world.color}`,
+                            clipPath: isHovered
+                              ? 'inset(0% 0% 0% 0% round 24px)'
+                              : 'inset(0% 100% 0% 0% round 24px)',
+                            transition: 'clip-path 550ms cubic-bezier(0.22, 1, 0.36, 1)',
+                          }}
+                        />
+
+                        {/* LaunchLayer Card Face */}
+                        <RibbonPreviewCard
+                          project={site}
+                          isHovered={isHovered}
+                          onAssetReady={handleAssetSettled}
                         />
                       </div>
                     </div>
                   </a>
-                </motion.div>
+                );
+              })}
+            </div>
+          </div>
 
-                {/* Subtle monochrome reflection beneath each floating card */}
-                <div
-                  ref={(el) => {
-                    reflectionRefs.current[index] = el;
-                  }}
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-4 -bottom-11 h-10 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.16)_0%,transparent_74%)] blur-md"
-                />
-              </div>
-            );
-          })}
+          {/* Subtle Drag-to-Explore cue shown once ring entrance finishes */}
+          {introComplete && (
+            <div
+              aria-hidden="true"
+              className={`pointer-events-none absolute bottom-[5.5vh] left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 font-space-mono text-[11px] tracking-[0.22em] uppercase transition-all duration-300 ${
+                isDraggingUI ? 'scale-95 text-white' : 'text-white/75'
+              }`}
+            >
+              <span>&#8592;</span>
+              <span>Drag to Explore</span>
+              <span>&#8594;</span>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Quiet drag cue matching mobile & desktop editorial rhythm */}
-      <p
-        aria-hidden="true"
-        className="pointer-events-none relative z-20 mt-6 font-space-mono text-[11px] tracking-[0.2em] uppercase text-white/65 sm:mt-8"
-      >
-        &larr; DRAG TO EXPLORE &rarr;
-      </p>
     </section>
   );
 }

@@ -16,6 +16,32 @@ export type RibbonTheme =
   | 'orbit'
   | 'kinetix';
 
+export type RibbonWorld = 'brand' | 'build' | 'learn';
+
+export interface WorldMeta {
+  label: string;
+  color: string;
+  onColor: string;
+}
+
+export const WORLD_META: Record<RibbonWorld, WorldMeta> = {
+  build: {
+    label: 'BUILD',
+    color: '#3AA8D0',
+    onColor: '#04121A',
+  },
+  brand: {
+    label: 'BRAND',
+    color: '#EEF4F6',
+    onColor: '#0A0E11',
+  },
+  learn: {
+    label: 'LEARN',
+    color: '#9ED8E4',
+    onColor: '#0E2A3B',
+  },
+};
+
 export interface RibbonProject {
   id: string;
   number: string;
@@ -23,6 +49,8 @@ export interface RibbonProject {
   category: string;
   url: string;
   theme: RibbonTheme;
+  world: RibbonWorld;
+  ratio: number;
   image?: string;
   imageAlt?: string;
 }
@@ -35,6 +63,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Architecture',
     url: 'https://launchlayer.in/projects/kanso-atelier',
     theme: 'kanso',
+    world: 'brand',
+    ratio: 16 / 9,
     image: '/src/assets/images/project_kanso_architecture_1795538724169.jpg',
     imageAlt: 'Concrete and warm cedar architectural pavilion beside a still reflecting pool',
   },
@@ -45,6 +75,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'E-Commerce',
     url: 'https://launchlayer.in/projects/vespera-botanica',
     theme: 'vespera',
+    world: 'brand',
+    ratio: 16 / 9,
     image: '/src/assets/images/project_vespera_botanical_1795538724689.jpg',
     imageAlt: 'Dark amber glass dropper bottle on basalt stone with botanical stem',
   },
@@ -55,6 +87,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Fintech SaaS',
     url: 'https://launchlayer.in/projects/meridian-ledger',
     theme: 'meridian',
+    world: 'build',
+    ratio: 16 / 10,
   },
   {
     id: 'soraia-acoustics',
@@ -63,6 +97,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Hardware E-Commerce',
     url: 'https://launchlayer.in/projects/soraia-acoustics',
     theme: 'soraia',
+    world: 'brand',
+    ratio: 16 / 9,
     image: '/src/assets/images/project_soraia_audio_1795538726091.jpg',
     imageAlt: 'Brushed anodized aluminum studio monitor speaker and rotary dial',
   },
@@ -73,6 +109,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Interior Design',
     url: 'https://launchlayer.in/projects/solis-interiors',
     theme: 'solis',
+    world: 'brand',
+    ratio: 16 / 10,
     image: '/src/assets/images/ribbon_interior_loft_1795552710347.jpg',
     imageAlt: 'Limestone arches and sculptural travertine dining table in sunlit room',
   },
@@ -83,6 +121,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Corporate Advisory',
     url: 'https://launchlayer.in/projects/vance-hale',
     theme: 'vance',
+    world: 'build',
+    ratio: 16 / 9,
     image: '/src/assets/images/direction_corporate_studio_1795542742249.jpg',
     imageAlt: 'Modern architectural studio workspace with warm timber and glass walls',
   },
@@ -93,6 +133,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Fashion & Lifestyle',
     url: 'https://launchlayer.in/projects/atelier-sorel',
     theme: 'sorel',
+    world: 'brand',
+    ratio: 1500 / 1000,
     image: '/src/assets/images/ribbon_fashion_atelier_1795552711190.jpg',
     imageAlt: 'Minimalist tailored wool coat editorial inside a concrete daylight gallery',
   },
@@ -103,6 +145,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Luxury E-Commerce',
     url: 'https://launchlayer.in/projects/kronos-horology',
     theme: 'kronos',
+    world: 'brand',
+    ratio: 1500 / 1000,
     image: '/src/assets/images/ribbon_watch_ecommerce_1795552711751.jpg',
     imageAlt: 'Mechanical chronograph timepiece resting on dark slate with brass tools',
   },
@@ -113,6 +157,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Creative Portfolio',
     url: 'https://launchlayer.in/projects/forma-studio',
     theme: 'forma',
+    world: 'learn',
+    ratio: 16 / 9,
     image: '/src/assets/images/work_ceramic_atelier_1795542743222.jpg',
     imageAlt: 'Hand-thrown stoneware vessels arranged in warm natural side light',
   },
@@ -123,6 +169,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Developer SaaS',
     url: 'https://launchlayer.in/projects/stratum-cloud',
     theme: 'stratum',
+    world: 'build',
+    ratio: 16 / 9,
   },
   {
     id: 'monograph-press',
@@ -131,6 +179,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Experimental Editorial',
     url: 'https://launchlayer.in/projects/monograph-press',
     theme: 'monograph',
+    world: 'learn',
+    ratio: 16 / 10,
     image: '/src/assets/images/ribbon_editorial_exhibition_1795552711461.jpg',
     imageAlt: 'Monolithic black exhibition plinths illuminated by warm gallery lights',
   },
@@ -141,6 +191,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Hospitality',
     url: 'https://launchlayer.in/projects/tala-co',
     theme: 'tala',
+    world: 'brand',
+    ratio: 16 / 10,
     image: '/src/assets/images/project_tala_dining_1795538725380.jpg',
     imageAlt: 'Artisan stoneware plates with sourdough and olive oil on charred oak',
   },
@@ -151,6 +203,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Product Showcase',
     url: 'https://launchlayer.in/projects/norden-mobility',
     theme: 'norden',
+    world: 'build',
+    ratio: 16 / 9,
     image: '/src/assets/images/project_norden_mobility_1795538725170.jpg',
     imageAlt: 'Matte carbon urban electric bicycle in a minimalist concrete space',
   },
@@ -161,6 +215,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Fashion Editorial',
     url: 'https://launchlayer.in/projects/maison-verre',
     theme: 'verre',
+    world: 'brand',
+    ratio: 16 / 10,
     image: '/src/assets/images/direction_editorial_fashion_1795542741389.jpg',
     imageAlt: 'High-contrast editorial fashion silhouette in warm diffused studio light',
   },
@@ -171,6 +227,8 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Fintech Platform',
     url: 'https://launchlayer.in/projects/orbit-settlement',
     theme: 'orbit',
+    world: 'build',
+    ratio: 16 / 9,
   },
   {
     id: 'kinetix-archive',
@@ -179,5 +237,7 @@ export const RIBBON_PROJECTS: RibbonProject[] = [
     category: 'Experimental Editorial',
     url: 'https://launchlayer.in/projects/kinetix-archive',
     theme: 'kinetix',
+    world: 'learn',
+    ratio: 16 / 9,
   },
 ];
