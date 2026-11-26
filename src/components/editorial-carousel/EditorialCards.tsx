@@ -110,19 +110,19 @@ export function Card01Discovery({
 
   return (
     <div className="flex h-full flex-col justify-center gap-2.5 sm:gap-3.5">
-      {/* Segmented Intake Progress Meter with Orbit Sync Dot & Shimmer */}
+      {/* Segmented Intake Progress Meter with Specular Shimmer */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         <div
           aria-hidden="true"
-          className="relative grid flex-1 grid-cols-6 gap-1.5 overflow-hidden rounded-full border border-white/14 bg-black/75 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          className="relative grid flex-1 grid-cols-6 gap-1.5 overflow-hidden rounded-full border border-white/15 bg-white/[0.04] p-1.5 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
           {BRIEF_ITEMS.map((item, idx) => (
             <motion.span
               key={item}
               animate={{
-                backgroundColor: activeItems[idx] ? '#64CEFB' : 'rgba(255,255,255,0.1)',
+                backgroundColor: activeItems[idx] ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.12)',
                 boxShadow: activeItems[idx]
-                  ? '0 0 10px rgba(100,206,251,0.45)'
+                  ? '0 0 8px rgba(255,255,255,0.35)'
                   : '0 0 0px rgba(0,0,0,0)',
               }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.28, ease: EASE }}
@@ -141,18 +141,8 @@ export function Card01Discovery({
 
         <span
           aria-live="polite"
-          className="inline-flex shrink-0 items-center gap-1.5 font-space-mono text-[10.5px] font-medium tracking-[0.06em] text-white tabular-nums sm:text-[11px]"
+          className="inline-flex shrink-0 items-center font-space-mono text-[10.5px] font-medium tracking-[0.06em] text-white/90 tabular-nums sm:text-[11px]"
         >
-          <motion.span
-            animate={
-              prefersReducedMotion
-                ? { rotate: 0 }
-                : { rotate: 360 }
-            }
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
-            className="inline-block h-2.5 w-2.5 rounded-full border border-white/25 border-t-[#64CEFB]"
-            aria-hidden="true"
-          />
           {doneCount}/{BRIEF_ITEMS.length} ready
         </span>
       </div>
@@ -179,10 +169,10 @@ export function Card01Discovery({
                   e.stopPropagation();
                   toggleItem(idx);
                 }}
-                className={`group relative z-0 flex min-h-[40px] items-center gap-2 overflow-hidden rounded-lg border px-2 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[42px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
+                className={`group relative z-0 flex min-h-[40px] items-center gap-2 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] backdrop-blur-md transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[42px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
                   checked
-                    ? 'border-[#64CEFB]/40 bg-[#64CEFB]/[0.06] text-white shadow-[inset_0_1px_0_rgba(100,206,251,0.16)]'
-                    : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
+                    ? 'border-white/38 bg-white/[0.1] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
+                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
                 }`}
               >
                 {isGlint && (
@@ -190,7 +180,7 @@ export function Card01Discovery({
                     layoutId="brief-active-glint"
                     transition={SPRING}
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#64CEFB]/14 via-white/8 to-transparent"
+                    className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-white/16 via-white/8 to-transparent"
                   />
                 )}
 
@@ -198,8 +188,8 @@ export function Card01Discovery({
                   aria-hidden="true"
                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 ${
                     checked
-                      ? 'border-[#64CEFB] bg-[#64CEFB] text-[#04121A]'
-                      : 'border-white/28 bg-transparent group-hover:border-white/50'
+                      ? 'border-white bg-white text-black'
+                      : 'border-white/28 bg-transparent group-hover:border-white/55'
                   }`}
                 >
                   <AnimatedCheckIcon checked={checked} reduced={prefersReducedMotion} />
@@ -289,7 +279,7 @@ export function Card02Direction({
           <div
             role="tablist"
             aria-label="Inspect planning stage views"
-            className="relative inline-flex items-center rounded-full border border-white/15 bg-black/75 p-0.5"
+            className="relative inline-flex items-center rounded-full border border-white/18 bg-white/[0.04] p-0.5 backdrop-blur-md"
           >
             {(['directions', 'sitemap'] as const).map((tab) => {
               const selected = mode === tab;
@@ -307,7 +297,7 @@ export function Card02Direction({
                     setPinned(true);
                   }}
                   className={`relative z-10 min-h-[32px] rounded-full px-2.5 text-[10.5px] font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[34px] sm:px-3 sm:text-[11px] ${
-                    selected ? 'text-[#04121A]' : 'text-white/80 hover:text-white'
+                    selected ? 'text-black' : 'text-white/80 hover:text-white'
                   }`}
                 >
                   {selected && (
@@ -315,7 +305,7 @@ export function Card02Direction({
                       layoutId="direction-mode-pill"
                       transition={prefersReducedMotion ? { duration: 0 } : SPRING}
                       aria-hidden="true"
-                      className="absolute inset-0 -z-10 rounded-full bg-[#64CEFB]"
+                      className="absolute inset-0 -z-10 rounded-full bg-white shadow-sm"
                     />
                   )}
                   {tab === 'directions' ? 'Pick a direction' : 'Sitemap'}
@@ -407,9 +397,9 @@ export function Card02Direction({
                           }
                         : { duration: 0 }
                     }
-                    className={`absolute aspect-[16/10] w-[148px] overflow-hidden rounded-lg border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-[190px] ${
+                    className={`absolute aspect-[16/10] w-[148px] overflow-hidden rounded-xl border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-[190px] ${
                       isFront
-                        ? 'border-[#64CEFB]/80 shadow-[0_20px_44px_rgba(0,0,0,0.88),0_0_26px_rgba(100,206,251,0.18)]'
+                        ? 'border-white/75 shadow-[0_20px_44px_rgba(0,0,0,0.88),0_0_24px_rgba(255,255,255,0.12)]'
                         : 'border-white/20 hover:border-white/45'
                     }`}
                   >
@@ -422,7 +412,7 @@ export function Card02Direction({
                         animate={{ scale: 1, opacity: 1 }}
                         transition={SPRING}
                         aria-hidden="true"
-                        className="absolute left-2 top-2 flex h-4 w-4 items-center justify-center rounded-sm bg-[#64CEFB] text-[#04121A] shadow"
+                        className="absolute left-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-black shadow"
                       >
                         <Check className="h-2.5 w-2.5 stroke-[3]" />
                       </motion.span>
@@ -440,18 +430,8 @@ export function Card02Direction({
               transition={{ duration: 0.28, ease: EASE }}
               className="flex w-full flex-col items-center gap-2.5"
             >
-              {/* Root Node with Orbit Pulse */}
-              <div className="inline-flex items-center gap-2 rounded-md border border-[#64CEFB]/50 bg-[#12141A] px-3.5 py-1.5 text-[12px] font-medium text-white shadow">
-                <motion.span
-                  animate={
-                    prefersReducedMotion
-                      ? { scale: 1, opacity: 1 }
-                      : { scale: [1, 1.4, 1], opacity: [1, 0.45, 1] }
-                  }
-                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="h-1.5 w-1.5 rounded-full bg-[#64CEFB]"
-                  aria-hidden="true"
-                />
+              {/* Clean Root Node */}
+              <div className="inline-flex items-center rounded-xl border border-white/40 bg-white/[0.08] px-4 py-1.5 text-[12px] font-medium text-white backdrop-blur-md shadow">
                 <span>Home</span>
               </div>
 
@@ -464,7 +444,7 @@ export function Card02Direction({
               >
                 <motion.path
                   d="M160 0 V9 M28 9 H292 M28 9 V20 M116 9 V20 M204 9 V20 M292 9 V20"
-                  stroke="rgba(100,206,251,0.38)"
+                  stroke="rgba(255,255,255,0.28)"
                   strokeWidth="1.25"
                   initial={prefersReducedMotion ? false : { pathLength: 0 }}
                   animate={{ pathLength: 1 }}
@@ -474,15 +454,15 @@ export function Card02Direction({
                   <>
                     <motion.path
                       d="M160 0 V9 H292 V20"
-                      stroke="#64CEFB"
-                      strokeWidth="1.7"
+                      stroke="rgba(255,255,255,0.85)"
+                      strokeWidth="1.6"
                       strokeDasharray="16 260"
                       animate={{ strokeDashoffset: [276, 0] }}
                       transition={{ duration: 2.0, repeat: Infinity, ease: 'linear' }}
                     />
                     <motion.path
                       d="M160 0 V9 H28 V20"
-                      stroke="#FFFFFF"
+                      stroke="rgba(255,255,255,0.65)"
                       strokeWidth="1.5"
                       strokeDasharray="14 260"
                       animate={{ strokeDashoffset: [274, 0] }}
@@ -509,10 +489,10 @@ export function Card02Direction({
                         setPinned(true);
                         setMappedCount(pIdx + 1);
                       }}
-                      className={`flex min-h-[60px] flex-col justify-between rounded-lg border p-1.5 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[66px] sm:p-2 ${
+                      className={`flex min-h-[60px] flex-col justify-between rounded-xl border p-1.5 text-left backdrop-blur-md transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[66px] sm:p-2 ${
                         mapped
-                          ? 'border-[#64CEFB]/45 bg-[#64CEFB]/[0.07] text-white'
-                          : 'border-white/12 bg-white/[0.02] text-white/70 hover:border-white/30'
+                          ? 'border-white/40 bg-white/[0.1] text-white'
+                          : 'border-white/12 bg-white/[0.03] text-white/70 hover:border-white/30'
                       }`}
                     >
                       <span className="text-[10px] font-medium leading-tight sm:text-[11px]">{page.name}</span>
@@ -522,7 +502,7 @@ export function Card02Direction({
                             key={lIdx}
                             animate={{
                               backgroundColor:
-                                mapped && lIdx === 0 ? '#64CEFB' : 'rgba(255,255,255,0.22)',
+                                mapped && lIdx === 0 ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.22)',
                               scaleX: mapped ? 1 : 0.72,
                             }}
                             transition={{ duration: 0.3, ease: EASE }}
@@ -596,17 +576,7 @@ export function Card03DesignBuild({
     <div className="flex h-full flex-col justify-between gap-2 py-0.5 sm:gap-2.5">
       {/* Header + Animated Segmented Device Switcher */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 font-space-mono text-[10.5px] text-white/85 sm:gap-2 sm:text-[11px]">
-          <motion.span
-            animate={
-              prefersReducedMotion
-                ? { opacity: 1 }
-                : { opacity: [1, 0.3, 1], scale: [1, 1.25, 1] }
-            }
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="h-1.5 w-1.5 rounded-full bg-[#64CEFB]"
-            aria-hidden="true"
-          />
+        <div className="flex items-center font-space-mono text-[10.5px] text-white/85 sm:text-[11px]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={currentVp.width}
@@ -625,7 +595,7 @@ export function Card03DesignBuild({
           <div
             role="tablist"
             aria-label="Preview responsive device layout"
-            className="relative inline-flex items-center rounded-full border border-white/15 bg-black/75 p-0.5"
+            className="relative inline-flex items-center rounded-full border border-white/18 bg-white/[0.04] p-0.5 backdrop-blur-md"
           >
             {BUILD_VIEWPORTS.map((vp, idx) => {
               const active = vpIdx === idx;
@@ -643,7 +613,7 @@ export function Card03DesignBuild({
                     setPinned(true);
                   }}
                   className={`relative z-10 min-h-[32px] rounded-full px-2 text-[10.5px] font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[34px] sm:px-3 sm:text-[11px] ${
-                    active ? 'text-[#04121A]' : 'text-white/80 hover:text-white'
+                    active ? 'text-black' : 'text-white/80 hover:text-white'
                   }`}
                 >
                   {active && (
@@ -651,7 +621,7 @@ export function Card03DesignBuild({
                       layoutId="build-vp-pill"
                       transition={prefersReducedMotion ? { duration: 0 } : SPRING}
                       aria-hidden="true"
-                      className="absolute inset-0 -z-10 rounded-full bg-[#64CEFB]"
+                      className="absolute inset-0 -z-10 rounded-full bg-white shadow-sm"
                     />
                   )}
                   {vp.label}
@@ -668,11 +638,11 @@ export function Card03DesignBuild({
           initial={false}
           animate={{ width: currentVp.widthPct }}
           transition={prefersReducedMotion ? { duration: 0 } : SPRING}
-          className="relative flex h-[92px] flex-col overflow-hidden rounded-lg border border-white/24 bg-black shadow-[0_16px_38px_rgba(0,0,0,0.9)] sm:h-[108px]"
+          className="relative flex h-[92px] flex-col overflow-hidden rounded-xl border border-white/24 bg-black shadow-[0_16px_38px_rgba(0,0,0,0.9)] sm:h-[108px]"
         >
           <div
             aria-hidden="true"
-            className="flex h-4 shrink-0 items-center justify-between border-b border-white/10 bg-[#121216] px-2"
+            className="flex h-4 shrink-0 items-center justify-between border-b border-white/10 bg-[#121216] px-2.5"
           >
             <div className="flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
@@ -709,8 +679,8 @@ export function Card03DesignBuild({
                 <svg viewBox="0 0 18 18" className="h-3.5 w-3.5" fill="none">
                   <path
                     d="M2.5 2 L14.5 7.5 L8.8 9.4 L6.8 14.8 Z"
-                    fill="#64CEFB"
-                    stroke="#04121A"
+                    fill="#FFFFFF"
+                    stroke="#0A0A0D"
                     strokeWidth="1.2"
                     strokeLinejoin="round"
                   />
@@ -722,7 +692,7 @@ export function Card03DesignBuild({
       </div>
 
       {/* Interactive Staging URL Bar */}
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-white/15 bg-black/80 px-3 py-1.5">
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-1.5 backdrop-blur-md">
         <span className="truncate font-space-mono text-[11px] text-white/75">
           kanso.tesselo.in
         </span>
@@ -735,12 +705,12 @@ export function Card03DesignBuild({
             e.stopPropagation();
             handleCopy();
           }}
-          className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-md px-2 text-[11px] font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           {copied ? (
             <>
-              <Check className="h-3 w-3 text-[#64CEFB]" aria-hidden="true" />
-              <span className="text-[#64CEFB]">Copied</span>
+              <Check className="h-3 w-3 text-white" aria-hidden="true" />
+              <span className="text-white">Copied</span>
             </>
           ) : (
             <>
@@ -834,7 +804,7 @@ export function Card04AccessibilityLaunch({
               cy="12"
               r="9"
               fill="none"
-              stroke="#64CEFB"
+              stroke="#FFFFFF"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeDasharray="56.55"
@@ -842,25 +812,15 @@ export function Card04AccessibilityLaunch({
               transition={{ duration: prefersReducedMotion ? 0 : 0.4, ease: EASE }}
             />
           </svg>
-          <span className="font-space-mono text-[10.5px] text-white/80 sm:text-[11px]">
+          <span className="font-space-mono text-[10.5px] text-white/85 sm:text-[11px]">
             <span className="hidden sm:inline">Launch &amp; </span>WCAG audit
           </span>
         </div>
 
         <span
           aria-live="polite"
-          className="relative inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#64CEFB] px-2 py-0.5 font-space-mono text-[10.5px] font-semibold text-[#04121A] tabular-nums shadow-[0_0_16px_rgba(100,206,251,0.35)] sm:px-2.5 sm:text-[11px]"
+          className="inline-flex shrink-0 items-center font-space-mono text-[10.5px] font-medium tracking-[0.04em] text-white/90 tabular-nums sm:text-[11px]"
         >
-          <motion.span
-            animate={
-              prefersReducedMotion
-                ? { scale: 1, opacity: 1 }
-                : { scale: [1, 1.45, 1], opacity: [1, 0.35, 1] }
-            }
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="h-1.5 w-1.5 rounded-full bg-[#04121A]"
-            aria-hidden="true"
-          />
           {totalVerified}/{LAUNCH_CHECKS.length} passed
         </span>
       </div>
@@ -888,10 +848,10 @@ export function Card04AccessibilityLaunch({
                   e.stopPropagation();
                   toggleAudit(idx);
                 }}
-                className={`relative z-0 flex min-h-[46px] items-center justify-between gap-1.5 rounded-lg border px-2 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[50px] sm:gap-2.5 sm:px-3 sm:py-2 sm:text-[12px] ${
+                className={`relative z-0 flex min-h-[46px] items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] backdrop-blur-md transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[50px] sm:gap-2.5 sm:px-3 sm:py-2 sm:text-[12px] ${
                   passed
-                    ? 'border-[#64CEFB]/40 bg-[#64CEFB]/[0.07] text-white'
-                    : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
+                    ? 'border-white/38 bg-white/[0.1] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
+                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
                 }`}
               >
                 {isFocusSim && (
@@ -899,7 +859,7 @@ export function Card04AccessibilityLaunch({
                     layoutId="wcag-focus-glint"
                     transition={SPRING}
                     aria-hidden="true"
-                    className="pointer-events-none absolute -inset-[2px] -z-10 rounded-[10px] border border-[#64CEFB]/80 shadow-[0_0_16px_rgba(100,206,251,0.22)]"
+                    className="pointer-events-none absolute -inset-[2px] -z-10 rounded-[14px] border border-white/75 shadow-[0_0_16px_rgba(255,255,255,0.16)]"
                   />
                 )}
 
@@ -907,7 +867,7 @@ export function Card04AccessibilityLaunch({
                   <Icon
                     aria-hidden="true"
                     className={`mt-0.5 h-3.5 w-3.5 shrink-0 transition-colors sm:mt-0 ${
-                      passed ? 'text-[#64CEFB]' : 'text-white/60'
+                      passed ? 'text-white' : 'text-white/60'
                     }`}
                   />
                   <span className="min-w-0">
@@ -921,7 +881,7 @@ export function Card04AccessibilityLaunch({
                   aria-hidden="true"
                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
                     passed
-                      ? 'border-[#64CEFB] bg-[#64CEFB] text-[#04121A]'
+                      ? 'border-white bg-white text-black'
                       : 'border-white/30 bg-transparent'
                   }`}
                 >
@@ -996,10 +956,10 @@ export function Card05Investment({
                   setSelectedTier(idx);
                   setPinned(true);
                 }}
-                className={`relative z-0 flex min-h-[44px] items-baseline justify-between gap-1.5 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[48px] sm:gap-2 sm:px-3 sm:py-2 ${
+                className={`relative z-0 flex min-h-[44px] items-baseline justify-between gap-1.5 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left backdrop-blur-md transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[48px] sm:gap-2 sm:px-3 sm:py-2 ${
                   active
-                    ? 'border-[#64CEFB]/65 text-white shadow-[0_0_18px_rgba(100,206,251,0.12)]'
-                    : 'border-white/12 bg-white/[0.02] text-white/80 hover:border-white/28 hover:text-white'
+                    ? 'border-white/55 text-white shadow-[0_0_18px_rgba(255,255,255,0.08)]'
+                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
                 }`}
               >
                 {active && (
@@ -1007,11 +967,11 @@ export function Card05Investment({
                     layoutId="investment-tier-highlight"
                     transition={prefersReducedMotion ? { duration: 0 } : SPRING}
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 -z-10 bg-[#64CEFB]/[0.11]"
+                    className="pointer-events-none absolute inset-0 -z-10 bg-white/[0.11]"
                   />
                 )}
                 <span className="text-[11.5px] font-medium leading-tight sm:text-[12.5px]">{tier.name}</span>
-                <span className="shrink-0 font-space-mono text-[10.5px] text-[#64CEFB] tabular-nums sm:text-[11px]">
+                <span className={`shrink-0 font-space-mono text-[10.5px] tabular-nums sm:text-[11px] ${active ? 'text-white' : 'text-white/70'}`}>
                   {tier.rate}
                 </span>
               </motion.button>
@@ -1020,7 +980,7 @@ export function Card05Investment({
         </div>
       </LayoutGroup>
 
-      <div className="flex items-center justify-between gap-2.5 rounded-lg border border-white/15 bg-black/80 px-3 py-2 sm:gap-3 sm:px-3.5 sm:py-2.5">
+      <div className="flex items-center justify-between gap-2.5 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 backdrop-blur-md sm:gap-3 sm:px-3.5 sm:py-2.5">
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}
@@ -1030,7 +990,7 @@ export function Card05Investment({
             transition={{ duration: 0.22, ease: EASE }}
             className="min-w-0 flex-1"
           >
-            <div className="flex items-center gap-1.5 text-[10.5px] font-space-mono uppercase tracking-[0.08em] text-[#64CEFB] sm:text-[11px]">
+            <div className="flex items-center gap-1.5 text-[10.5px] font-space-mono uppercase tracking-[0.08em] text-white/85 sm:text-[11px]">
               <motion.span
                 animate={prefersReducedMotion ? { rotate: 0 } : { rotate: [0, 14, -14, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}

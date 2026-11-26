@@ -56,7 +56,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
   const rawY = useMotionValue(46);
   const glowX = useSpring(rawX, { stiffness: 90, damping: 24, mass: 0.8 });
   const glowY = useSpring(rawY, { stiffness: 90, damping: 24, mass: 0.8 });
-  const radialSpotlight = useMotionTemplate`radial-gradient(520px circle at ${glowX}% ${glowY}%, rgba(100, 206, 251, 0.085) 0%, rgba(255, 255, 255, 0.03) 36%, transparent 72%)`;
+  const radialSpotlight = useMotionTemplate`radial-gradient(520px circle at ${glowX}% ${glowY}%, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 36%, transparent 72%)`;
 
   useEffect(() => {
     if (!emailCopied) return;
@@ -132,7 +132,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
             shouldReduceMotion
               ? {
                   background:
-                    'radial-gradient(520px circle at 50% 46%, rgba(100, 206, 251, 0.06) 0%, transparent 70%)',
+                    'radial-gradient(520px circle at 50% 46%, rgba(255, 255, 255, 0.035) 0%, transparent 70%)',
                 }
               : { backgroundImage: radialSpotlight }
           }
@@ -156,10 +156,6 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
 
             {/* Flowing Calligraphic Focal Word with Iridescent Pearl Foil Sheen */}
             <span className="relative -mt-3 -mb-2 px-6 py-2 sm:-mt-6 sm:-mb-3 sm:px-10 lg:-mt-7">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-10 top-1/2 h-12 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(100,206,251,0.16)_0%,transparent_72%)] blur-2xl"
-              />
               <span className="ll-script-shimmer relative inline-block font-script text-[clamp(4.1rem,11.5vw,9.2rem)] font-normal leading-[0.86] tracking-[0.01em] drop-shadow-[0_10px_28px_rgba(0,0,0,0.9)]">
                 Remarkable
               </span>
@@ -181,11 +177,11 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
             <button
               type="button"
               onClick={() => onOpenEnquiry('General')}
-              className="group relative inline-flex min-h-[46px] items-center gap-3 rounded-full border border-white/20 bg-[#0B0C10]/90 px-7 py-3 font-space-mono text-[12px] tracking-[0.16em] uppercase text-white shadow-[0_12px_32px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.16)] transition-all duration-300 hover:border-[#64CEFB]/60 hover:bg-[#11131A] hover:shadow-[0_14px_40px_rgba(100,206,251,0.14),inset_0_1px_0_rgba(255,255,255,0.28)] whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              className="liquid-glass-strong group relative inline-flex min-h-[46px] items-center gap-3 rounded-full bg-white/[0.04] px-7 py-3 font-space-mono text-[12px] tracking-[0.16em] uppercase text-white transition-all duration-300 hover:bg-white/[0.11] whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               <span>Let&apos;s Talk</span>
               <ArrowUpRight
-                className="h-3.5 w-3.5 text-white/80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#64CEFB]"
+                className="h-3.5 w-3.5 text-white/80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white"
                 aria-hidden="true"
               />
             </button>
@@ -200,12 +196,12 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                 type="button"
                 onClick={handleCopyEmail}
                 aria-label="Copy hello@tesselo.in email address"
-                className="inline-flex min-h-[44px] items-center gap-1.5 text-white/75 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-[#64CEFB] cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="inline-flex min-h-[44px] items-center gap-1.5 text-white/75 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-white cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 {emailCopied ? (
                   <>
-                    <Check className="h-3 w-3 text-[#64CEFB]" aria-hidden="true" />
-                    <span className="text-[#64CEFB]">Copied hello@tesselo.in</span>
+                    <Check className="h-3 w-3 text-white" aria-hidden="true" />
+                    <span className="text-white">Copied hello@tesselo.in</span>
                   </>
                 ) : (
                   <span>hello@tesselo.in</span>
@@ -291,13 +287,13 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                   <button
                     type="button"
                     onClick={() => onOpenEnquiry('Pricing', tier.id)}
-                    className="group inline-flex min-h-[44px] items-center text-left font-space-mono text-[11px] tracking-[0.1em] uppercase text-white/85 transition-colors hover:text-[#64CEFB] tabular-nums cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="group inline-flex min-h-[44px] items-center text-left font-space-mono text-[11px] tracking-[0.1em] uppercase text-white/85 transition-colors hover:text-white tabular-nums cursor-pointer rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
                     <span className="relative py-0.5">
                       {tier.label}
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-[#64CEFB] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:origin-left group-hover:scale-x-100"
+                        className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:origin-left group-hover:scale-x-100"
                       />
                     </span>
                   </button>

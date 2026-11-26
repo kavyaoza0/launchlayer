@@ -192,7 +192,7 @@ function PricingCard({
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
         style={{
           background:
-            'radial-gradient(125% 85% at 96% -8%, rgba(255, 240, 222, 0.14) 0%, rgba(255, 224, 196, 0.045) 36%, transparent 66%), radial-gradient(95% 75% at 6% 106%, rgba(168, 222, 255, 0.1) 0%, transparent 58%), linear-gradient(128deg, rgba(255,255,255,0.065) 0%, transparent 32%, transparent 72%, rgba(255,244,232,0.04) 100%)',
+            'radial-gradient(125% 85% at 96% -8%, rgba(255, 240, 222, 0.14) 0%, rgba(255, 224, 196, 0.045) 36%, transparent 66%), radial-gradient(95% 75% at 6% 106%, rgba(235, 238, 245, 0.09) 0%, transparent 58%), linear-gradient(128deg, rgba(255,255,255,0.065) 0%, transparent 32%, transparent 72%, rgba(255,244,232,0.04) 100%)',
         }}
       />
 

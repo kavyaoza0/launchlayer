@@ -306,17 +306,9 @@ export function StudioEditorialCarousel({
 
       {/* Spacious Full-Viewport Sticky Showcase */}
       <div className="sticky top-0 flex min-h-dvh w-full flex-col justify-between overflow-x-clip bg-black">
-        {/* Lightweight Pre-Feathered Ambient Spotlight & Subtle Rotating Blueprint Arcs (zero blur-filter raster stalls) */}
+        {/* Subtle Architectural Studio Atmosphere (pure soft monochrome light & glass depth, no blue blobs) */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={
-              prefersReducedMotion
-                ? { opacity: 0.75, scale: 1 }
-                : { opacity: [0.55, 0.95, 0.55], scale: [0.96, 1.05, 0.96] }
-            }
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute left-1/2 top-[12%] h-[560px] w-[1160px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(100,206,251,0.085)_0%,rgba(100,206,251,0.025)_42%,transparent_72%)] will-change-transform"
-          />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_18%,rgba(255,255,255,0.055)_0%,rgba(255,255,255,0.015)_44%,transparent_76%)]" />
 
           {/* Subtle Slow-Rotating Studio Geometric Horizon Ring */}
           {!prefersReducedMotion && (
@@ -328,7 +320,7 @@ export function StudioEditorialCarousel({
               fill="none"
             >
               <circle cx="400" cy="400" r="340" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="6 14" />
-              <circle cx="400" cy="400" r="240" stroke="#64CEFB" strokeWidth="1" strokeDasharray="3 18" />
+              <circle cx="400" cy="400" r="240" stroke="#FFFFFF" strokeOpacity="0.6" strokeWidth="1" strokeDasharray="3 18" />
             </motion.svg>
           )}
 
@@ -337,7 +329,7 @@ export function StudioEditorialCarousel({
             <motion.div
               animate={{ x: ['-30%', '130%'] }}
               transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-              className="absolute top-0 left-0 h-[1px] w-[26vw] bg-gradient-to-r from-transparent via-[#64CEFB]/70 to-transparent will-change-transform"
+              className="absolute top-0 left-0 h-[1px] w-[26vw] bg-gradient-to-r from-transparent via-white/55 to-transparent will-change-transform"
             />
           )}
         </div>
@@ -355,7 +347,7 @@ export function StudioEditorialCarousel({
             className="flex flex-wrap items-end justify-between gap-4"
           >
             <div>
-              <p className="mb-1.5 flex items-center gap-2 font-space-mono text-[10px] tracking-[0.2em] uppercase text-[#64CEFB] sm:text-[10.5px] [@media(max-height:600px)]:mb-1">
+              <p className="mb-1.5 flex items-center gap-2 font-space-mono text-[10px] tracking-[0.2em] uppercase text-white/75 sm:text-[10.5px] [@media(max-height:600px)]:mb-1">
                 <span>Studio Process · Accessibility First</span>
               </p>
 
@@ -369,7 +361,7 @@ export function StudioEditorialCarousel({
 
                 <div
                   aria-hidden="true"
-                  className="relative inline-flex h-[1.2em] items-center overflow-hidden font-space-mono text-[12.5px] font-medium text-[#64CEFB] tabular-nums sm:text-[13px]"
+                  className="relative inline-flex h-[1.2em] items-center overflow-hidden font-space-mono text-[12.5px] font-medium text-white/85 tabular-nums sm:text-[13px]"
                 >
                   <span>(</span>
                   <AnimatePresence mode="popLayout" initial={false}>
@@ -400,7 +392,7 @@ export function StudioEditorialCarousel({
           </motion.div>
         </div>
 
-        {/* Spacious Horizontal Card Deck with Continuous 120fps Compositor Transforms */}
+        {/* Spacious Horizontal Liquid-Glass Card Deck */}
         <div
           tabIndex={0}
           aria-label="Studio process stages carousel. Scroll, drag horizontally, or press left and right arrow keys to move between cards."
@@ -432,43 +424,36 @@ export function StudioEditorialCarousel({
                   onClick={() => {
                     if (!isActive) scrollToSlide(idx);
                   }}
-                  className={`group/card relative flex min-h-[360px] w-[86vw] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border bg-gradient-to-b from-[#11131A] via-[#0B0C10] to-[#070709] will-change-[transform,opacity] transition-[border-color] duration-300 ease-out sm:min-h-[395px] sm:w-[68vw] md:w-[54vw] lg:w-[44vw] max-w-[560px] ${
+                  className={`liquid-glass-strong group/card relative flex min-h-[360px] w-[86vw] shrink-0 flex-col justify-between rounded-[28px] will-change-[transform,opacity] transition-[background-color,box-shadow] duration-300 ease-out sm:min-h-[395px] sm:w-[68vw] sm:rounded-[32px] md:w-[54vw] lg:w-[44vw] max-w-[560px] ${
                     isActive
-                      ? 'border-white/28 shadow-[0_28px_80px_rgba(0,0,0,0.9),0_0_42px_rgba(100,206,251,0.08)]'
-                      : 'border-white/10 shadow-[0_18px_46px_rgba(0,0,0,0.8)] cursor-pointer'
+                      ? 'bg-white/[0.045] shadow-[0_28px_80px_rgba(0,0,0,0.88),inset_0_1px_1px_rgba(255,255,255,0.22)]'
+                      : 'bg-white/[0.015] shadow-[0_18px_46px_rgba(0,0,0,0.72)] cursor-pointer'
                   }`}
                 >
-                  {/* Precision Studio Corner Brackets (smoothly fades with border state) */}
+                  {/* Soft Liquid-Glass Diagonal Sheen */}
                   <div
                     aria-hidden="true"
-                    className={`pointer-events-none absolute inset-2.5 z-30 transition-opacity duration-300 ${
-                      isActive ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  >
-                    <span className="absolute left-0 top-0 h-2.5 w-2.5 border-l border-t border-[#64CEFB]/55" />
-                    <span className="absolute right-0 top-0 h-2.5 w-2.5 border-r border-t border-[#64CEFB]/55" />
-                    <span className="absolute bottom-0 left-0 h-2.5 w-2.5 border-b border-l border-white/25" />
-                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 border-b border-r border-white/25" />
-                  </div>
+                    className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] bg-[linear-gradient(135deg,rgba(255,255,255,0.09)_0%,rgba(255,255,255,0.02)_26%,transparent_55%,rgba(255,255,255,0.035)_100%)]"
+                  />
 
-                  {/* Continuous Smooth Top Rim Highlight (opacity driven per-frame by card focus, zero layout projection jitter) */}
+                  {/* Continuous Smooth Top Specular Rim Highlight */}
                   <span
                     ref={(el) => {
                       rimRefs.current[idx] = el;
                     }}
                     aria-hidden="true"
                     style={{ opacity: idx === 0 ? 1 : 0 }}
-                    className="pointer-events-none absolute inset-x-8 top-0 z-30 h-[1.5px] rounded-full bg-gradient-to-r from-transparent via-[#64CEFB] to-transparent"
+                    className="pointer-events-none absolute inset-x-10 top-0 z-30 h-[1.5px] rounded-full bg-gradient-to-r from-transparent via-white/85 to-transparent"
                   />
 
-                  {/* Subtle Pointer-Follow Surface Spotlight */}
+                  {/* Subtle Pointer-Follow Specular Glass Reflection */}
                   {isActive && !prefersReducedMotion && (
                     <div
                       aria-hidden="true"
                       className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100"
                       style={{
                         background:
-                          'radial-gradient(320px circle at var(--mx, 50%) var(--my, 35%), rgba(100,206,251,0.08), transparent 70%)',
+                          'radial-gradient(320px circle at var(--mx, 50%) var(--my, 35%), rgba(255,255,255,0.09), transparent 70%)',
                       }}
                     />
                   )}
@@ -476,23 +461,23 @@ export function StudioEditorialCarousel({
                   {/* Subtle Oversized Watermark Index */}
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute right-4 top-2 select-none font-heading text-[6.5rem] leading-none tracking-tighter text-white/[0.035] sm:right-6 sm:text-[7.75rem]"
+                    className="pointer-events-none absolute right-5 top-2 select-none font-heading text-[6.5rem] leading-none tracking-tighter text-white/[0.04] sm:right-7 sm:text-[7.75rem]"
                   >
                     {stage.num}
                   </span>
 
                   {/* Top Editorial Copy Chamber */}
-                  <div className="relative z-20 flex shrink-0 flex-col gap-2 px-4 pt-4 pb-3.5 sm:gap-2.5 sm:px-6 sm:pt-5 sm:pb-4 [@media(max-height:540px)]:gap-1 [@media(max-height:540px)]:py-2.5">
+                  <div className="relative z-20 flex shrink-0 flex-col gap-2 px-4 pt-4 pb-3 sm:gap-2.5 sm:px-6 sm:pt-5 sm:pb-3.5 [@media(max-height:540px)]:gap-1 [@media(max-height:540px)]:py-2.5">
                     <div className="flex items-center justify-between gap-4">
                       <span
                         className={`inline-flex items-center gap-2 font-space-mono text-[12px] font-medium tracking-[0.14em] tabular-nums transition-colors duration-300 ${
-                          isActive ? 'text-[#64CEFB]' : 'text-white/60'
+                          isActive ? 'text-white' : 'text-white/60'
                         }`}
                       >
                         <span>{stage.num}</span>
                       </span>
 
-                      <span className="font-space-mono text-[10px] tracking-[0.14em] uppercase text-white/60">
+                      <span className="font-space-mono text-[10px] tracking-[0.14em] uppercase text-white/65">
                         {stage.badge}
                       </span>
                     </div>
@@ -507,14 +492,8 @@ export function StudioEditorialCarousel({
                     </div>
                   </div>
 
-                  {/* Bottom Interactive Dotted-Matrix Chamber */}
-                  <div className="relative z-20 min-h-0 flex-1 border-t border-white/12 bg-[#070709] px-4 py-3.5 sm:px-6 sm:py-4 [@media(max-height:540px)]:py-2.5">
-                    {/* Softly Vignetted Micro-Dot Canvas */}
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,black_55%,transparent_100%)]"
-                    />
-
+                  {/* Bottom Inset Rounded Frosted Liquid-Glass Chamber (r_inner = r_outer - margin) */}
+                  <div className="relative z-20 mx-2.5 mb-2.5 min-h-0 flex-1 overflow-hidden rounded-[18px] border border-white/14 bg-white/[0.03] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-2xl sm:mx-3 sm:mb-3 sm:rounded-[20px] sm:px-5 sm:py-3.5 [@media(max-height:540px)]:py-2">
                     <div className="relative z-10 h-full">
                       {idx === 0 && (
                         <Card01Discovery
@@ -570,18 +549,18 @@ export function StudioEditorialCarousel({
           </div>
         </div>
 
-        {/* Spacious Bottom Progress Bar */}
-        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] shrink-0 flex-col px-5 pt-2.5 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+16px))] sm:px-8 sm:pt-3 sm:pb-7 lg:px-14">
-          <div className="flex items-center gap-3.5 sm:gap-4">
+        {/* Spacious Rounded Liquid-Glass Bottom Progress Bar */}
+        <div className="relative z-10 mx-auto flex w-full max-w-[1440px] shrink-0 flex-col px-5 pt-2 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+14px))] sm:px-8 sm:pt-2.5 sm:pb-6 lg:px-14">
+          <div className="liquid-glass-strong flex items-center gap-3.5 rounded-full bg-white/[0.03] px-4 py-2.5 sm:gap-4 sm:px-5">
             <span className="shrink-0 font-space-mono text-[11px] tracking-[0.12em] text-white tabular-nums sm:text-[11.5px]">
-              {STAGES[activeSlide].num} <span className="text-white/45">/ 0{TOTAL_STAGES}</span>
+              {STAGES[activeSlide].num} <span className="text-white/50">/ 0{TOTAL_STAGES}</span>
             </span>
 
-            {/* Continuous Progress Line */}
-            <div className="relative h-px flex-1 overflow-hidden bg-white/15">
+            {/* Continuous Rounded Progress Line */}
+            <div className="relative h-[2px] flex-1 overflow-hidden rounded-full bg-white/15">
               <div
                 ref={progressBarRef}
-                className="h-[2px] w-full origin-left bg-[#64CEFB] shadow-[0_0_12px_rgba(100,206,251,0.55)] will-change-transform"
+                className="h-full w-full origin-left rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)] will-change-transform"
                 style={{ transform: `scaleX(${(1 / TOTAL_STAGES).toFixed(4)})` }}
               />
             </div>

@@ -174,7 +174,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
               opacity: phase === 'ignition' ? [0, 0.95] : isLocked ? 0 : 0.2,
             }}
             transition={{ duration: 0.55, ease: EASE }}
-            className="absolute left-1/2 top-[16%] bottom-[16%] w-px -translate-x-1/2 origin-center bg-gradient-to-b from-transparent via-[#64CEFB] to-transparent"
+            className="absolute left-1/2 top-[16%] bottom-[16%] w-px -translate-x-1/2 origin-center bg-gradient-to-b from-transparent via-white/85 to-transparent"
           />
         )}
 
@@ -201,7 +201,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                 cx="350"
                 cy="350"
                 r="298"
-                stroke="#64CEFB"
+                stroke="#FFFFFF"
                 strokeOpacity="0.85"
                 strokeWidth="0.9"
                 strokeDasharray="3 14"
@@ -215,10 +215,10 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                 strokeWidth="0.7"
                 strokeDasharray="1 18"
               />
-              <line x1="350" y1="36" x2="350" y2="56" stroke="#64CEFB" strokeWidth="1.2" />
-              <line x1="350" y1="644" x2="350" y2="664" stroke="#64CEFB" strokeWidth="1.2" />
-              <line x1="36" y1="350" x2="56" y2="350" stroke="#64CEFB" strokeWidth="1.2" />
-              <line x1="644" y1="350" x2="664" y2="350" stroke="#64CEFB" strokeWidth="1.2" />
+              <line x1="350" y1="36" x2="350" y2="56" stroke="#FFFFFF" strokeWidth="1.2" />
+              <line x1="350" y1="644" x2="350" y2="664" stroke="#FFFFFF" strokeWidth="1.2" />
+              <line x1="36" y1="350" x2="56" y2="350" stroke="#FFFFFF" strokeWidth="1.2" />
+              <line x1="644" y1="350" x2="664" y2="350" stroke="#FFFFFF" strokeWidth="1.2" />
             </motion.svg>
 
             <motion.svg
@@ -241,8 +241,8 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                 cx="400"
                 cy="400"
                 r="348"
-                stroke="#64CEFB"
-                strokeOpacity="0.55"
+                stroke="#FFFFFF"
+                strokeOpacity="0.5"
                 strokeWidth="0.85"
                 strokeDasharray="28 52"
               />
@@ -260,7 +260,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                 animate={{ opacity: 0, scale: 1.78 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.05, ease: EASE }}
-                className="absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#64CEFB]/70"
+                className="absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/65"
               />
               <motion.div
                 key="lock-wave-outer"
@@ -282,7 +282,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
             opacity: isExiting ? 0 : isLocked ? 0.52 : 0.25,
           }}
           transition={{ duration: 0.9, ease: EASE }}
-          className="absolute left-1/2 top-[28%] h-px w-[min(88vw,960px)] -translate-x-1/2 origin-center bg-gradient-to-r from-transparent via-[#64CEFB]/70 to-transparent"
+          className="absolute left-1/2 top-[28%] h-px w-[min(88vw,960px)] -translate-x-1/2 origin-center bg-gradient-to-r from-transparent via-white/60 to-transparent"
         />
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
@@ -291,7 +291,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
             opacity: isExiting ? 0 : isLocked ? 0.52 : 0.25,
           }}
           transition={{ duration: 0.9, delay: 0.06, ease: EASE }}
-          className="absolute left-1/2 top-[72%] h-px w-[min(88vw,960px)] -translate-x-1/2 origin-center bg-gradient-to-r from-transparent via-[#64CEFB]/70 to-transparent"
+          className="absolute left-1/2 top-[72%] h-px w-[min(88vw,960px)] -translate-x-1/2 origin-center bg-gradient-to-r from-transparent via-white/60 to-transparent"
         />
       </div>
 
@@ -358,18 +358,18 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                   style={{
                     textShadow: locked
                       ? isLocked
-                        ? '0 0 28px rgba(255,255,255,0.68), 0 0 60px rgba(100,206,251,0.78), 0 0 116px rgba(100,206,251,0.36)'
-                        : '0 0 26px rgba(100,206,251,0.88), 0 0 64px rgba(255,255,255,0.45)'
+                        ? '0 0 28px rgba(255,255,255,0.72), 0 0 64px rgba(255,255,255,0.42), 0 0 116px rgba(245,236,222,0.22)'
+                        : '0 0 26px rgba(255,255,255,0.68), 0 0 60px rgba(255,255,255,0.3)'
                       : isDecodingCurrent
-                        ? '0 0 28px rgba(100,206,251,0.95), 0 0 54px rgba(100,206,251,0.52)'
-                        : '0 0 14px rgba(100,206,251,0.34)',
+                        ? '0 0 26px rgba(255,255,255,0.82), 0 0 52px rgba(255,255,255,0.4)'
+                        : '0 0 14px rgba(255,255,255,0.25)',
                   }}
                   className={`relative inline-flex justify-center transition-colors duration-250 ${
                     locked
                       ? 'text-white'
                       : isDecodingCurrent
-                        ? 'text-[#64CEFB]'
-                        : 'text-[#64CEFB]/50'
+                        ? 'text-white/90'
+                        : 'text-white/45'
                   }`}
                 >
                   {char}
@@ -381,7 +381,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                       animate={{ opacity: 0, scaleY: 1.65 }}
                       transition={{ duration: 0.55, ease: EASE }}
                       aria-hidden="true"
-                      className="pointer-events-none absolute left-1/2 -top-5 -bottom-5 w-[2px] -translate-x-1/2 bg-gradient-to-b from-transparent via-[#64CEFB] to-transparent"
+                      className="pointer-events-none absolute left-1/2 -top-5 -bottom-5 w-[2px] -translate-x-1/2 bg-gradient-to-b from-transparent via-white to-transparent"
                     />
                   )}
 
@@ -391,7 +391,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                       layoutId="tesselo-decode-caliper"
                       transition={{ type: 'spring', stiffness: 460, damping: 34 }}
                       aria-hidden="true"
-                      className="pointer-events-none absolute -bottom-2 inset-x-1.5 h-[2px] rounded-full bg-gradient-to-r from-[#64CEFB]/40 via-white to-[#64CEFB]/40 shadow-[0_0_16px_#64CEFB]"
+                      className="pointer-events-none absolute -bottom-2 inset-x-1.5 h-[2px] rounded-full bg-gradient-to-r from-white/35 via-white to-white/35 shadow-[0_0_14px_rgba(255,255,255,0.8)]"
                     />
                   )}
                 </motion.span>
@@ -408,7 +408,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
               transition={{ duration: 0.95, ease: EASE }}
               style={{
                 backgroundImage:
-                  'linear-gradient(108deg, transparent 34%, rgba(100,206,251,0.95) 47%, rgba(255,255,255,1) 50%, rgba(100,206,251,0.95) 53%, transparent 66%)',
+                  'linear-gradient(108deg, transparent 34%, rgba(255,255,255,0.72) 47%, rgba(255,255,255,1) 50%, rgba(245,236,222,0.78) 53%, transparent 66%)',
                 backgroundSize: '220% 100%',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
@@ -446,7 +446,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                       key={idx}
                       style={{ width: locked ? LOCKED_WIDTHS[idx] : SCRAMBLE_WIDTHS[idx] }}
                       className={`inline-flex justify-center ${
-                        locked ? 'text-[#64CEFB]/85' : 'text-[#64CEFB]/40'
+                        locked ? 'text-white/75' : 'text-white/35'
                       }`}
                     >
                       {char}
@@ -467,7 +467,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: lockedCount / TARGET_CHARS.length }}
             transition={{ duration: 0.28, ease: EASE }}
-            className="h-full w-full origin-left bg-gradient-to-r from-[#64CEFB]/70 via-white to-[#64CEFB] shadow-[0_0_16px_rgba(100,206,251,0.9)]"
+            className="h-full w-full origin-left bg-gradient-to-r from-white/60 via-white to-white shadow-[0_0_16px_rgba(255,255,255,0.75)]"
           />
         </div>
 
@@ -490,7 +490,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
       <button
         type="button"
         onClick={finishEntrance}
-        className="fixed bottom-7 right-7 z-20 inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-white/[0.03] px-4 font-space-mono text-[11px] tracking-[0.16em] uppercase text-white/75 transition-colors hover:border-[#64CEFB]/60 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:bottom-10 sm:right-11 lg:bottom-12 lg:right-14"
+        className="fixed bottom-7 right-7 z-20 inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-white/[0.03] px-4 font-space-mono text-[11px] tracking-[0.16em] uppercase text-white/75 transition-colors hover:border-white/55 hover:text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:bottom-10 sm:right-11 lg:bottom-12 lg:right-14"
       >
         Skip
       </button>
