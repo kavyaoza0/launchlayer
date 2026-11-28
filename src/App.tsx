@@ -43,7 +43,7 @@ export default function App() {
 
       {/* Hero Wrapper with video background */}
       <div className="relative flex min-h-dvh w-full flex-col overflow-x-clip bg-black">
-        <HeroVideoBackground />
+        <HeroVideoBackground entranceDone={entranceDone} />
 
         <Navbar
           onOpenEnquiry={handleOpenEnquiry}

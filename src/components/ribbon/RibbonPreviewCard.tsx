@@ -717,10 +717,10 @@ export function RibbonPreviewCard({
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_45%)]"
       />
 
-      {/* Bottom-left Chip: 14px in, pill, rgba(0,0,0,.55), "No. 01".."No. 16" (fades out on hover) */}
+      {/* Bottom-left Chip: 14px in, pill, rgba(0,0,0,.75), "No. 01".."No. 16" (fades out on hover) */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute bottom-[14px] left-[14px] inline-flex items-center rounded-full bg-black/55 px-[10px] py-[5px] font-space-mono text-[12px] leading-none text-white backdrop-blur-[6px] transition-opacity duration-250 ease-out ${
+        className={`pointer-events-none absolute bottom-[14px] left-[14px] inline-flex items-center rounded-full bg-black/75 px-[10px] py-[5px] font-space-mono text-[12px] leading-none text-white transition-opacity duration-250 ease-out ${
           isHovered ? 'opacity-0' : 'opacity-100'
         }`}
       >

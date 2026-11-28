@@ -13,21 +13,21 @@ interface ProjectEnquiryDrawerProps {
 type Currency = 'USD' | 'INR';
 
 const TIERS = [
-  { id: 'starter', name: 'Starter — Landing Page', usd: '$249', inr: '₹19,999' },
-  { id: 'business', name: 'Business — Up to 5 Pages', usd: '$599', inr: '₹44,999' },
-  { id: 'signature', name: 'Signature — Up to 8 Pages', usd: '$1,199', inr: '₹89,999' },
-  { id: 'bespoke', name: 'Bespoke — Custom Development', usd: '$2,000+', inr: '₹1,50,000+' },
+  { id: 'starter', name: 'Starter — One-page site', usd: '$249', inr: '₹19,999' },
+  { id: 'business', name: 'Business — Up to 5 pages', usd: '$599', inr: '₹44,999' },
+  { id: 'signature', name: 'Signature — Up to 8 pages', usd: '$1,199', inr: '₹89,999' },
+  { id: 'bespoke', name: 'Bespoke — Custom build', usd: '$2,000+', inr: '₹1,50,000+' },
 ] as const;
 
 const TOPIC_NOTES: Record<EnquiryTopic, string> = {
-  General: 'Tell us what you are building and your target launch timeline.',
-  Work: 'Full case studies are being prepared for the next studio release. Share your goals below to receive relevant private work samples.',
+  General: 'Tell us a little about what you are building and when you would like to launch.',
+  Work: 'We are putting together full project stories for our next update. Share what you need below and we will send over relevant examples.',
   Services:
-    'We design and build custom landing pages, business websites, storefronts, SaaS marketing sites, and interactive experiences.',
+    'We design and build landing pages, company websites, online stores, and custom web apps.',
   Pricing:
-    'All listed tiers are transparent starting points. Final quotes follow a short scope conversation.',
-  Studio: 'Tesselo operates from Ahmedabad, partnering with founders and teams across time zones.',
-  Contact: 'Tell us what you are building and your target launch timeline.',
+    'These starting prices give you a clear baseline. We will share an exact quote after a quick chat about what you need.',
+  Studio: 'We are based in Ahmedabad and work closely with founders and teams everywhere.',
+  Contact: 'Tell us a little about what you are building and when you would like to launch.',
 };
 
 export function ProjectEnquiryDrawer({
@@ -155,7 +155,7 @@ export function ProjectEnquiryDrawer({
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
                 <div>
                   <p className="text-[12.5px] font-medium tracking-[0.02em] text-white/80">
-                    Tesselo · {initialTopic === 'General' ? 'New Enquiry' : initialTopic}
+                    Tesselo · {initialTopic === 'General' ? 'New Project' : initialTopic}
                   </p>
                   <h2
                     id="enquiry-title"
@@ -183,22 +183,22 @@ export function ProjectEnquiryDrawer({
                 <div
                   role="status"
                   aria-live="polite"
-                  className="mt-8 rounded-2xl border border-white/15 bg-white/[0.03] p-6"
+                  className="apple-liquid-glass mt-8 rounded-[24px] p-6"
                 >
                   <div className="flex items-center gap-2.5 text-white">
                     <Check aria-hidden="true" className="h-4 w-4 text-white" />
-                    <span className="text-[15px] font-medium">Brief received</span>
+                    <span className="text-[15px] font-medium">Thanks, we got your message</span>
                   </div>
                   <p className="mt-3 text-[14px] font-normal leading-relaxed text-white/85">
-                    Thank you, {name}. We reply to every studio enquiry within one business day from{' '}
+                    Thank you, {name}. We usually reply within one business day from{' '}
                     <span className="text-white">hello@tesselo.in</span>.
                   </p>
                   <button
                     type="button"
                     onClick={resetAndClose}
-                    className="liquid-glass-strong mt-6 min-h-[44px] rounded-full px-6 py-2.5 text-[13px] font-medium text-white transition-all duration-150 hover:bg-white/10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="apple-liquid-pill mt-6 min-h-[44px] rounded-full px-6 py-2.5 text-[13px] font-medium text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
-                    Return to studio
+                    Back to site
                   </button>
                 </div>
               ) : (
@@ -206,7 +206,7 @@ export function ProjectEnquiryDrawer({
                   <div>
                     <div className="mb-2.5 flex items-center justify-between">
                       <span id="scope-label" className="text-[13px] font-medium text-white/95">
-                        Starting scope
+                        Which option fits best?
                       </span>
                       <div
                         role="group"
@@ -322,7 +322,7 @@ export function ProjectEnquiryDrawer({
                       htmlFor="enquiry-notes"
                       className="mb-1.5 block text-[13px] font-medium text-white/95"
                     >
-                      Project brief
+                      Tell us about your project
                     </label>
                     <textarea
                       id="enquiry-notes"
@@ -344,14 +344,14 @@ export function ProjectEnquiryDrawer({
                     type="submit"
                     className="min-h-[44px] w-full rounded-full bg-white px-6 py-3 text-[13.5px] font-medium text-black transition-colors duration-150 hover:bg-white/90 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
-                    Send project enquiry
+                    Send message
                   </button>
                 </form>
               )}
             </div>
 
             <div className="mt-8 border-t border-white/15 pt-4 text-[12.5px] font-normal text-white/75">
-              Ahmedabad, India · Serving clients worldwide · Direct:{' '}
+              Based in Ahmedabad, India · Working with clients worldwide · Direct:{' '}
               <a
                 href="mailto:hello@tesselo.in"
                 className="text-white underline underline-offset-4 hover:text-white/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"

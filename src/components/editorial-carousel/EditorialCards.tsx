@@ -14,6 +14,7 @@ import { WebsiteMockup, type MockupDirection } from './WebsiteMockups';
 
 interface CardInteractiveProps {
   isActive: boolean;
+  isVisible?: boolean;
   prefersReducedMotion: boolean;
   onRequestFocus: () => void;
 }
@@ -47,14 +48,15 @@ function AnimatedCheckIcon({ checked, reduced }: { checked: boolean; reduced: bo
 const BRIEF_ITEMS = [
   'The basics',
   'Your business',
-  'Your audience',
-  'Pages & content',
-  'Brand & assets',
-  'Visual feel',
+  'Who it’s for',
+  'Pages & words',
+  'Logo & photos',
+  'Look & style',
 ] as const;
 
 export function Card01Discovery({
   isActive,
+  isVisible = true,
   prefersReducedMotion,
   onRequestFocus,
 }: CardInteractiveProps) {
@@ -68,6 +70,7 @@ export function Card01Discovery({
     false,
   ]);
   const [userInteracted, setUserInteracted] = useState(false);
+  const activeAnim = isActive && isVisible && !prefersReducedMotion;
 
   // Resume smooth auto-cycle 9s after manual toggle so showcase stays alive
   useEffect(() => {
@@ -82,14 +85,14 @@ export function Card01Discovery({
       setWaveStep(BRIEF_ITEMS.length);
       return;
     }
+    if (!isVisible || !isActive) return;
 
-    const intervalMs = isActive ? 580 : 1200;
     const timer = window.setInterval(() => {
       setWaveStep((prev) => (prev >= BRIEF_ITEMS.length + 2 ? 1 : prev + 1));
-    }, intervalMs);
+    }, 640);
 
     return () => window.clearInterval(timer);
-  }, [isActive, prefersReducedMotion, userInteracted]);
+  }, [isActive, isVisible, prefersReducedMotion, userInteracted]);
 
   const checkedCount = Math.min(waveStep, BRIEF_ITEMS.length);
   const activeItems = userInteracted
@@ -114,7 +117,7 @@ export function Card01Discovery({
       <div className="flex items-center gap-2.5 sm:gap-3">
         <div
           aria-hidden="true"
-          className="relative grid flex-1 grid-cols-6 gap-1.5 overflow-hidden rounded-full border border-white/15 bg-white/[0.04] p-1.5 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          className="ll-glass-control relative grid flex-1 grid-cols-6 gap-1.5 overflow-hidden rounded-full border border-white/15 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
           {BRIEF_ITEMS.map((item, idx) => (
             <motion.span
@@ -130,7 +133,7 @@ export function Card01Discovery({
             />
           ))}
 
-          {!prefersReducedMotion && (
+          {activeAnim && (
             <motion.div
               animate={{ x: ['-120%', '220%'] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 0.5 }}
@@ -143,7 +146,7 @@ export function Card01Discovery({
           aria-live="polite"
           className="inline-flex shrink-0 items-center font-space-mono text-[10.5px] font-medium tracking-[0.06em] text-white/90 tabular-nums sm:text-[11px]"
         >
-          {doneCount}/{BRIEF_ITEMS.length} ready
+          {doneCount} of {BRIEF_ITEMS.length} covered
         </span>
       </div>
 
@@ -169,10 +172,10 @@ export function Card01Discovery({
                   e.stopPropagation();
                   toggleItem(idx);
                 }}
-                className={`group relative z-0 flex min-h-[40px] items-center gap-2 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] backdrop-blur-md transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[42px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
+                className={`group relative z-0 flex min-h-[40px] items-center gap-2 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[42px] sm:gap-2.5 sm:px-3 sm:text-[12.5px] ${
                   checked
                     ? 'border-white/38 bg-white/[0.1] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
-                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
+                    : 'll-glass-control border-white/12 text-white/80 hover:border-white/30 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {isGlint && (
@@ -212,9 +215,9 @@ const DIRECTION_FAN: {
   label: string;
   swatches: [string, string, string];
 }[] = [
-  { id: 'ecommerce', label: 'Commerce', swatches: ['#0E1913', '#C47F52', '#F3EDE2'] },
-  { id: 'architecture', label: 'Architecture', swatches: ['#EFECE6', '#C8BEB0', '#191816'] },
-  { id: 'fintech', label: 'Fintech', swatches: ['#090C11', '#34D399', '#E8EEF7'] },
+  { id: 'ecommerce', label: 'Warm Store', swatches: ['#0E1913', '#C47F52', '#F3EDE2'] },
+  { id: 'architecture', label: 'Clean Studio', swatches: ['#EFECE6', '#C8BEB0', '#191816'] },
+  { id: 'fintech', label: 'Modern Tech', swatches: ['#090C11', '#34D399', '#E8EEF7'] },
 ];
 
 const SITEMAP_PAGES = [
@@ -226,6 +229,7 @@ const SITEMAP_PAGES = [
 
 export function Card02Direction({
   isActive,
+  isVisible = true,
   prefersReducedMotion,
   onRequestFocus,
 }: CardInteractiveProps) {
@@ -234,6 +238,7 @@ export function Card02Direction({
   const [mappedCount, setMappedCount] = useState(2);
   const [pinned, setPinned] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const activeAnim = isActive && isVisible && !prefersReducedMotion;
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -250,10 +255,9 @@ export function Card02Direction({
   }, [pinned, mode, focusedDir, mappedCount]);
 
   useEffect(() => {
-    if (prefersReducedMotion || pinned) return;
+    if (!activeAnim || pinned) return;
 
     let tick = 0;
-    const intervalMs = isActive ? 1550 : 2400;
     const timer = window.setInterval(() => {
       tick += 1;
       const phase = tick % 8;
@@ -264,10 +268,10 @@ export function Card02Direction({
         setMode('sitemap');
         setMappedCount(((phase - 4) % 4) + 1);
       }
-    }, intervalMs);
+    }, 1650);
 
     return () => window.clearInterval(timer);
-  }, [isActive, prefersReducedMotion, pinned]);
+  }, [activeAnim, pinned]);
 
   const activePalette = DIRECTION_FAN[focusedDir].swatches;
 
@@ -279,7 +283,7 @@ export function Card02Direction({
           <div
             role="tablist"
             aria-label="Inspect planning stage views"
-            className="relative inline-flex items-center rounded-full border border-white/18 bg-white/[0.04] p-0.5 backdrop-blur-md"
+            className="ll-glass-control relative inline-flex items-center rounded-full border border-white/18 p-0.5"
           >
             {(['directions', 'sitemap'] as const).map((tab) => {
               const selected = mode === tab;
@@ -308,7 +312,7 @@ export function Card02Direction({
                       className="absolute inset-0 -z-10 rounded-full bg-white shadow-sm"
                     />
                   )}
-                  {tab === 'directions' ? 'Pick a direction' : 'Sitemap'}
+                  {tab === 'directions' ? 'Pick a style' : 'Page plan'}
                 </button>
               );
             })}
@@ -336,7 +340,7 @@ export function Card02Direction({
           </div>
         ) : (
           <span className="font-space-mono text-[10.5px] text-white/75 tabular-nums sm:text-[11px]">
-            {mappedCount}/4 mapped
+            {mappedCount} of 4 planned
           </span>
         )}
       </div>
@@ -372,7 +376,7 @@ export function Card02Direction({
                     }}
                     animate={{
                       x: offset * (isMobile ? 46 : 66),
-                      y: !prefersReducedMotion
+                      y: activeAnim && !isMobile
                         ? isFront
                           ? [0, -4, 0]
                           : [Math.abs(offset) * 6, Math.abs(offset) * 6 - 2, Math.abs(offset) * 6]
@@ -383,7 +387,7 @@ export function Card02Direction({
                       zIndex: isFront ? 20 : 10 - Math.abs(offset),
                     }}
                     transition={
-                      !prefersReducedMotion
+                      activeAnim && !isMobile
                         ? {
                             x: SPRING,
                             rotate: SPRING,
@@ -395,7 +399,9 @@ export function Card02Direction({
                               ease: 'easeInOut',
                             },
                           }
-                        : { duration: 0 }
+                        : prefersReducedMotion
+                          ? { duration: 0 }
+                          : { x: SPRING, rotate: SPRING, scale: SPRING, y: SPRING, opacity: { duration: 0.25 } }
                     }
                     className={`absolute aspect-[16/10] w-[148px] overflow-hidden rounded-xl border text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-[190px] ${
                       isFront
@@ -431,7 +437,7 @@ export function Card02Direction({
               className="flex w-full flex-col items-center gap-2.5"
             >
               {/* Clean Root Node */}
-              <div className="inline-flex items-center rounded-xl border border-white/40 bg-white/[0.08] px-4 py-1.5 text-[12px] font-medium text-white backdrop-blur-md shadow">
+              <div className="ll-glass-control inline-flex items-center rounded-xl border border-white/40 px-4 py-1.5 text-[12px] font-medium text-white shadow">
                 <span>Home</span>
               </div>
 
@@ -450,7 +456,7 @@ export function Card02Direction({
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 0.55, ease: EASE }}
                 />
-                {!prefersReducedMotion && (
+                {activeAnim && (
                   <>
                     <motion.path
                       d="M160 0 V9 H292 V20"
@@ -489,10 +495,10 @@ export function Card02Direction({
                         setPinned(true);
                         setMappedCount(pIdx + 1);
                       }}
-                      className={`flex min-h-[60px] flex-col justify-between rounded-xl border p-1.5 text-left backdrop-blur-md transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[66px] sm:p-2 ${
+                      className={`flex min-h-[60px] flex-col justify-between rounded-xl border p-1.5 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[66px] sm:p-2 ${
                         mapped
                           ? 'border-white/40 bg-white/[0.1] text-white'
-                          : 'border-white/12 bg-white/[0.03] text-white/70 hover:border-white/30'
+                          : 'll-glass-control border-white/12 text-white/70 hover:border-white/30'
                       }`}
                     >
                       <span className="text-[10px] font-medium leading-tight sm:text-[11px]">{page.name}</span>
@@ -534,12 +540,14 @@ const BUILD_VIEWPORTS = [
 
 export function Card03DesignBuild({
   isActive,
+  isVisible = true,
   prefersReducedMotion,
   onRequestFocus,
 }: CardInteractiveProps) {
   const [vpIdx, setVpIdx] = useState(0);
   const [pinned, setPinned] = useState(false);
   const [copied, setCopied] = useState(false);
+  const activeAnim = isActive && isVisible && !prefersReducedMotion;
 
   useEffect(() => {
     if (!pinned) return;
@@ -548,13 +556,12 @@ export function Card03DesignBuild({
   }, [pinned, vpIdx]);
 
   useEffect(() => {
-    if (prefersReducedMotion || pinned) return;
-    const intervalMs = isActive ? 2200 : 3200;
+    if (!activeAnim || pinned) return;
     const timer = window.setInterval(() => {
       setVpIdx((prev) => (prev + 1) % BUILD_VIEWPORTS.length);
-    }, intervalMs);
+    }, 2200);
     return () => window.clearInterval(timer);
-  }, [isActive, prefersReducedMotion, pinned]);
+  }, [activeAnim, pinned]);
 
   useEffect(() => {
     if (!copied) return;
@@ -595,7 +602,7 @@ export function Card03DesignBuild({
           <div
             role="tablist"
             aria-label="Preview responsive device layout"
-            className="relative inline-flex items-center rounded-full border border-white/18 bg-white/[0.04] p-0.5 backdrop-blur-md"
+            className="ll-glass-control relative inline-flex items-center rounded-full border border-white/18 p-0.5"
           >
             {BUILD_VIEWPORTS.map((vp, idx) => {
               const active = vpIdx === idx;
@@ -658,7 +665,7 @@ export function Card03DesignBuild({
             <WebsiteMockup direction="architecture" compact />
 
             {/* Continuous glass specular sweep */}
-            {!prefersReducedMotion && (
+            {activeAnim && (
               <motion.div
                 animate={{ x: ['-120%', '240%'] }}
                 transition={{ duration: 2.6, repeat: Infinity, ease: EASE, repeatDelay: 0.8 }}
@@ -667,7 +674,7 @@ export function Card03DesignBuild({
             )}
 
             {/* Animated Studio Inspection Cursor */}
-            {!prefersReducedMotion && isActive && (
+            {activeAnim && (
               <motion.div
                 animate={{
                   left: ['18%', '68%', '46%', '18%'],
@@ -692,7 +699,7 @@ export function Card03DesignBuild({
       </div>
 
       {/* Interactive Staging URL Bar */}
-      <div className="flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-1.5 backdrop-blur-md">
+      <div className="ll-glass-control flex items-center justify-between gap-2 rounded-xl border border-white/15 px-3 py-1.5">
         <span className="truncate font-space-mono text-[11px] text-white/75">
           kanso.tesselo.in
         </span>
@@ -731,14 +738,15 @@ export function Card03DesignBuild({
 /* 04 · Accessibility & Launch — SVG Gauge + Gliding Focus Ring Simulation    */
 /* -------------------------------------------------------------------------- */
 const LAUNCH_CHECKS = [
-  { id: 'wcag', label: 'WCAG AA contrast', metric: '19.5:1', icon: Keyboard },
-  { id: 'seo', label: 'SEO & metadata', metric: '100 / 100', icon: Search },
-  { id: 'domain', label: 'Domain connected', metric: 'TLS 1.3', icon: Globe },
-  { id: 'care', label: '15-day support ready', metric: 'Direct care', icon: Headphones },
+  { id: 'wcag', label: 'Easy-to-read text', metric: 'WCAG AA contrast', icon: Keyboard },
+  { id: 'seo', label: 'Ready for Google', metric: 'Search basics set', icon: Search },
+  { id: 'domain', label: 'Domain & security', metric: 'HTTPS active', icon: Globe },
+  { id: 'care', label: '15-day support', metric: 'Direct help', icon: Headphones },
 ] as const;
 
 export function Card04AccessibilityLaunch({
   isActive,
+  isVisible = true,
   prefersReducedMotion,
   onRequestFocus,
 }: CardInteractiveProps) {
@@ -758,14 +766,14 @@ export function Card04AccessibilityLaunch({
       setWaveStep(LAUNCH_CHECKS.length);
       return;
     }
+    if (!isVisible || !isActive) return;
 
-    const intervalMs = isActive ? 720 : 1300;
     const timer = window.setInterval(() => {
       setWaveStep((prev) => (prev >= LAUNCH_CHECKS.length + 2 ? 1 : prev + 1));
-    }, intervalMs);
+    }, 760);
 
     return () => window.clearInterval(timer);
-  }, [isActive, prefersReducedMotion, userInteracted]);
+  }, [isActive, isVisible, prefersReducedMotion, userInteracted]);
 
   const verifiedCount = Math.min(waveStep, LAUNCH_CHECKS.length);
   const states = userInteracted
@@ -813,7 +821,7 @@ export function Card04AccessibilityLaunch({
             />
           </svg>
           <span className="font-space-mono text-[10.5px] text-white/85 sm:text-[11px]">
-            <span className="hidden sm:inline">Launch &amp; </span>WCAG audit
+            Launch checklist
           </span>
         </div>
 
@@ -821,7 +829,7 @@ export function Card04AccessibilityLaunch({
           aria-live="polite"
           className="inline-flex shrink-0 items-center font-space-mono text-[10.5px] font-medium tracking-[0.04em] text-white/90 tabular-nums sm:text-[11px]"
         >
-          {totalVerified}/{LAUNCH_CHECKS.length} passed
+          {totalVerified} of {LAUNCH_CHECKS.length} checked
         </span>
       </div>
 
@@ -848,10 +856,10 @@ export function Card04AccessibilityLaunch({
                   e.stopPropagation();
                   toggleAudit(idx);
                 }}
-                className={`relative z-0 flex min-h-[46px] items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] backdrop-blur-md transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[50px] sm:gap-2.5 sm:px-3 sm:py-2 sm:text-[12px] ${
+                className={`relative z-0 flex min-h-[46px] items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left text-[11px] leading-[1.2] transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:min-h-[50px] sm:gap-2.5 sm:px-3 sm:py-2 sm:text-[12px] ${
                   passed
                     ? 'border-white/38 bg-white/[0.1] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
-                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
+                    : 'll-glass-control border-white/12 text-white/80 hover:border-white/30 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {isFocusSim && (
@@ -900,20 +908,22 @@ export function Card04AccessibilityLaunch({
 /* 05 · Work & Investment — Continuous Spotlight + Metallic CTA Sweep         */
 /* -------------------------------------------------------------------------- */
 const SCOPE_OPTIONS = [
-  { id: 'starter', name: 'Starter', rate: '$249', timeline: '1–2 wks', note: 'Focused single-page launch' },
-  { id: 'business', name: 'Business', rate: '$599', timeline: '2–3 wks', note: 'Up to 5 custom pages' },
-  { id: 'signature', name: 'Signature', rate: '$1,199', timeline: '3–5 wks', note: 'Bespoke motion & craft' },
-  { id: 'bespoke', name: 'Bespoke', rate: '$2,000+', timeline: 'Scoped', note: 'Storefronts & web products' },
+  { id: 'starter', name: 'Starter', rate: '$249', timeline: '1–2 weeks', note: 'One clear, focused page' },
+  { id: 'business', name: 'Business', rate: '$599', timeline: '2–3 weeks', note: 'Up to 5 custom pages' },
+  { id: 'signature', name: 'Signature', rate: '$1,199', timeline: '3–5 weeks', note: 'Custom animations & style' },
+  { id: 'bespoke', name: 'Bespoke', rate: '$2,000+', timeline: 'Custom timeline', note: 'Online stores & custom builds' },
 ] as const;
 
 export function Card05Investment({
   isActive,
+  isVisible = true,
   prefersReducedMotion,
   onRequestFocus,
   onSelectPricing,
 }: CardInteractiveProps & { onSelectPricing: (tierId: string) => void }) {
   const [selectedTier, setSelectedTier] = useState(2);
   const [pinned, setPinned] = useState(false);
+  const activeAnim = isActive && isVisible && !prefersReducedMotion;
 
   useEffect(() => {
     if (!pinned) return;
@@ -922,13 +932,12 @@ export function Card05Investment({
   }, [pinned, selectedTier]);
 
   useEffect(() => {
-    if (prefersReducedMotion || pinned) return;
-    const intervalMs = isActive ? 2200 : 3200;
+    if (!activeAnim || pinned) return;
     const timer = window.setInterval(() => {
       setSelectedTier((prev) => (prev + 1) % SCOPE_OPTIONS.length);
-    }, intervalMs);
+    }, 2200);
     return () => window.clearInterval(timer);
-  }, [isActive, prefersReducedMotion, pinned]);
+  }, [activeAnim, pinned]);
 
   const current = SCOPE_OPTIONS[selectedTier];
 
@@ -937,7 +946,7 @@ export function Card05Investment({
       <LayoutGroup id="card05-scope">
         <div
           role="radiogroup"
-          aria-label="Choose a Tesselo starting investment scope"
+          aria-label="Choose a website option"
           className="grid grid-cols-2 gap-2"
         >
           {SCOPE_OPTIONS.map((tier, idx) => {
@@ -956,10 +965,10 @@ export function Card05Investment({
                   setSelectedTier(idx);
                   setPinned(true);
                 }}
-                className={`relative z-0 flex min-h-[44px] items-baseline justify-between gap-1.5 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left backdrop-blur-md transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[48px] sm:gap-2 sm:px-3 sm:py-2 ${
+                className={`relative z-0 flex min-h-[44px] items-baseline justify-between gap-1.5 overflow-hidden rounded-xl border px-2.5 py-1.5 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white sm:min-h-[48px] sm:gap-2 sm:px-3 sm:py-2 ${
                   active
                     ? 'border-white/55 text-white shadow-[0_0_18px_rgba(255,255,255,0.08)]'
-                    : 'border-white/12 bg-white/[0.03] text-white/80 hover:border-white/30 hover:bg-white/[0.06] hover:text-white'
+                    : 'll-glass-control border-white/12 text-white/80 hover:border-white/30 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {active && (
@@ -980,7 +989,7 @@ export function Card05Investment({
         </div>
       </LayoutGroup>
 
-      <div className="flex items-center justify-between gap-2.5 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 backdrop-blur-md sm:gap-3 sm:px-3.5 sm:py-2.5">
+      <div className="ll-glass-control flex items-center justify-between gap-2.5 rounded-xl border border-white/15 px-3 py-2 sm:gap-3 sm:px-3.5 sm:py-2.5">
         <AnimatePresence mode="wait">
           <motion.div
             key={current.id}
@@ -992,7 +1001,7 @@ export function Card05Investment({
           >
             <div className="flex items-center gap-1.5 text-[10.5px] font-space-mono uppercase tracking-[0.08em] text-white/85 sm:text-[11px]">
               <motion.span
-                animate={prefersReducedMotion ? { rotate: 0 } : { rotate: [0, 14, -14, 0] }}
+                animate={activeAnim ? { rotate: [0, 14, -14, 0] } : { rotate: 0 }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="inline-flex shrink-0"
               >
@@ -1016,7 +1025,7 @@ export function Card05Investment({
           }}
           className="group relative inline-flex min-h-[38px] shrink-0 items-center gap-1 overflow-hidden rounded-full bg-white px-3 py-1.5 text-[11.5px] font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:min-h-[40px] sm:gap-1.5 sm:px-4 sm:text-[12.5px]"
         >
-          {!prefersReducedMotion && (
+          {activeAnim && (
             <motion.span
               animate={{ x: ['-140%', '240%'] }}
               transition={{ duration: 2.8, repeat: Infinity, ease: EASE, repeatDelay: 1.2 }}
@@ -1024,7 +1033,7 @@ export function Card05Investment({
               className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-black/15 to-transparent"
             />
           )}
-          <span className="relative z-10">Start {current.name}</span>
+          <span className="relative z-10">Choose {current.name}</span>
           <ArrowUpRight
             className="relative z-10 h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             aria-hidden="true"

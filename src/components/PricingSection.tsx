@@ -22,6 +22,8 @@ type Plan = {
   cta: string;
 };
 
+type Currency = 'USD' | 'INR';
+
 export interface PricingSectionProps {
   onSelectPackage?: (topic: EnquiryTopic, tierId?: string) => void;
 }
@@ -34,68 +36,68 @@ const plans: Plan[] = [
     usd: '$249',
     inr: '₹19,999',
     description:
-      'A polished landing page for individuals, new businesses and product launches that need a strong first impression.',
+      'A clean, thoughtfully designed single page for new ideas, individuals, and launches that want to make a strong first impression.',
     features: [
-      { text: 'Custom landing page design', included: true },
-      { text: 'Responsive development', included: true },
-      { text: 'Essential sections and content', included: true },
-      { text: 'Contact form integration', included: true },
-      { text: 'Basic SEO setup', included: true },
+      { text: 'Custom one-page design', included: true },
+      { text: 'Works on phone & desktop', included: true },
+      { text: 'All your key sections', included: true },
+      { text: 'Working contact form', included: true },
+      { text: 'Basic Google search setup', included: true },
     ],
     cta: 'Start with Starter',
   },
   {
     number: '02',
     name: 'Business',
-    subtitle: 'Built to establish your presence',
+    subtitle: 'Built for growing teams',
     usd: '$599',
     inr: '₹44,999',
     description:
-      'A complete business website designed to communicate services, build credibility and establish a professional online presence.',
+      'A complete multi-page website that explains what you offer, earns trust, and makes it easy for customers to reach out.',
     features: [
       { text: 'Multi-page website', included: true },
-      { text: 'Custom visual direction', included: true },
-      { text: 'Responsive development', included: true },
-      { text: 'Contact and enquiry forms', included: true },
-      { text: 'Essential SEO setup', included: true },
+      { text: 'Custom look and feel', included: true },
+      { text: 'Works on phone & desktop', included: true },
+      { text: 'Contact and inquiry forms', included: true },
+      { text: 'Essential search setup', included: true },
     ],
     cta: 'Choose Business',
   },
   {
     number: '03',
     name: 'Signature',
-    subtitle: 'For brands that want more',
+    subtitle: 'For brands that want to stand out',
     usd: '$1,199',
     inr: '₹89,999',
     description:
-      'A distinctive, custom-designed digital experience with refined visuals, expressive interactions and advanced animations.',
+      'A custom website with distinct personality, refined typography, and smooth, memorable interactions.',
     features: [
-      { text: 'Bespoke website design', included: true },
-      { text: 'Advanced interactions', included: true },
-      { text: 'Custom animations', included: true },
-      { text: 'Responsive development', included: true },
-      { text: 'Enhanced SEO and performance', included: true },
+      { text: 'Completely custom design', included: true },
+      { text: 'Thoughtful interactions', included: true },
+      { text: 'Smooth custom animations', included: true },
+      { text: 'Works on phone & desktop', included: true },
+      { text: 'Fast loading & search setup', included: true },
     ],
     featured: true,
-    badge: 'MOST POPULAR',
-    cta: 'Explore Signature',
+    badge: 'Most popular',
+    cta: 'Choose Signature',
   },
   {
     number: '04',
     name: 'Bespoke',
-    subtitle: 'Made around your vision',
+    subtitle: 'Built around your ideas',
     usd: '$2,000+',
     inr: '₹1,50,000+',
     description:
-      'A fully customised digital project for ambitious ideas, complex requirements and tailored functionality.',
+      'A tailored website or online store built from scratch for complex features, custom tools, or ambitious launches.',
     features: [
-      { text: 'Custom project architecture', included: true },
-      { text: 'Advanced functionality', included: true },
-      { text: 'Tailored UI and interactions', included: true },
-      { text: 'Custom integrations', included: true },
-      { text: 'Scope-based development', included: true },
+      { text: 'Custom site structure', included: true },
+      { text: 'Tailored features & tools', included: true },
+      { text: 'Custom interactions & motion', included: true },
+      { text: 'Third-party integrations', included: true },
+      { text: 'Built to your exact scope', included: true },
     ],
-    cta: 'Discuss Your Project',
+    cta: 'Talk about your project',
   },
 ];
 
@@ -129,9 +131,11 @@ const PRINT_GRAIN_BG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xml
 
 function PricingCard({
   plan,
+  primaryCurrency,
   onSelect,
 }: {
   plan: Plan;
+  primaryCurrency: Currency;
   onSelect?: (tierId: string) => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -139,7 +143,7 @@ function PricingCard({
   const shouldReduceMotion = !!useReducedMotion();
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    if (shouldReduceMotion) return;
+    if (shouldReduceMotion || e.pointerType === 'touch') return;
     const rect = e.currentTarget.getBoundingClientRect();
     setSpot({
       x: e.clientX - rect.left,
@@ -173,10 +177,10 @@ function PricingCard({
             }
       }
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-2xl p-6 will-change-transform transition-[border-color,background-color,box-shadow] duration-300 sm:p-7',
+        'group relative flex h-full flex-col overflow-hidden rounded-[26px] p-6 will-change-transform transition-[border-color,background-color,box-shadow] duration-300 sm:p-7',
         plan.featured
-          ? 'liquid-glass-strong bg-white/[0.045] shadow-[0_24px_64px_rgba(0,0,0,0.9),0_0_40px_rgba(255,255,255,0.08)] hover:shadow-[0_32px_78px_rgba(0,0,0,0.95),0_0_52px_rgba(255,255,255,0.13)]'
-          : 'border border-white/12 bg-white/[0.02] hover:border-white/32 hover:bg-white/[0.035] hover:shadow-[0_26px_64px_rgba(0,0,0,0.92)]'
+          ? 'apple-liquid-glass shadow-[0_24px_64px_rgba(0,0,0,0.9),0_0_40px_rgba(255,255,255,0.08)] hover:shadow-[0_32px_78px_rgba(0,0,0,0.95),0_0_52px_rgba(255,255,255,0.13)]'
+          : 'border border-white/14 bg-white/[0.025] hover:border-white/32 hover:bg-white/[0.04] hover:shadow-[0_26px_64px_rgba(0,0,0,0.92)]'
       )}
     >
       {/* Editorial Print Paper Micro-Grain */}
@@ -225,7 +229,7 @@ function PricingCard({
               plan.featured ? 'text-white/90' : 'text-white/70 group-hover:text-white/90'
             )}
           >
-            PACKAGE / {plan.number}
+            Option {plan.number}
           </span>
           <span
             className={cn(
@@ -249,7 +253,7 @@ function PricingCard({
         <div className="mt-6 border-t border-white/15 pt-5 transition-colors duration-300 group-hover:border-white/25">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-body text-[2.25rem] font-light leading-none tracking-[-0.04em] text-white tabular-nums xl:text-[2.55rem]">
-              {plan.usd}
+              {primaryCurrency === 'USD' ? plan.usd : plan.inr}
             </span>
             <span
               className={cn(
@@ -257,11 +261,11 @@ function PricingCard({
                 plan.featured ? 'text-white/90' : 'text-white/75 group-hover:text-white/90'
               )}
             >
-              {plan.inr}
+              {primaryCurrency === 'USD' ? plan.inr : plan.usd}
             </span>
           </div>
           <p className="mt-2 font-space-mono text-[11px] tracking-[0.12em] uppercase text-white/75">
-            STARTING PRICE · ONE-TIME PROJECT
+            Starting price · One-time fee
           </p>
         </div>
 
@@ -272,12 +276,12 @@ function PricingCard({
         <button
           type="button"
           onClick={() => onSelect?.(plan.name.toLowerCase())}
-          aria-label={`${plan.cta} — ${plan.name} package starting at ${plan.usd} or ${plan.inr}`}
+          aria-label={`${plan.cta} — ${plan.name} website starting at ${plan.usd} or ${plan.inr}`}
           className={cn(
-            'group/btn mt-6 flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-[13.5px] font-medium tracking-[0.01em] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+            'group/btn mt-6 flex min-h-[44px] w-full cursor-pointer items-center justify-between rounded-full px-5 font-body text-[13.5px] font-medium tracking-[0.01em] transition-all duration-300 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black',
             plan.featured
               ? 'bg-white text-black hover:bg-white/95 group-hover:shadow-[0_8px_24px_rgba(255,255,255,0.16)]'
-              : 'liquid-glass-strong bg-white/[0.04] text-white hover:bg-white/15 group-hover:bg-white/[0.08]'
+              : 'apple-liquid-pill text-white hover:scale-[1.015]'
           )}
         >
           <span>{plan.cta}</span>
@@ -292,7 +296,7 @@ function PricingCard({
 
       <div className="relative mt-7 border-t border-white/15 pt-5 transition-colors duration-300 group-hover:border-white/25">
         <p className="mb-3.5 font-space-mono text-[11px] tracking-[0.15em] uppercase text-white/75">
-          WHAT&apos;S INCLUDED
+          What you get
         </p>
         <ul className="space-y-3">
           {plan.features.map((feature, idx) => (
@@ -328,15 +332,17 @@ function PricingCard({
 }
 
 export function PricingSection({ onSelectPackage }: PricingSectionProps) {
+  const [primaryCurrency, setPrimaryCurrency] = useState<Currency>('USD');
+
   return (
     <section
       id="pricing"
       aria-labelledby="pricing-heading"
       className="ll-section-seam relative w-full overflow-hidden bg-black py-14 text-white sm:py-20 md:py-24"
     >
-      {/* Subtle monochrome grid texture & radial atmosphere */}
+      {/* Subtle monochrome grid texture & radial atmosphere (pure gradient, zero blur pass) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute top-0 left-1/2 h-[540px] w-[880px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.065)_0%,transparent_70%)] blur-[120px]" />
+        <div className="absolute top-0 left-1/2 h-[540px] w-[880px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.055)_0%,rgba(255,255,255,0.015)_44%,transparent_72%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
       </div>
 
@@ -347,9 +353,9 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
               <div className="mb-4 flex items-center justify-between gap-3 font-space-mono text-[11.5px] tracking-[0.16em] text-white/75 md:justify-start">
                 <span className="flex items-center gap-3">
                   <span aria-hidden="true" className="hidden h-px w-6 bg-white/55 md:inline-block" />
-                  INVESTMENT · 001
+                  Pricing · One-time projects
                 </span>
-                <span className="md:hidden text-white/75">ONE-TIME, FIXED</span>
+                <span className="md:hidden text-white/75">Fixed price</span>
               </div>
             </Reveal>
 
@@ -367,12 +373,36 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
 
           <Reveal delay={0.16} className="max-w-sm">
             <p className="font-body text-[14.5px] font-normal leading-7 text-white/85">
-              No confusing packages or unnecessary extras. Just a clear starting point for creating
-              a digital experience that works for your business.
+              No confusing tiers or surprise add-ons—just clear starting prices for a website that
+              helps your business grow.
             </p>
-            <p className="mt-3 hidden font-space-mono text-[11px] tracking-[0.16em] text-white/75 md:block">
-              FOUR WAYS TO MOVE FORWARD ↘
-            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div
+                role="group"
+                aria-label="Primary display currency"
+                className="apple-liquid-pill inline-flex items-center p-1"
+              >
+                {(['USD', 'INR'] as const).map((curr) => (
+                  <button
+                    key={curr}
+                    type="button"
+                    aria-pressed={primaryCurrency === curr}
+                    onClick={() => setPrimaryCurrency(curr)}
+                    className={cn(
+                      'min-h-[34px] rounded-full px-3.5 py-1 font-space-mono text-[11px] tracking-[0.14em] transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white',
+                      primaryCurrency === curr
+                        ? 'bg-white text-black font-medium shadow-[0_2px_10px_rgba(255,255,255,0.22)]'
+                        : 'text-white/75 hover:text-white'
+                    )}
+                  >
+                    {curr}
+                  </button>
+                ))}
+              </div>
+              <p className="hidden font-space-mono text-[11px] tracking-[0.16em] text-white/75 md:block">
+                Four ways ↘
+              </p>
+            </div>
           </Reveal>
         </div>
 
@@ -381,6 +411,7 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
             <PricingCard
               key={plan.name}
               plan={plan}
+              primaryCurrency={primaryCurrency}
               onSelect={(tierId) => onSelectPackage?.('Pricing', tierId)}
             />
           ))}
@@ -389,12 +420,12 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
         <Reveal delay={0.18}>
           <div className="relative mt-9 border-t border-white/15 pt-6">
             <p className="font-body text-[13.5px] font-normal text-white/85">
-              Every project is scoped around its goals and requirements.
+              Every project is quoted based on what you actually need.
             </p>
             <p className="mt-2.5 max-w-3xl font-body text-[12.5px] font-normal leading-relaxed text-white/75">
-              All amounts shown are starting prices and represent one-time project costs. Final
-              pricing depends on project scope, functionality and requirements. Domain registration,
-              hosting, paid integrations and third-party services may be charged separately.
+              All prices above are starting points for one-time projects. Your final quote depends
+              on pages, features, and timeline. Domain names, hosting, and paid third-party tools
+              are billed separately.
             </p>
           </div>
         </Reveal>

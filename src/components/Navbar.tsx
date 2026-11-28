@@ -62,7 +62,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation, entranceDone = t
 
   return (
     <header
-      className={`relative z-20 w-full border-b border-white/15 bg-black/65 backdrop-blur-md transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`relative z-20 w-full border-b border-white/15 bg-black/82 md:bg-black/65 md:backdrop-blur-md transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         entranceDone ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
       }`}
     >
@@ -103,7 +103,7 @@ export function Navbar({ onOpenEnquiry, onNavigatePresentation, entranceDone = t
           <button
             type="button"
             onClick={() => onOpenEnquiry('General')}
-            className="liquid-glass-strong min-h-[44px] rounded-full bg-black/45 px-4 py-2 font-body text-[13.5px] font-medium tracking-[0.01em] text-white transition-all duration-200 hover:bg-black/70 whitespace-nowrap shrink-0 cursor-pointer sm:px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            className="apple-liquid-pill min-h-[44px] rounded-full px-4 py-2 font-body text-[13.5px] font-medium tracking-[0.01em] text-white transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0 cursor-pointer sm:px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             Start a project
           </button>

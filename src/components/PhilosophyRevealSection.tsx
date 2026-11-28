@@ -4,7 +4,7 @@ const STATEMENT =
   "We don't just build websites. We shape the way your business is experienced, remembered, and discovered.";
 
 const STATEMENT_WORDS = STATEMENT.split(' ');
-const BASE_OPACITY = 0.28;
+const BASE_OPACITY = 0.34;
 
 export function PhilosophyRevealSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -36,6 +36,7 @@ export function PhilosophyRevealSection() {
 
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight || 1;
+      if (rect.bottom < -80 || rect.top > vh + 80) return;
 
       // Illuminate smoothly as the section scrolls from lower viewport into reading center
       const startTop = vh * 0.82;
@@ -95,9 +96,9 @@ export function PhilosophyRevealSection() {
       aria-labelledby="philosophy-heading"
       className="relative w-full bg-black pt-14 pb-16 text-white sm:pt-24 sm:pb-24 md:pt-28 md:pb-28"
     >
-      {/* Soft monochrome ambient glow behind philosophy statement */}
+      {/* Soft monochrome ambient glow behind philosophy statement (pure radial falloff, zero GPU blur pass) */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[380px] w-[860px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06)_0%,transparent_75%)] blur-[92px]" />
+        <div className="absolute left-1/2 top-1/2 h-[420px] w-[920px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.015)_42%,transparent_72%)]" />
       </div>
 
       {/* Subtle fixed four-column structural grid */}
@@ -118,7 +119,7 @@ export function PhilosophyRevealSection() {
           <div className="col-span-4 mx-auto flex w-full max-w-[1220px] flex-col items-center text-center md:items-start md:text-left">
             <p className="mb-5 flex items-center justify-center gap-3 font-body text-[11.5px] font-medium tracking-[0.16em] uppercase text-white/80 md:mb-6 md:justify-start">
               <span aria-hidden="true" className="hidden h-px w-6 bg-white/55 md:inline-block" />
-              A DIFFERENT WAY TO BUILD DIGITAL
+              A thoughtful way to build online
             </p>
 
             <h2
@@ -149,7 +150,7 @@ export function PhilosophyRevealSection() {
 
             <div className="relative mt-9 w-full border-t border-white/15 pt-5 md:mt-11 md:pt-6">
               <p className="font-body text-[12px] font-normal tracking-[0.16em] uppercase text-white/70">
-                TESSELO · OUR PHILOSOPHY
+                Tesselo · How we think
               </p>
             </div>
           </div>

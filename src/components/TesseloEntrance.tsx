@@ -39,7 +39,20 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
     'z',
   ]);
   const [justLockedIdx, setJustLockedIdx] = useState<number | null>(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+      : false
+  );
   const finishedRef = useRef(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px), (pointer: coarse)');
+    const sync = () => setIsMobileViewport(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const finishEntrance = useCallback(() => {
     if (finishedRef.current) return;
@@ -356,13 +369,19 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                     scale: { duration: 0.48, ease: EASE },
                   }}
                   style={{
-                    textShadow: locked
-                      ? isLocked
-                        ? '0 0 28px rgba(255,255,255,0.72), 0 0 64px rgba(255,255,255,0.42), 0 0 116px rgba(245,236,222,0.22)'
-                        : '0 0 26px rgba(255,255,255,0.68), 0 0 60px rgba(255,255,255,0.3)'
-                      : isDecodingCurrent
-                        ? '0 0 26px rgba(255,255,255,0.82), 0 0 52px rgba(255,255,255,0.4)'
-                        : '0 0 14px rgba(255,255,255,0.25)',
+                    textShadow: isMobileViewport
+                      ? locked
+                        ? '0 0 18px rgba(255,255,255,0.5)'
+                        : isDecodingCurrent
+                          ? '0 0 18px rgba(255,255,255,0.55)'
+                          : 'none'
+                      : locked
+                        ? isLocked
+                          ? '0 0 28px rgba(255,255,255,0.72), 0 0 64px rgba(255,255,255,0.42), 0 0 116px rgba(245,236,222,0.22)'
+                          : '0 0 26px rgba(255,255,255,0.68), 0 0 60px rgba(255,255,255,0.3)'
+                        : isDecodingCurrent
+                          ? '0 0 26px rgba(255,255,255,0.82), 0 0 52px rgba(255,255,255,0.4)'
+                          : '0 0 14px rgba(255,255,255,0.25)',
                   }}
                   className={`relative inline-flex justify-center transition-colors duration-250 ${
                     locked
@@ -437,7 +456,11 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
                 fontSize: 'clamp(4.4rem, 16.5vw, 13.75rem)',
               }}
             >
-              <div className="flex origin-top -scale-y-100 items-baseline justify-center font-heading font-normal leading-[0.86] tracking-[-0.03em] blur-[1.5px]">
+              <div
+                className={`flex origin-top -scale-y-100 items-baseline justify-center font-heading font-normal leading-[0.86] tracking-[-0.03em] ${
+                  isMobileViewport ? 'opacity-65' : 'blur-[1.5px]'
+                }`}
+              >
                 {TARGET_CHARS.map((targetChar, idx) => {
                   const locked = idx < lockedCount;
                   const char = displayChars[idx] ?? targetChar;
@@ -482,7 +505,7 @@ export function TesseloEntrance({ onComplete }: TesseloEntranceProps) {
           transition={{ duration: 0.65, ease: EASE }}
           className="mt-4 font-space-mono text-[10.5px] uppercase text-white/80 sm:text-[11px]"
         >
-          Web Design &amp; Digital Craft
+          Web Design &amp; Development
         </motion.p>
       </motion.div>
 

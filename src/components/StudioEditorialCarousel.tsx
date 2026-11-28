@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useScrollToTraverse } from '../hooks/useScrollToTraverse';
 import type { EnquiryTopic } from './Navbar';
@@ -18,38 +18,38 @@ interface StudioEditorialCarouselProps {
 const STAGES = [
   {
     num: '01',
-    badge: 'DAY 1',
-    title: 'Book & Brief',
+    badge: 'Day 1',
+    title: 'Book & share your goals',
     description:
-      'Reserve your build window and share your goals, target audience, visual feel, and core pages.',
+      'Pick a start date and tell us about your business, who you want to reach, and the look you like.',
   },
   {
     num: '02',
-    badge: '2 TO 5 DAYS',
-    title: 'Plan & Direction',
+    badge: '2 to 5 days',
+    title: 'Plan the look & pages',
     description:
-      'We map the sitemap, craft focused copy, and present bespoke visual directions around your brand.',
+      'We map out each page, write clear words for your visitors, and share custom style options.',
   },
   {
     num: '03',
-    badge: '1 TO 3 WEEKS',
-    title: 'Design & Build',
+    badge: '1 to 3 weeks',
+    title: 'Design & build',
     description:
-      'Sculptural typography, fluid motion, and production code built responsively across every device.',
+      'Clean typography, smooth movement, and dependable code that feels natural on every screen.',
   },
   {
     num: '04',
-    badge: '1 TO 2 DAYS',
-    title: 'Accessibility & Launch',
+    badge: '1 to 2 days',
+    title: 'Test & go live',
     description:
-      'We verify contrast, keyboard flow, and performance before connecting your domain and staying on for 15 days.',
+      'We check readability, keyboard use, and speed, connect your domain, and stay on hand for 15 days.',
   },
   {
     num: '05',
-    badge: 'FIXED SCOPE',
-    title: 'Work & Investment',
+    badge: 'Clear pricing',
+    title: 'Timelines & pricing',
     description:
-      'Transparent one-time starting rates with defined timelines, from single-page launches to custom systems.',
+      'Straightforward one-time starting prices and honest timelines, from single pages to custom online stores.',
   },
 ] as const;
 
@@ -70,6 +70,9 @@ export function StudioEditorialCarousel({
   const rimRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const metricsRef = useRef({ contentLeft: 0, maxTravel: 0 });
   const prefersReducedMotionRef = useRef(false);
+  const isCoarseOrMobileRef = useRef(false);
+  const [isSectionVisible, setIsSectionVisible] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   // Pure compositor frame updates with zero synchronous layout reads (getComputedStyle cached via ResizeObserver)
   const handleTrackProgress = useCallback((progress: number) => {
@@ -82,6 +85,7 @@ export function StudioEditorialCarousel({
     track.style.transform = `translate3d(${tx.toFixed(2)}px, 0, 0)`;
 
     const reduced = prefersReducedMotionRef.current;
+    const isMobile = isCoarseOrMobileRef.current;
     for (let i = 0; i < TOTAL_STAGES; i++) {
       const card = cardRefs.current[i];
       if (!card) continue;
@@ -94,6 +98,11 @@ export function StudioEditorialCarousel({
       if (reduced) {
         card.style.transform = 'none';
         card.style.opacity = '1';
+      } else if (isMobile) {
+        const scale = 0.96 + 0.04 * smoothFocus;
+        const opacity = 0.5 + 0.5 * smoothFocus;
+        card.style.transform = `scale3d(${scale.toFixed(4)}, ${scale.toFixed(4)}, 1)`;
+        card.style.opacity = opacity.toFixed(3);
       } else {
         const scale = 0.945 + 0.055 * smoothFocus;
         const rotateY = clamp(dist * -4.2, -5.5, 5.5);
@@ -125,6 +134,31 @@ export function StudioEditorialCarousel({
   });
 
   prefersReducedMotionRef.current = prefersReducedMotion;
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px), (pointer: coarse)');
+    const syncDeviceTier = () => {
+      const mobile = mq.matches;
+      isCoarseOrMobileRef.current = mobile;
+      setIsMobileViewport(mobile);
+    };
+    syncDeviceTier();
+    mq.addEventListener('change', syncDeviceTier);
+    return () => mq.removeEventListener('change', syncDeviceTier);
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setIsSectionVisible(Boolean(entries[0]?.isIntersecting));
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [sectionRef]);
 
   // Measure header/track bounds only on mount & resize so animation frames never trigger reflow
   useEffect(() => {
@@ -306,17 +340,37 @@ export function StudioEditorialCarousel({
 
       {/* Spacious Full-Viewport Sticky Showcase */}
       <div className="sticky top-0 flex min-h-dvh w-full flex-col justify-between overflow-x-clip bg-black">
-        {/* Subtle Architectural Studio Atmosphere (pure soft monochrome light & glass depth, no blue blobs) */}
+        {/* Luminous Studio Backdrop for Apple Liquid Glass Refraction (zero blur passes, pure feathered gradients) */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_18%,rgba(255,255,255,0.055)_0%,rgba(255,255,255,0.015)_44%,transparent_76%)]" />
+          {/* Soft upper pearl canopy */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_78%_48%_at_50%_14%,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.02)_46%,transparent_76%)]" />
 
-          {/* Subtle Slow-Rotating Studio Geometric Horizon Ring */}
-          {!prefersReducedMotion && (
+          {/* Refracted studio light ribbons passing behind the glass deck so glass bends and catches light */}
+          <div
+            className="absolute left-[14%] top-[28%] h-[58vh] w-[52vw] rounded-full opacity-80"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(235, 240, 248, 0.14) 0%, rgba(210, 218, 232, 0.05) 38%, transparent 72%)',
+            }}
+          />
+          <div
+            className="absolute right-[10%] bottom-[16%] h-[54vh] w-[48vw] rounded-full opacity-75"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(248, 238, 224, 0.12) 0%, rgba(230, 220, 206, 0.04) 40%, transparent 72%)',
+            }}
+          />
+
+          {/* Subtle Horizon Specular Ribbon Behind Cards */}
+          <div className="absolute inset-x-0 top-[54%] h-px bg-gradient-to-r from-transparent via-white/22 to-transparent" />
+
+          {/* Subtle Slow-Rotating Studio Geometric Horizon Ring (desktop visible only) */}
+          {!prefersReducedMotion && !isMobileViewport && isSectionVisible && (
             <motion.svg
               viewBox="0 0 800 800"
               animate={{ rotate: 360 }}
               transition={{ duration: 64, repeat: Infinity, ease: 'linear' }}
-              className="absolute left-1/2 top-[54%] h-[920px] w-[920px] -translate-x-1/2 -translate-y-1/2 opacity-[0.04] will-change-transform"
+              className="absolute left-1/2 top-[54%] hidden h-[920px] w-[920px] -translate-x-1/2 -translate-y-1/2 opacity-[0.05] will-change-transform md:block"
               fill="none"
             >
               <circle cx="400" cy="400" r="340" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="6 14" />
@@ -325,7 +379,7 @@ export function StudioEditorialCarousel({
           )}
 
           {/* Subtle Continuous Light Pulse Traveling Along Top Border Seam */}
-          {!prefersReducedMotion && (
+          {!prefersReducedMotion && !isMobileViewport && isSectionVisible && (
             <motion.div
               animate={{ x: ['-30%', '130%'] }}
               transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
@@ -348,7 +402,7 @@ export function StudioEditorialCarousel({
           >
             <div>
               <p className="mb-1.5 flex items-center gap-2 font-space-mono text-[10px] tracking-[0.2em] uppercase text-white/75 sm:text-[10.5px] [@media(max-height:600px)]:mb-1">
-                <span>Studio Process · Accessibility First</span>
+                <span>How we work · Built for everyone</span>
               </p>
 
               <div className="flex items-baseline gap-2.5 sm:gap-3">
@@ -381,13 +435,13 @@ export function StudioEditorialCarousel({
               </div>
 
               <p className="mt-1.5 max-w-[54ch] text-[13px] leading-[1.5] text-white/80 sm:mt-2 sm:text-[14px] [@media(max-height:580px)]:hidden">
-                Five deliberate stages, each with clarity and WCAG accessibility built in — from
-                initial brief to live launch.
+                Five simple steps from your first message to launch day, with clear design and easy
+                access for every visitor.
               </p>
             </div>
 
             <span className="hidden font-space-mono text-[11px] tracking-[0.16em] uppercase text-white/65 md:inline">
-              Scroll, drag, or use arrow keys
+              Scroll or drag
             </span>
           </motion.div>
         </div>
@@ -424,36 +478,36 @@ export function StudioEditorialCarousel({
                   onClick={() => {
                     if (!isActive) scrollToSlide(idx);
                   }}
-                  className={`liquid-glass-strong group/card relative flex min-h-[360px] w-[86vw] shrink-0 flex-col justify-between rounded-[28px] will-change-[transform,opacity] transition-[background-color,box-shadow] duration-300 ease-out sm:min-h-[395px] sm:w-[68vw] sm:rounded-[32px] md:w-[54vw] lg:w-[44vw] max-w-[560px] ${
+                  className={`apple-liquid-glass group/card relative flex min-h-[350px] w-[86vw] shrink-0 flex-col justify-between rounded-[30px] transition-shadow duration-300 ease-out sm:min-h-[395px] sm:w-[68vw] sm:rounded-[34px] md:w-[54vw] md:will-change-[transform,opacity] lg:w-[44vw] max-w-[560px] ${
                     isActive
-                      ? 'bg-white/[0.045] shadow-[0_28px_80px_rgba(0,0,0,0.88),inset_0_1px_1px_rgba(255,255,255,0.22)]'
-                      : 'bg-white/[0.015] shadow-[0_18px_46px_rgba(0,0,0,0.72)] cursor-pointer'
+                      ? 'shadow-[0_30px_84px_rgba(0,0,0,0.82),inset_0_1.5px_1px_rgba(255,255,255,0.48)]'
+                      : 'shadow-[0_16px_42px_rgba(0,0,0,0.68)] cursor-pointer'
                   }`}
                 >
-                  {/* Soft Liquid-Glass Diagonal Sheen */}
+                  {/* Apple Liquid Glass Convex Optical Sheen */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] bg-[linear-gradient(135deg,rgba(255,255,255,0.09)_0%,rgba(255,255,255,0.02)_26%,transparent_55%,rgba(255,255,255,0.035)_100%)]"
+                    className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] bg-[linear-gradient(166deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.035)_26%,transparent_54%,rgba(255,255,255,0.045)_100%)]"
                   />
 
-                  {/* Continuous Smooth Top Specular Rim Highlight */}
+                  {/* Top Curved Specular Glass Catchlight */}
                   <span
                     ref={(el) => {
                       rimRefs.current[idx] = el;
                     }}
                     aria-hidden="true"
                     style={{ opacity: idx === 0 ? 1 : 0 }}
-                    className="pointer-events-none absolute inset-x-10 top-0 z-30 h-[1.5px] rounded-full bg-gradient-to-r from-transparent via-white/85 to-transparent"
+                    className="pointer-events-none absolute inset-x-10 top-0 z-30 h-[1.5px] rounded-full bg-gradient-to-r from-transparent via-white/95 to-transparent"
                   />
 
-                  {/* Subtle Pointer-Follow Specular Glass Reflection */}
-                  {isActive && !prefersReducedMotion && (
+                  {/* Interactive Liquid Specular Reflection Following Cursor (Desktop Active Card) */}
+                  {isActive && !prefersReducedMotion && !isMobileViewport && (
                     <div
                       aria-hidden="true"
                       className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100"
                       style={{
                         background:
-                          'radial-gradient(320px circle at var(--mx, 50%) var(--my, 35%), rgba(255,255,255,0.09), transparent 70%)',
+                          'radial-gradient(360px circle at var(--mx, 50%) var(--my, 35%), rgba(255,255,255,0.13), transparent 68%)',
                       }}
                     />
                   )}
@@ -492,12 +546,13 @@ export function StudioEditorialCarousel({
                     </div>
                   </div>
 
-                  {/* Bottom Inset Rounded Frosted Liquid-Glass Chamber (r_inner = r_outer - margin) */}
-                  <div className="relative z-20 mx-2.5 mb-2.5 min-h-0 flex-1 overflow-hidden rounded-[18px] border border-white/14 bg-white/[0.03] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-2xl sm:mx-3 sm:mb-3 sm:rounded-[20px] sm:px-5 sm:py-3.5 [@media(max-height:540px)]:py-2">
+                  {/* Bottom Inset Concentric Glass Chamber (r_inner = r_outer - padding) */}
+                  <div className="ll-glass-chamber relative z-20 mx-2.5 mb-2.5 min-h-0 flex-1 overflow-hidden rounded-[20px] border border-white/16 px-3.5 py-3 sm:mx-3 sm:mb-3 sm:rounded-[22px] sm:px-5 sm:py-3.5 [@media(max-height:540px)]:py-2">
                     <div className="relative z-10 h-full">
                       {idx === 0 && (
                         <Card01Discovery
                           isActive={isActive}
+                          isVisible={isSectionVisible}
                           prefersReducedMotion={prefersReducedMotion}
                           onRequestFocus={() => {
                             if (!isActive) scrollToSlide(idx);
@@ -507,6 +562,7 @@ export function StudioEditorialCarousel({
                       {idx === 1 && (
                         <Card02Direction
                           isActive={isActive}
+                          isVisible={isSectionVisible}
                           prefersReducedMotion={prefersReducedMotion}
                           onRequestFocus={() => {
                             if (!isActive) scrollToSlide(idx);
@@ -516,6 +572,7 @@ export function StudioEditorialCarousel({
                       {idx === 2 && (
                         <Card03DesignBuild
                           isActive={isActive}
+                          isVisible={isSectionVisible}
                           prefersReducedMotion={prefersReducedMotion}
                           onRequestFocus={() => {
                             if (!isActive) scrollToSlide(idx);
@@ -525,6 +582,7 @@ export function StudioEditorialCarousel({
                       {idx === 3 && (
                         <Card04AccessibilityLaunch
                           isActive={isActive}
+                          isVisible={isSectionVisible}
                           prefersReducedMotion={prefersReducedMotion}
                           onRequestFocus={() => {
                             if (!isActive) scrollToSlide(idx);
@@ -534,6 +592,7 @@ export function StudioEditorialCarousel({
                       {idx === 4 && (
                         <Card05Investment
                           isActive={isActive}
+                          isVisible={isSectionVisible}
                           prefersReducedMotion={prefersReducedMotion}
                           onRequestFocus={() => {
                             if (!isActive) scrollToSlide(idx);
@@ -549,18 +608,18 @@ export function StudioEditorialCarousel({
           </div>
         </div>
 
-        {/* Spacious Rounded Liquid-Glass Bottom Progress Bar */}
+        {/* Floating Apple Liquid-Glass Progress Dock */}
         <div className="relative z-10 mx-auto flex w-full max-w-[1440px] shrink-0 flex-col px-5 pt-2 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+14px))] sm:px-8 sm:pt-2.5 sm:pb-6 lg:px-14">
-          <div className="liquid-glass-strong flex items-center gap-3.5 rounded-full bg-white/[0.03] px-4 py-2.5 sm:gap-4 sm:px-5">
+          <div className="apple-liquid-pill flex items-center gap-3.5 rounded-full px-4 py-2.5 sm:gap-5 sm:px-5 sm:py-3">
             <span className="shrink-0 font-space-mono text-[11px] tracking-[0.12em] text-white tabular-nums sm:text-[11.5px]">
               {STAGES[activeSlide].num} <span className="text-white/50">/ 0{TOTAL_STAGES}</span>
             </span>
 
-            {/* Continuous Rounded Progress Line */}
-            <div className="relative h-[2px] flex-1 overflow-hidden rounded-full bg-white/15">
+            {/* Continuous Recessed Progress Groove */}
+            <div className="relative h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/16">
               <div
                 ref={progressBarRef}
-                className="h-full w-full origin-left rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)] will-change-transform"
+                className="h-full w-full origin-left rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.55)] will-change-transform"
                 style={{ transform: `scaleX(${(1 / TOTAL_STAGES).toFixed(4)})` }}
               />
             </div>
@@ -572,7 +631,7 @@ export function StudioEditorialCarousel({
                 animate={{ opacity: 1, y: 0 }}
                 exit={prefersReducedMotion ? undefined : { opacity: 0, y: -4 }}
                 transition={{ duration: 0.18, ease: EASE }}
-                className="inline shrink-0 font-body text-[12px] font-medium text-white/90 sm:text-[13px]"
+                className="inline max-w-[140px] truncate pr-1 font-body text-[12px] font-medium text-white/95 sm:max-w-none sm:pr-2 sm:text-[13px]"
               >
                 {STAGES[activeSlide].title}
               </motion.span>

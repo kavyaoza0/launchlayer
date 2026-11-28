@@ -154,9 +154,9 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
               Presence
             </span>
 
-            {/* Flowing Calligraphic Focal Word with Iridescent Pearl Foil Sheen */}
+            {/* Flowing Calligraphic Focal Word with Holographic Liquid-Chrome Effect */}
             <span className="relative -mt-3 -mb-2 px-6 py-2 sm:-mt-6 sm:-mb-3 sm:px-10 lg:-mt-7">
-              <span className="ll-script-shimmer relative inline-block font-script text-[clamp(4.1rem,11.5vw,9.2rem)] font-normal leading-[0.86] tracking-[0.01em] drop-shadow-[0_10px_28px_rgba(0,0,0,0.9)]">
+              <span className="ll-script-shimmer relative inline-block px-4 py-1 font-script text-[clamp(4.1rem,11.5vw,9.2rem)] font-normal leading-[0.86] tracking-[0.01em]">
                 Remarkable
               </span>
             </span>
@@ -177,7 +177,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
             <button
               type="button"
               onClick={() => onOpenEnquiry('General')}
-              className="liquid-glass-strong group relative inline-flex min-h-[46px] items-center gap-3 rounded-full bg-white/[0.04] px-7 py-3 font-space-mono text-[12px] tracking-[0.16em] uppercase text-white transition-all duration-300 hover:bg-white/[0.11] whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              className="apple-liquid-pill group relative inline-flex min-h-[46px] items-center gap-3 rounded-full px-7 py-3 font-space-mono text-[12px] tracking-[0.16em] uppercase text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               <span>Let&apos;s Talk</span>
               <ArrowUpRight
@@ -188,7 +188,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
 
             {/* Whisper-quiet unboxed studio line & inline copy email action */}
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-space-mono text-[11px] tracking-[0.08em] text-white/60">
-              <span>Ahmedabad · Partnering Worldwide</span>
+              <span>Based in Ahmedabad · Working worldwide</span>
               <span aria-hidden="true" className="text-white/25">
                 ·
               </span>
@@ -279,7 +279,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
           {/* Column 3: Packages */}
           <div>
             <h3 className="mb-3 font-space-mono text-[10.5px] font-normal tracking-[0.18em] uppercase text-white/45">
-              Packages
+              Options
             </h3>
             <ul>
               {PACKAGE_TIERS.map((tier) => (
@@ -305,7 +305,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
           {/* Column 4: Direct & Legal */}
           <div>
             <h3 className="mb-3 font-space-mono text-[10.5px] font-normal tracking-[0.18em] uppercase text-white/45">
-              Inquiries
+              Contact
             </h3>
             <ul>
               <li>
@@ -314,7 +314,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                   className="group inline-flex min-h-[44px] items-center font-space-mono text-[11px] tracking-[0.12em] uppercase text-white/85 transition-colors hover:text-white rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <span className="relative py-0.5">
-                    Email Studio
+                    Email us
                     <span
                       aria-hidden="true"
                       className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:origin-left group-hover:scale-x-100"
@@ -419,7 +419,7 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
           onClick={() => setActivePolicy(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-white/20 bg-[#0A0B0F] p-6 text-white shadow-2xl"
+            className="apple-liquid-glass w-full max-w-md rounded-[28px] p-6 text-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between gap-4">
@@ -430,15 +430,15 @@ export function OfflineFooter({ onOpenEnquiry }: OfflineFooterProps) {
                 ref={policyCloseRef}
                 type="button"
                 onClick={() => setActivePolicy(null)}
-                className="min-h-[44px] rounded-full border border-white/25 px-4 py-2 text-xs font-medium text-white transition hover:border-white/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="apple-liquid-pill min-h-[44px] rounded-full px-4 py-2 text-xs font-medium text-white transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 Close
               </button>
             </div>
             <p className="text-sm leading-relaxed text-white/85">
               {activePolicy === 'privacy'
-                ? 'Tesselo collects only project enquiry details you explicitly submit via email or our enquiry form. We never sell personal data or track browsing across third-party websites.'
-                : 'This Tesselo website uses strictly necessary browser state to preserve smooth animation and accessibility preferences. No third-party advertising cookies are stored.'}
+                ? 'We only collect the details you choose to share with us by email or through our project form. We never sell your information or track you across other websites.'
+                : 'This site only saves basic browser settings to keep animations smooth and respect your accessibility preferences. We do not use advertising cookies.'}
             </p>
           </div>
         </div>

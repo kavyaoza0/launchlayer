@@ -9,7 +9,7 @@ interface LaunchLayerRibbonProps {
 
 const TOTAL_SLOTS = RIBBON_PROJECTS.length; // 16
 const WORDMARK_CHARS = Array.from('Tesselo.');
-const CAPTION_TEXT = 'LOADING SITES';
+const CAPTION_TEXT = 'Loading our work';
 
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
@@ -78,6 +78,11 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false
   );
+  const [isCoarseOrMobile, setIsCoarseOrMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+      : false
+  );
 
   // Slot mapping note from spec: N = 16 gives stable offset of +3 slots
   const siteForSlot = useCallback((slotIdx: number) => {
@@ -91,6 +96,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
     isSectionVisible: false,
     isDocHidden: false,
     prefersReducedMotion: prefersReducedMotion,
+    isCoarseOrMobile: isCoarseOrMobile,
 
     // Timeline values
     formationStartTime: 0,
@@ -192,7 +198,20 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
 
     const onChange = (e: MediaQueryListEvent) => apply(e.matches);
     mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
+
+    const tierMq = window.matchMedia('(max-width: 767px), (pointer: coarse)');
+    const applyTier = (matches: boolean) => {
+      setIsCoarseOrMobile(matches);
+      stateRef.current.isCoarseOrMobile = matches;
+    };
+    applyTier(tierMq.matches);
+    const onTierChange = (e: MediaQueryListEvent) => applyTier(e.matches);
+    tierMq.addEventListener('change', onTierChange);
+
+    return () => {
+      mq.removeEventListener('change', onChange);
+      tierMq.removeEventListener('change', onTierChange);
+    };
   }, [skipIntro]);
 
   // Low-threshold magnetic arrival snap + complete-viewport intro trigger:
@@ -497,10 +516,10 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       const e = s.introComplete ? 1 : s.expansion;
       const f = s.introComplete ? 1 : s.formation;
 
-      // 2. Determine hover slowdown factor E (checks pointer hit every 3rd frame)
+      // 2. Determine hover slowdown factor E (skip expensive elementFromPoint on touch/mobile devices)
       s.frameCounter = (s.frameCounter + 1) % 3;
       let overCard = s.hoveredIdx !== null;
-      if (s.frameCounter === 0 && s.introComplete && s.pointerClientX > -100) {
+      if (!s.isCoarseOrMobile && s.frameCounter === 0 && s.introComplete && s.pointerClientX > -100) {
         const hit = document.elementFromPoint(s.pointerClientX, s.pointerClientY);
         overCard = Boolean(hit?.closest?.('[data-ribbon-card="true"]'));
       }
@@ -821,7 +840,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
       ref={sectionRef}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Tesselo 3D Website Showcase. Swipe horizontally on touch screens, drag with mouse, or use arrow keys to browse projects."
+      aria-label="Tesselo recent websites showcase. Swipe sideways, drag, or use arrow keys to look through our work."
       onKeyDown={handleKeyDown}
       className="ll-section-seam relative w-full bg-black select-none"
       style={{ height: prefersReducedMotion ? '100dvh' : '150dvh' }}
@@ -1039,7 +1058,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                       }
                     }}
                     onBlur={() => handleCardLeave(slotIdx)}
-                    aria-label={`No. ${site.number} of ${TOTAL_SLOTS}: ${site.title} (${world.label}, ${site.category}). Opens live preview in a new tab.`}
+                    aria-label={`Project ${site.number} of ${TOTAL_SLOTS}: ${site.title}, ${site.category}. Opens in a new tab.`}
                     className="preserve-3d touch-manipulation group absolute block rounded-[16px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     style={{
                       width: `${cardWidth}px`,
@@ -1062,10 +1081,14 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                           tiltRefs.current[slotIdx] = el;
                         }}
                         className="preserve-3d relative h-full w-full rounded-[16px] shadow-[0_18px_36px_-24px_rgba(0,0,0,0.45)]"
-                        style={{
-                          WebkitBoxReflect:
-                            'below 10px linear-gradient(transparent 52%, rgba(255,255,255,0.28))',
-                        }}
+                        style={
+                          isCoarseOrMobile
+                            ? undefined
+                            : {
+                                WebkitBoxReflect:
+                                  'below 10px linear-gradient(transparent 52%, rgba(255,255,255,0.28))',
+                              }
+                        }
                       >
                         {/* Outer World-Colored Frame (inset -9px, 3px border, clip-path sweep in .55s on hover) */}
                         <span
@@ -1073,7 +1096,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                           className="pointer-events-none absolute -inset-[9px] rounded-[24px] border-[3px]"
                           style={{
                             borderColor: world.color,
-                            boxShadow: `0 40px 80px -30px ${world.color}`,
+                            boxShadow: isHovered ? `0 40px 80px -30px ${world.color}` : 'none',
                             clipPath: isHovered
                               ? 'inset(0% 0% 0% 0% round 24px)'
                               : 'inset(0% 100% 0% 0% round 24px)',
@@ -1104,7 +1127,7 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
                 onClick={() => rotateToSlot((focusedIndex - 1 + TOTAL_SLOTS) % TOTAL_SLOTS, true)}
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/25 px-3 font-space-mono text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                Prev
+                Previous
               </button>
               <span className="font-space-mono text-xs text-white/90">
                 {activeSite.number} / {TOTAL_SLOTS}
@@ -1120,17 +1143,15 @@ export function LaunchLayerRibbon({ id = 'work' }: LaunchLayerRibbonProps) {
             </div>
           )}
 
-          {/* Subtle Drag-to-Explore cue shown once ring entrance finishes */}
+          {/* Minimal Drag-Only Hint */}
           {introComplete && (
             <div
               aria-hidden="true"
-              className={`pointer-events-none absolute bottom-[max(4.5vh,calc(env(safe-area-inset-bottom)+18px))] left-1/2 z-40 flex w-max max-w-[92vw] -translate-x-1/2 items-center justify-center gap-3 px-4 font-space-mono text-[11px] tracking-[0.22em] uppercase transition-all duration-300 ${
-                isDraggingUI ? 'scale-95 text-white' : 'text-white/75'
+              className={`pointer-events-none absolute bottom-[max(4vh,calc(env(safe-area-inset-bottom)+16px))] left-1/2 z-40 -translate-x-1/2 font-space-mono text-[10.5px] tracking-[0.2em] uppercase transition-colors duration-200 sm:text-[11px] ${
+                isDraggingUI ? 'text-white' : 'text-white/60'
               }`}
             >
-              <span>&#8592;</span>
-              <span>Drag to Explore</span>
-              <span>&#8594;</span>
+              Drag to scroll
             </div>
           )}
         </div>
